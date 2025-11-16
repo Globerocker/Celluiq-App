@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingCart, DollarSign, Check } from "lucide-react";
+import { ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function NutritionSection() {
-  const [priceFilter, setPriceFilter] = useState("all");
+  const [basedOnBiomarkers, setBasedOnBiomarkers] = useState(true);
+  const [showAffordable, setShowAffordable] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: shoppingItems, isLoading } = useQuery({
@@ -18,122 +15,123 @@ export default function NutritionSection() {
     initialData: [],
   });
 
-  const updateItemMutation = useMutation({
-    mutationFn: ({ id, checked }) => base44.entities.ShoppingItem.update(id, { checked }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
-    },
-  });
+  const filteredItems = showAffordable 
+    ? shoppingItems.filter(item => item.price_range === 'budget')
+    : shoppingItems;
 
-  const filteredItems = priceFilter === "all" 
-    ? shoppingItems 
-    : shoppingItems.filter(item => item.price_range === priceFilter);
+  const proteinItems = filteredItems.filter(item => item.category === 'protein').slice(0, 3);
+  const estimatedCost = proteinItems.reduce((acc, item) => {
+    const prices = { budget: 8, moderate: 15, premium: 24 };
+    return acc + (prices[item.price_range] || 10);
+  }, 0);
 
-  const checkedCount = shoppingItems.filter(item => item.checked).length;
-
-  const categoryIcons = {
-    protein: '🥩',
-    vegetables: '🥬',
-    fruits: '🍎',
-    grains: '🌾',
-    dairy: '🥛',
-    fats: '🥑',
-    supplements: '💊',
-    other: '🛒'
-  };
+  const macros = [
+    { label: 'Calories', value: '2400', unit: 'kcal' },
+    { label: 'Protein', value: '180', unit: 'g' },
+    { label: 'Carbs', value: '240', unit: 'g' },
+    { label: 'Fat', value: '80', unit: 'g' }
+  ];
 
   if (isLoading) {
     return (
-      <div className="p-4 space-y-3 max-w-2xl mx-auto">
-        {[1,2,3,4].map(i => (
-          <div key={i} className="h-20 bg-white rounded-xl animate-pulse" />
-        ))}
+      <div className="p-6 space-y-4">
+        <div className="h-64 bg-[#1A1A1A] rounded-2xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-4 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <h3 className="text-sm font-medium text-[#64676A]">Shopping List</h3>
-          <p className="text-xs text-[#64676A]">{checkedCount}/{shoppingItems.length} items checked</p>
+    <div className="p-6 space-y-6">
+      {/* Weekly Target */}
+      <div className="bg-[#1A1A1A] rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-xs text-[#666666] uppercase tracking-wider">Weekly Target</span>
+          <TrendingUp className="w-4 h-4 text-[#3B7C9E]" />
         </div>
-        <Tabs value={priceFilter} onValueChange={setPriceFilter}>
-          <TabsList className="bg-white border border-[#24272A1A]">
-            <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-            <TabsTrigger value="budget" className="text-xs">Budget</TabsTrigger>
-            <TabsTrigger value="premium" className="text-xs">Premium</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          {macros.map((macro, index) => (
+            <div key={index} className="text-center">
+              <div className="text-2xl font-bold text-white mb-1">{macro.value}</div>
+              <div className="text-xs text-[#666666]">{macro.label}</div>
+              <div className="text-xs text-[#666666]">{macro.unit}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {filteredItems.length === 0 ? (
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-8 text-center">
-            <ShoppingCart className="w-12 h-12 text-[#64676A] mx-auto mb-3 opacity-50" />
-            <p className="text-[#64676A]">No items in your list</p>
-          </CardContent>
-        </Card>
-      ) : (
+      {/* Settings */}
+      <div className="space-y-3">
+        <div className="bg-[#1A1A1A] rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
+            <span className="text-sm text-white">Based on latest biomarkers</span>
+          </div>
+          <Switch 
+            checked={basedOnBiomarkers} 
+            onCheckedChange={setBasedOnBiomarkers}
+            className="data-[state=checked]:bg-[#3B7C9E]"
+          />
+        </div>
+
+        <div className="bg-[#1A1A1A] rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <DollarSign className="w-4 h-4 text-[#F59E0B]" />
+            <span className="text-sm text-white">Show affordable alternatives</span>
+          </div>
+          <Switch 
+            checked={showAffordable} 
+            onCheckedChange={setShowAffordable}
+            className="data-[state=checked]:bg-[#3B7C9E]"
+          />
+        </div>
+      </div>
+
+      {/* Cost Estimate */}
+      <div className="bg-[#1A1A1A] rounded-2xl p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <ShoppingCart className="w-5 h-5 text-[#666666]" />
+          <span className="text-sm text-[#808080]">Estimated ${estimatedCost}/week</span>
+        </div>
+      </div>
+
+      {/* Protein Recommendations */}
+      <div className="bg-[#1A1A1A] rounded-2xl p-5">
+        <h3 className="text-lg font-semibold text-white mb-4">PROTEIN</h3>
         <div className="space-y-3">
-          {filteredItems.map((item, index) => (
-            <Card key={index} className={`border-none shadow-sm transition-all ${
-              item.checked ? 'opacity-60' : 'hover:shadow-md'
-            }`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <Checkbox
-                    checked={item.checked}
-                    onCheckedChange={(checked) => 
-                      updateItemMutation.mutate({ id: item.id, checked })
-                    }
-                    className="w-5 h-5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{categoryIcons[item.category]}</span>
-                      <h4 className={`font-semibold text-[#111315] ${
-                        item.checked ? 'line-through' : ''
-                      }`}>
-                        {item.name}
-                      </h4>
-                    </div>
+          {proteinItems.map((item, index) => {
+            const prices = { budget: 8, moderate: 15, premium: 24 };
+            const price = prices[item.price_range] || 10;
+            
+            return (
+              <div key={index} className="bg-[#0A0A0A] rounded-xl p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-white mb-1">{item.name}</h4>
                     {item.benefits && item.benefits.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {item.benefits.slice(0, 2).map((benefit, i) => (
-                          <Badge key={i} variant="outline" className="text-xs">
+                      <div className="flex flex-wrap gap-1">
+                        {item.benefits.map((benefit, i) => (
+                          <span key={i} className="text-xs text-[#666666] bg-[#1A1A1A] px-2 py-0.5 rounded">
                             {benefit}
-                          </Badge>
+                          </span>
                         ))}
                       </div>
                     )}
                   </div>
-                  <Badge 
-                    className={`flex-shrink-0 ${
-                      item.price_range === 'budget' 
-                        ? 'bg-[#3B7C9E] text-white' 
-                        : item.price_range === 'moderate'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-[#B7323F15] text-[#B7323F]'
-                    }`}
-                  >
-                    {item.price_range === 'budget' ? '💰' : item.price_range === 'moderate' ? '💵' : '💎'}
-                  </Badge>
+                  <div className="text-right ml-4">
+                    <div className="text-lg font-bold text-white">${price}</div>
+                    <div className="text-xs text-[#3B7C9E]">Save ${Math.round(price * 0.15)}</div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            );
+          })}
         </div>
-      )}
+      </div>
 
-      <Button 
-        className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white"
-        disabled={checkedCount === 0}
-      >
-        <Check className="w-4 h-4 mr-2" />
-        Clear Checked Items ({checkedCount})
-      </Button>
+      <button className="w-full py-4 bg-[#B7323F] text-white rounded-2xl font-medium hover:bg-[#9A2835] transition-all">
+        Add to Shopping List
+      </button>
     </div>
   );
 }

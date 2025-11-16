@@ -1,9 +1,7 @@
 import React from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Sunrise, Moon, Pill, ShoppingCart } from "lucide-react";
+import { Sunrise, Moon, Pill, Package } from "lucide-react";
 
 export default function SupplementStackSection() {
   const { data: medications, isLoading } = useQuery({
@@ -20,89 +18,111 @@ export default function SupplementStackSection() {
     m.time_of_day?.includes('evening') || m.time_of_day?.includes('before_bed')
   );
 
-  const StackCard = ({ title, items, icon: Icon, color }) => (
-    <Card className="border-none shadow-sm">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <div className={`p-2 rounded-lg ${color}15`}>
-            <Icon className={`w-5 h-5 ${color}`} />
-          </div>
-          <div>
-            <h3 className="font-semibold text-[#111315]">{title}</h3>
-            <p className="text-xs text-[#64676A]">{items.length} supplements</p>
-          </div>
-        </div>
-        <div className="space-y-2">
-          {items.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-[#F6F7F5] rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-[#B7323F]" />
-                <div>
-                  <p className="font-medium text-sm text-[#111315]">{item.name}</p>
-                  <p className="text-xs text-[#64676A]">{item.dosage}</p>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                {item.type}
-              </Badge>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   if (isLoading) {
     return (
-      <div className="p-4 space-y-4 max-w-2xl mx-auto">
-        <div className="h-64 bg-white rounded-xl animate-pulse" />
-        <div className="h-64 bg-white rounded-xl animate-pulse" />
+      <div className="p-6 space-y-4">
+        <div className="h-64 bg-[#1A1A1A] rounded-2xl animate-pulse" />
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-4 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-[#64676A]">Your Daily Stack</h3>
-        <button className="flex items-center gap-2 px-3 py-1.5 bg-[#3B7C9E] text-white rounded-lg text-xs font-medium hover:bg-[#2F6380] transition-colors">
-          <ShoppingCart className="w-3 h-3" />
-          Reorder
-        </button>
-      </div>
-
+    <div className="p-6 space-y-6">
       {medications.length === 0 ? (
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-8 text-center">
-            <Pill className="w-12 h-12 text-[#64676A] mx-auto mb-3 opacity-50" />
-            <p className="text-[#64676A]">No supplements yet</p>
-            <p className="text-xs text-[#64676A] mt-1">Upload your blood test to get personalized recommendations</p>
-          </CardContent>
-        </Card>
+        <div className="text-center py-12">
+          <Pill className="w-12 h-12 text-[#333333] mx-auto mb-3" />
+          <p className="text-[#808080]">No supplements yet</p>
+        </div>
       ) : (
         <>
-          <StackCard 
-            title="Morning Stack" 
-            items={morningStack}
-            icon={Sunrise}
-            color="text-amber-500"
-          />
-          
-          <StackCard 
-            title="Evening Stack" 
-            items={eveningStack}
-            icon={Moon}
-            color="text-[#3B7C9E]"
-          />
+          {/* 30-Day Supply Card */}
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] rounded-2xl p-6 text-center">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs text-[#666666] uppercase tracking-wider">30-Day Supply</span>
+              <span className="text-xs text-[#3B7C9E]">Next recalibration<br/>88 days</span>
+            </div>
+            
+            <div className="w-48 h-48 mx-auto bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] rounded-3xl flex items-center justify-center my-6 shadow-2xl">
+              <Package className="w-24 h-24 text-white opacity-80" />
+            </div>
+            
+            <p className="text-xs text-[#666666] mb-4">Drag to rotate</p>
+            
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <p className="text-xs text-[#666666] mb-2">Daily intake progress</p>
+              <div className="h-2 bg-[#0A0A0A] rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#B7323F] to-[#3B7C9E]" style={{ width: '45%' }} />
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-center gap-2 text-sm text-[#808080]">
+              <Sunrise className="w-4 h-4" />
+              <span>Take with breakfast</span>
+            </div>
+          </div>
 
-          <Card className="border-none shadow-sm bg-[#3B7C9E15]">
-            <CardContent className="p-4">
-              <p className="text-sm text-[#111315] font-medium mb-2">💡 Optimization Tip</p>
-              <p className="text-xs text-[#64676A] leading-relaxed">
-                Based on your latest blood markers, consider adding Vitamin D3 (5000 IU) to your morning stack for optimal levels.
-              </p>
-            </CardContent>
-          </Card>
+          {/* Morning Stack */}
+          {morningStack.length > 0 && (
+            <div className="bg-[#1A1A1A] rounded-2xl p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-xl bg-[#F59E0B15]">
+                  <Sunrise className="w-5 h-5 text-[#F59E0B]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Morning Stack</h3>
+                  <p className="text-xs text-[#666666]">{morningStack.length} supplements</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {morningStack.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#B7323F]" />
+                      <div>
+                        <p className="font-medium text-sm text-white">{item.name}</p>
+                        <p className="text-xs text-[#666666]">{item.dosage}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-[#666666] px-2 py-1 bg-[#1A1A1A] rounded-lg">
+                      {item.type}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Evening Stack */}
+          {eveningStack.length > 0 && (
+            <div className="bg-[#1A1A1A] rounded-2xl p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 rounded-xl bg-[#3B7C9E15]">
+                  <Moon className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Evening Stack</h3>
+                  <p className="text-xs text-[#666666]">{eveningStack.length} supplements</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {eveningStack.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#B7323F]" />
+                      <div>
+                        <p className="font-medium text-sm text-white">{item.name}</p>
+                        <p className="text-xs text-[#666666]">{item.dosage}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-[#666666] px-2 py-1 bg-[#1A1A1A] rounded-lg">
+                      {item.type}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

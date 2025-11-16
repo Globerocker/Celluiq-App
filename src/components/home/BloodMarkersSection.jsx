@@ -1,9 +1,7 @@
 import React from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, TrendingDown, TrendingUp, Droplet } from "lucide-react";
+import { TrendingDown, TrendingUp, Droplet } from "lucide-react";
 import { format } from 'date-fns';
 
 export default function BloodMarkersSection() {
@@ -25,88 +23,97 @@ export default function BloodMarkersSection() {
       const priority = { critical: 1, high: 1, low: 1, suboptimal: 2, optimal: 3 };
       return (priority[a.status] || 3) - (priority[b.status] || 3);
     })
-    .slice(0, 8);
+    .slice(0, 6);
 
-  const getStatusConfig = (status) => {
+  const getStatusColor = (status) => {
     switch(status) {
-      case 'optimal': 
-        return { bg: 'bg-[#3B7C9E15]', text: 'text-[#3B7C9E]', badge: 'bg-[#3B7C9E] text-white', icon: TrendingUp };
-      case 'suboptimal': 
-        return { bg: 'bg-amber-50', text: 'text-amber-600', badge: 'bg-amber-500 text-white', icon: TrendingDown };
-      default: 
-        return { bg: 'bg-[#B7323F15]', text: 'text-[#B7323F]', badge: 'bg-[#B7323F] text-white', icon: AlertCircle };
+      case 'optimal': return 'text-[#3B7C9E]';
+      case 'suboptimal': return 'text-[#F59E0B]';
+      default: return 'text-[#B7323F]';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="p-4 space-y-3">
-        {[1,2,3,4].map(i => (
-          <div key={i} className="h-24 bg-white rounded-xl animate-pulse" />
+      <div className="p-6 space-y-3">
+        {[1,2,3].map(i => (
+          <div key={i} className="h-24 bg-[#1A1A1A] rounded-2xl animate-pulse" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="p-4 space-y-3 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-sm font-medium text-[#64676A]">Latest Test Results</h3>
-          {markersList[0] && (
-            <p className="text-xs text-[#64676A]">
-              {format(new Date(markersList[0].test_date), 'MMM d, yyyy')}
-            </p>
-          )}
-        </div>
-        <Badge variant="outline" className="text-xs">
-          {markersList.length} markers
-        </Badge>
-      </div>
-
+    <div className="p-6 space-y-4">
       {markersList.length === 0 ? (
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-8 text-center">
-            <Droplet className="w-12 h-12 text-[#64676A] mx-auto mb-3 opacity-50" />
-            <p className="text-[#64676A]">No blood markers yet</p>
-          </CardContent>
-        </Card>
+        <div className="text-center py-12">
+          <Droplet className="w-12 h-12 text-[#333333] mx-auto mb-3" />
+          <p className="text-[#808080]">No blood markers yet</p>
+        </div>
       ) : (
-        markersList.map((marker, index) => {
-          const config = getStatusConfig(marker.status);
-          const Icon = config.icon;
-          
-          return (
-            <Card key={index} className="border-none shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${config.bg} flex-shrink-0`}>
-                    <Icon className={`w-5 h-5 ${config.text}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-semibold text-[#111315] truncate">
+        <>
+          {markersList.map((marker, index) => {
+            const Icon = marker.status === 'optimal' ? TrendingUp : TrendingDown;
+            const statusColor = getStatusColor(marker.status);
+            
+            return (
+              <div 
+                key={index} 
+                className="bg-[#1A1A1A] rounded-2xl p-5 hover:bg-[#222222] transition-all"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2.5 rounded-xl bg-[#0A0A0A]`}>
+                      <Icon className={`w-5 h-5 ${statusColor}`} />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white">
                         {marker.marker_name}
                       </h4>
-                      <Badge className={`${config.badge} text-xs flex-shrink-0 ml-2`}>
-                        {marker.status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xl font-bold text-[#111315]">{marker.value}</span>
-                      <span className="text-sm text-[#64676A]">{marker.unit}</span>
-                      {marker.optimal_min && marker.optimal_max && (
-                        <span className="text-xs text-[#64676A]">
-                          ({marker.optimal_min}-{marker.optimal_max})
-                        </span>
-                      )}
+                      <p className="text-xs text-[#666666]">
+                        {format(new Date(marker.test_date), 'MMM d, yyyy')}
+                      </p>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-white">
+                      {marker.value}
+                    </div>
+                    <div className="text-xs text-[#666666]">{marker.unit}</div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })
+                
+                {marker.optimal_min && marker.optimal_max && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[#666666]">Optimal range</span>
+                    <span className="text-[#808080]">
+                      {marker.optimal_min} - {marker.optimal_max} {marker.unit}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-[#0A0A0A] rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${statusColor.replace('text-', 'bg-')}`}
+                      style={{ 
+                        width: marker.status === 'optimal' ? '100%' : 
+                               marker.status === 'suboptimal' ? '65%' : '35%' 
+                      }}
+                    />
+                  </div>
+                  <span className={`text-xs font-medium ${statusColor}`}>
+                    {marker.status}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+          
+          <button className="w-full py-3 bg-[#1A1A1A] text-[#B7323F] rounded-2xl font-medium hover:bg-[#222222] transition-all mt-4">
+            Upload new test results
+          </button>
+        </>
       )}
     </div>
   );
