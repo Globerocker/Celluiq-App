@@ -42,29 +42,29 @@ export default function Home() {
   const ActiveComponent = sections[activeSection].component;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-20 md:pb-8">
+    <div className="min-h-screen bg-[#F6F7F5] pb-20 md:pb-8">
       {/* Header with Health Score */}
-      <div className="bg-gradient-to-b from-[#111111] to-[#0A0A0A] px-6 pt-8 pb-6">
+      <div className="bg-white px-6 pt-8 pb-6 border-b border-[#E8E9E7]">
         <div className="max-w-2xl mx-auto text-center">
-          <p className="text-[#808080] text-sm uppercase tracking-wider mb-3">
+          <p className="text-[#64676A] text-sm uppercase tracking-wider mb-3">
             CELLUIQ Health Score
           </p>
           <div className="relative inline-block">
-            <div className="text-7xl font-bold text-white mb-2">
+            <div className="text-7xl font-bold text-[#111315] mb-2">
               {healthScore}
             </div>
             <div className="absolute -top-2 -right-8 text-2xl text-[#3B7C9E]">
               +5
             </div>
           </div>
-          <p className="text-[#808080] text-sm mt-3">
+          <p className="text-[#64676A] text-sm mt-3">
             Your score improved by 5 points this week. Keep up the excellent recovery habits.
           </p>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="sticky top-0 z-40 bg-[#0A0A0A] border-b border-[#1A1A1A]">
+      <div className="sticky top-0 z-40 bg-white border-b border-[#E8E9E7]">
         <div className="max-w-2xl mx-auto px-6 py-4">
           <div className="flex items-center justify-center gap-2">
             {sections.map((section, index) => (
@@ -74,7 +74,7 @@ export default function Home() {
                 className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                   activeSection === index 
                     ? 'bg-[#B7323F] text-white' 
-                    : 'bg-[#1A1A1A] text-[#808080] hover:bg-[#222222]'
+                    : 'bg-[#F6F7F5] text-[#64676A] hover:bg-[#E8E9E7]'
                 }`}
               >
                 {section.title}

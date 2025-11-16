@@ -37,7 +37,7 @@ export default function BloodMarkersSection() {
     return (
       <div className="p-6 space-y-3">
         {[1,2,3].map(i => (
-          <div key={i} className="h-24 bg-[#1A1A1A] rounded-2xl animate-pulse" />
+          <div key={i} className="h-24 bg-white rounded-2xl animate-pulse" />
         ))}
       </div>
     );
@@ -47,8 +47,8 @@ export default function BloodMarkersSection() {
     <div className="p-6 space-y-4">
       {markersList.length === 0 ? (
         <div className="text-center py-12">
-          <Droplet className="w-12 h-12 text-[#333333] mx-auto mb-3" />
-          <p className="text-[#808080]">No blood markers yet</p>
+          <Droplet className="w-12 h-12 text-[#64676A] mx-auto mb-3 opacity-50" />
+          <p className="text-[#64676A]">No blood markers yet</p>
         </div>
       ) : (
         <>
@@ -59,41 +59,41 @@ export default function BloodMarkersSection() {
             return (
               <div 
                 key={index} 
-                className="bg-[#1A1A1A] rounded-2xl p-5 hover:bg-[#222222] transition-all"
+                className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl bg-[#0A0A0A]`}>
+                    <div className={`p-2.5 rounded-xl bg-[#F6F7F5]`}>
                       <Icon className={`w-5 h-5 ${statusColor}`} />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white">
+                      <h4 className="font-semibold text-[#111315]">
                         {marker.marker_name}
                       </h4>
-                      <p className="text-xs text-[#666666]">
+                      <p className="text-xs text-[#64676A]">
                         {format(new Date(marker.test_date), 'MMM d, yyyy')}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-white">
+                    <div className="text-2xl font-bold text-[#111315]">
                       {marker.value}
                     </div>
-                    <div className="text-xs text-[#666666]">{marker.unit}</div>
+                    <div className="text-xs text-[#64676A]">{marker.unit}</div>
                   </div>
                 </div>
                 
                 {marker.optimal_min && marker.optimal_max && (
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#666666]">Optimal range</span>
-                    <span className="text-[#808080]">
+                    <span className="text-[#64676A]">Optimal range</span>
+                    <span className="text-[#64676A]">
                       {marker.optimal_min} - {marker.optimal_max} {marker.unit}
                     </span>
                   </div>
                 )}
                 
                 <div className="mt-3 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-[#0A0A0A] rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-[#F6F7F5] rounded-full overflow-hidden">
                     <div 
                       className={`h-full ${statusColor.replace('text-', 'bg-')}`}
                       style={{ 
@@ -110,7 +110,7 @@ export default function BloodMarkersSection() {
             );
           })}
           
-          <button className="w-full py-3 bg-[#1A1A1A] text-[#B7323F] rounded-2xl font-medium hover:bg-[#222222] transition-all mt-4">
+          <button className="w-full py-3 bg-[#F6F7F5] text-[#B7323F] rounded-2xl font-medium hover:bg-[#E8E9E7] transition-all mt-4">
             Upload new test results
           </button>
         </>
