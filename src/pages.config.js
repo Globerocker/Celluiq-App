@@ -2,6 +2,7 @@ import Dashboard from './pages/Dashboard';
 import BloodMarkers from './pages/BloodMarkers';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
@@ -10,6 +11,7 @@ export const PAGES = {
     "BloodMarkers": BloodMarkers,
     "Home": Home,
     "Settings": Settings,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {

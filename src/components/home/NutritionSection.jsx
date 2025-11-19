@@ -68,16 +68,21 @@ export default function NutritionSection() {
       </div>
 
       {/* Settings */}
-      <div className="bg-[#111111] rounded-2xl p-4 flex items-center justify-between border border-[#1A1A1A]">
-        <div className="flex items-center gap-3">
-          <DollarSign className="w-4 h-4 text-[#F59E0B]" />
-          <span className="text-sm text-white">Show affordable alternatives</span>
+      <div className="space-y-3">
+        <div className="bg-[#111111] rounded-2xl p-4 flex items-center justify-between border border-[#1A1A1A]">
+          <div className="flex items-center gap-3">
+            <DollarSign className="w-4 h-4 text-[#F59E0B]" />
+            <span className="text-sm text-white">Budget-friendly options</span>
+          </div>
+          <Switch 
+            checked={showAffordable} 
+            onCheckedChange={setShowAffordable}
+            className="data-[state=checked]:bg-[#3B7C9E]"
+          />
         </div>
-        <Switch 
-          checked={showAffordable} 
-          onCheckedChange={setShowAffordable}
-          className="data-[state=checked]:bg-[#3B7C9E]"
-        />
+        <div className="bg-[#3B7C9E15] rounded-xl p-3 border border-[#3B7C9E30]">
+          <p className="text-xs text-[#3B7C9E]">💡 Recommendations based on your latest blood markers</p>
+        </div>
       </div>
 
       {/* Cost Estimate */}
@@ -97,17 +102,29 @@ export default function NutritionSection() {
             const price = prices[item.price_range] || 10;
             
             return (
-              <div key={index} className="bg-[#0A0A0A] rounded-xl p-4">
-                <div className="flex items-start gap-3">
-                  <Checkbox
-                    checked={item.checked}
-                    onCheckedChange={(checked) => updateItemMutation.mutate({ id: item.id, checked })}
-                    className="mt-1"
-                  />
+              <div 
+                key={index} 
+                className="bg-[#0A0A0A] rounded-xl p-4 hover:bg-[#111111] transition-all cursor-pointer"
+                onClick={() => updateItemMutation.mutate({ id: item.id, checked: !item.checked })}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 mt-1">
+                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      item.checked 
+                        ? 'bg-[#3B7C9E] border-[#3B7C9E]' 
+                        : 'border-[#333333] hover:border-[#555555]'
+                    }`}>
+                      {item.checked && (
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <h4 className={`font-medium text-white mb-1 ${item.checked ? 'line-through opacity-50' : ''}`}>
+                        <h4 className={`font-medium text-white mb-1 transition-all ${item.checked ? 'line-through opacity-50' : ''}`}>
                           {item.name}
                         </h4>
                         {item.benefits && item.benefits.length > 0 && (
@@ -121,8 +138,12 @@ export default function NutritionSection() {
                         )}
                       </div>
                       <div className="text-right ml-4">
-                        <div className="text-lg font-bold text-white">${price}</div>
-                        <div className="text-xs text-[#3B7C9E]">Save ${Math.round(price * 0.15)}</div>
+                        <div className={`text-lg font-bold transition-all ${item.checked ? 'text-[#666666] line-through' : 'text-white'}`}>
+                          ${price}
+                        </div>
+                        {!item.checked && (
+                          <div className="text-xs text-[#3B7C9E]">Save ${Math.round(price * 0.15)}</div>
+                        )}
                       </div>
                     </div>
                   </div>

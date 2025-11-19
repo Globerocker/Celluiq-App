@@ -42,17 +42,18 @@ export default function SupplementStackSection() {
               <span className="text-xs text-[#3B7C9E]">Next recalibration<br/>88 days</span>
             </div>
             
-            <div className="w-48 h-48 mx-auto bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] rounded-3xl flex items-center justify-center my-6 shadow-xl">
-              <Package className="w-24 h-24 text-white opacity-80" />
+            <div className="w-48 h-48 mx-auto bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] rounded-3xl flex items-center justify-center my-6 shadow-xl relative overflow-hidden">
+              <Package className="w-24 h-24 text-white opacity-80 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
             
-            <p className="text-xs text-[#666666] mb-4">Drag to rotate</p>
+            <p className="text-xs text-[#666666] mb-4">Personalized supplement blend</p>
             
             {/* Progress Bar */}
             <div className="mb-4">
               <p className="text-xs text-[#666666] mb-2">Daily intake progress</p>
               <div className="h-2 bg-[#0A0A0A] rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#B7323F] to-[#3B7C9E]" style={{ width: '45%' }} />
+                <div className="h-full bg-gradient-to-r from-[#B7323F] to-[#3B7C9E] transition-all duration-500" style={{ width: '45%' }} />
               </div>
             </div>
             
@@ -61,68 +62,35 @@ export default function SupplementStackSection() {
               <span>Take with breakfast</span>
             </div>
           </div>
-
-          {/* Morning Stack */}
-          {morningStack.length > 0 && (
-            <div className="bg-[#111111] rounded-2xl p-5 border border-[#1A1A1A]">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-xl bg-[#F59E0B15]">
-                  <Sunrise className="w-5 h-5 text-[#F59E0B]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Morning Stack</h3>
-                  <p className="text-xs text-[#666666]">{morningStack.length} supplements</p>
-                </div>
+          
+          {/* What's Inside */}
+          <div className="bg-[#111111] rounded-2xl p-5 border border-[#1A1A1A]">
+            <h3 className="font-semibold text-white mb-3">What's included</h3>
+            <div className="space-y-2 text-sm text-[#808080]">
+              <p>✓ Essential vitamins & minerals</p>
+              <p>✓ Omega-3 fatty acids</p>
+              <p>✓ Adaptogenic herbs</p>
+              <p>✓ Antioxidant complex</p>
+            </div>
+          </div>
+          
+          {/* Additional Supplements */}
+          <div className="bg-[#3B7C9E15] rounded-xl p-4 border border-[#3B7C9E30]">
+            <h4 className="font-semibold text-[#3B7C9E] mb-2 text-sm">Recommended Add-ons</h4>
+            <p className="text-xs text-[#808080] mb-3">Based on your biomarkers, consider adding:</p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-white">Creatine Monohydrate</span>
+                <span className="text-xs text-[#666666]">5g daily</span>
               </div>
-              <div className="space-y-2">
-                {morningStack.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#B7323F]" />
-                      <div>
-                        <p className="font-medium text-sm text-white">{item.name}</p>
-                        <p className="text-xs text-[#666666]">{item.dosage}</p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-[#666666] px-2 py-1 bg-[#111111] rounded-lg">
-                      {item.type}
-                    </span>
-                  </div>
-                ))}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-white">Vitamin B Complex</span>
+                <span className="text-xs text-[#666666]">1 capsule</span>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Evening Stack */}
-          {eveningStack.length > 0 && (
-            <div className="bg-[#111111] rounded-2xl p-5 border border-[#1A1A1A]">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-xl bg-[#3B7C9E15]">
-                  <Moon className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Evening Stack</h3>
-                  <p className="text-xs text-[#666666]">{eveningStack.length} supplements</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                {eveningStack.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#B7323F]" />
-                      <div>
-                        <p className="font-medium text-sm text-white">{item.name}</p>
-                        <p className="text-xs text-[#666666]">{item.dosage}</p>
-                      </div>
-                    </div>
-                    <span className="text-xs text-[#666666] px-2 py-1 bg-[#111111] rounded-lg">
-                      {item.type}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
         </>
       )}
     </div>

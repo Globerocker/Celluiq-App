@@ -74,7 +74,7 @@ export default function BloodMarkersSection() {
             return (
               <div 
                 key={index} 
-                className="bg-[#111111] rounded-2xl p-5 hover:bg-[#1A1A1A] transition-all border border-[#1A1A1A]"
+                className="bg-[#111111] rounded-2xl p-5 hover:bg-[#1A1A1A] transition-all border border-[#1A1A1A] cursor-pointer transform hover:scale-[1.02] duration-200"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">

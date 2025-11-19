@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { 
   User, 
   Moon, 
@@ -30,6 +32,13 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] p-6">
       <div className="max-w-2xl mx-auto space-y-6">
+        {/* Back Button */}
+        <Link to={createPageUrl("Home")}>
+          <Button variant="ghost" className="text-[#808080] hover:text-white">
+            ← Back to Home
+          </Button>
+        </Link>
+        
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
           <p className="text-[#808080]">Manage your account and preferences</p>
@@ -82,6 +91,23 @@ export default function Settings() {
           <CardContent className="p-6 space-y-4">
             <h3 className="text-lg font-semibold text-white mb-4">Preferences</h3>
             
+            <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-[#808080]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
+                <div>
+                  <p className="text-white font-medium">Language</p>
+                  <p className="text-xs text-[#666666]">English (Default)</p>
+                </div>
+              </div>
+              <select className="bg-[#0A0A0A] text-white text-sm px-3 py-1.5 rounded-lg border border-[#333333] focus:border-[#3B7C9E] focus:outline-none">
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="es">Español</option>
+              </select>
+            </div>
+
             <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
               <div className="flex items-center gap-3">
                 <Moon className="w-5 h-5 text-[#808080]" />
