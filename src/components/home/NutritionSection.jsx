@@ -3,8 +3,10 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { useLanguage } from "../LanguageProvider";
 
 export default function NutritionSection() {
+  const { t } = useLanguage();
   const [basedOnBiomarkers, setBasedOnBiomarkers] = useState(true);
   const [showAffordable, setShowAffordable] = useState(false);
   const queryClient = useQueryClient();
@@ -13,6 +15,13 @@ export default function NutritionSection() {
     queryKey: ['shoppingItems'],
     queryFn: () => base44.entities.ShoppingItem.list('priority'),
     initialData: [],
+  });
+
+  const updateItemMutation = useMutation({
+    mutationFn: ({ id, checked }) => base44.entities.ShoppingItem.update(id, { checked }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
+    },
   });
 
   const filteredItems = showAffordable 
@@ -27,9 +36,9 @@ export default function NutritionSection() {
 
   const macros = [
     { label: 'Calories', value: '2400', unit: 'kcal' },
-    { label: 'Protein', value: '180', unit: 'g' },
-    { label: 'Carbs', value: '240', unit: 'g' },
-    { label: 'Fat', value: '80', unit: 'g' }
+    { label: t('protein'), value: '180', unit: 'g' },
+    { label: t('carbs'), value: '240', unit: 'g' },
+    { label: t('fats'), value: '80', unit: 'g' }
   ];
 
   if (isLoading) {

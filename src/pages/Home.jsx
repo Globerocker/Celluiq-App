@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "../components/LanguageProvider";
 
 import BloodMarkersSection from "../components/home/BloodMarkersSection";
 import SupplementStackSection from "../components/home/SupplementStackSection";
 import NutritionSection from "../components/home/NutritionSection";
 
 export default function Home() {
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState(0);
 
   const { data: bloodMarkers } = useQuery({
@@ -34,9 +36,9 @@ export default function Home() {
   const healthScore = calculateHealthScore();
 
   const sections = [
-    { id: 0, title: "Markers", component: BloodMarkersSection },
-    { id: 1, title: "Stack", component: SupplementStackSection },
-    { id: 2, title: "Nutrition", component: NutritionSection }
+    { id: 0, title: t('markers'), component: BloodMarkersSection },
+    { id: 1, title: t('stack'), component: SupplementStackSection },
+    { id: 2, title: t('nutrition'), component: NutritionSection }
   ];
 
   const ActiveComponent = sections[activeSection].component;
@@ -48,7 +50,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
         <div className="max-w-2xl mx-auto text-center relative z-10">
           <p className="text-[#808080] text-xs uppercase tracking-[0.2em] mb-4 font-medium">
-            YOUR CELLUIQ SCORE
+            {t('yourCelluiqScore')}
           </p>
           <div className="relative inline-block mb-4">
             <div className="text-8xl font-bold text-white mb-2 tracking-tight">
@@ -62,7 +64,7 @@ export default function Home() {
             <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
           </div>
           <p className="text-[#808080] text-sm mt-4 max-w-md mx-auto leading-relaxed">
-            Outstanding progress this week. Your biomarkers are trending toward optimal ranges.
+            {t('outstandingProgress')}
           </p>
         </div>
       </div>

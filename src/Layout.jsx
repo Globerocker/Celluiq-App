@@ -2,8 +2,10 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Settings, User } from "lucide-react";
+import { useLanguage } from "./components/LanguageProvider";
 
 export default function Layout({ children, currentPageName }) {
+  const { t } = useLanguage();
   const location = useLocation();
 
   return (
