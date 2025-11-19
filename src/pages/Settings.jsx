@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useLanguage } from "../components/LanguageProvider";
 import { 
   User, 
   Moon, 
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 
 export default function Settings() {
+  const { language, setLanguage, t } = useLanguage();
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') !== 'light';
   });
@@ -161,15 +163,21 @@ export default function Settings() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                 </svg>
                 <div>
-                  <p className="text-white font-medium">Language</p>
-                  <p className="text-xs text-[#666666]">English (Default)</p>
+                  <p className="text-white font-medium">{t('language')}</p>
+                  <p className="text-xs text-[#666666]">
+                    {language === 'en' ? 'English' : language === 'de' ? 'Deutsch' : 'Español'}
+                  </p>
                 </div>
-              </div>
-              <select className="bg-[#0A0A0A] text-white text-sm px-3 py-1.5 rounded-lg border border-[#333333] focus:border-[#3B7C9E] focus:outline-none">
+                </div>
+                <select 
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="bg-[#0A0A0A] text-white text-sm px-3 py-1.5 rounded-lg border border-[#333333] focus:border-[#3B7C9E] focus:outline-none"
+                >
                 <option value="en">English</option>
                 <option value="de">Deutsch</option>
                 <option value="es">Español</option>
-              </select>
+                </select>
             </div>
 
             <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">

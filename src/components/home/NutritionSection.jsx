@@ -40,21 +40,23 @@ export default function NutritionSection() {
     );
   }
 
+  const isDark = !document.documentElement.classList.contains('light-mode');
+
   return (
     <div className="p-6 space-y-6">
       {/* Weekly Target */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm">
+      <div className={`rounded-2xl p-5 shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs text-[#64676A] uppercase tracking-wider">Weekly Target</span>
+          <span className={`text-xs uppercase tracking-wider ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>{t('weeklyTarget')}</span>
           <TrendingUp className="w-4 h-4 text-[#3B7C9E]" />
         </div>
         
         <div className="grid grid-cols-4 gap-3 mb-4">
           {macros.map((macro, index) => (
             <div key={index} className="text-center">
-              <div className="text-2xl font-bold text-[#111315] mb-1">{macro.value}</div>
-              <div className="text-xs text-[#64676A]">{macro.label}</div>
-              <div className="text-xs text-[#64676A]">{macro.unit}</div>
+              <div className={`text-2xl font-bold mb-1 ${isDark ? 'text-white' : 'text-[#111315]'}`}>{macro.value}</div>
+              <div className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>{macro.label}</div>
+              <div className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>{macro.unit}</div>
             </div>
           ))}
         </div>
@@ -62,10 +64,10 @@ export default function NutritionSection() {
 
       {/* Settings */}
       <div className="space-y-3">
-        <div className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div className={`rounded-2xl p-4 flex items-center justify-between shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
-            <span className="text-sm text-[#111315]">Based on latest biomarkers</span>
+            <span className={`text-sm ${isDark ? 'text-white' : 'text-[#111315]'}`}>{t('basedOnBiomarkers')}</span>
           </div>
           <Switch 
             checked={basedOnBiomarkers} 
@@ -74,10 +76,10 @@ export default function NutritionSection() {
           />
         </div>
 
-        <div className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div className={`rounded-2xl p-4 flex items-center justify-between shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
           <div className="flex items-center gap-3">
             <DollarSign className="w-4 h-4 text-[#F59E0B]" />
-            <span className="text-sm text-[#111315]">Show affordable alternatives</span>
+            <span className={`text-sm ${isDark ? 'text-white' : 'text-[#111315]'}`}>{t('showAffordable')}</span>
           </div>
           <Switch 
             checked={showAffordable} 
@@ -88,49 +90,78 @@ export default function NutritionSection() {
       </div>
 
       {/* Cost Estimate */}
-      <div className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm">
+      <div className={`rounded-2xl p-4 flex items-center justify-between shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
         <div className="flex items-center gap-3">
-          <ShoppingCart className="w-5 h-5 text-[#64676A]" />
-          <span className="text-sm text-[#64676A]">Estimated ${estimatedCost}/week</span>
+          <ShoppingCart className={`w-5 h-5 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`} />
+          <span className={`text-sm ${isDark ? 'text-[#808080]' : 'text-[#64676A]'}`}>{t('estimatedCost')} ${estimatedCost}/week</span>
         </div>
       </div>
 
       {/* Protein Recommendations */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm">
-        <h3 className="text-lg font-semibold text-[#111315] mb-4">PROTEIN</h3>
+      <div className={`rounded-2xl p-5 shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
+        <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-[#111315]'}`}>{t('protein')}</h3>
         <div className="space-y-3">
           {proteinItems.map((item, index) => {
             const prices = { budget: 8, moderate: 15, premium: 24 };
             const price = prices[item.price_range] || 10;
             
             return (
-              <div key={index} className="bg-[#F6F7F5] rounded-xl p-4 border border-[#E8E9E7] hover:border-[#3B7C9E] transition-all">
+              <div 
+                key={index} 
+                onClick={() => updateItemMutation.mutate({ id: item.id, checked: !item.checked })}
+                className={`rounded-xl p-4 border transition-all cursor-pointer ${
+                  isDark 
+                    ? `bg-[#0A0A0A] border-[#1A1A1A] hover:border-[#3B7C9E] ${item.checked ? 'opacity-60' : ''}` 
+                    : `bg-[#F6F7F5] border-[#E8E9E7] hover:border-[#3B7C9E] ${item.checked ? 'opacity-50' : ''}`
+                }`}
+              >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-[#111315] mb-2">{item.name}</h4>
-                    {item.benefits && item.benefits.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {item.benefits.map((benefit, i) => (
-                          <span key={i} className="text-xs text-[#64676A] bg-white px-2 py-0.5 rounded border border-[#E8E9E7]">
-                            {benefit}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                      item.checked 
+                        ? 'bg-[#3B7C9E] border-[#3B7C9E]' 
+                        : isDark ? 'border-[#333333]' : 'border-[#E8E9E7]'
+                    }`}>
+                      {item.checked && (
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-semibold mb-2 transition-all ${
+                        item.checked ? 'line-through opacity-60' : ''
+                      } ${isDark ? 'text-white' : 'text-[#111315]'}`}>{item.name}</h4>
+                      {item.benefits && item.benefits.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {item.benefits.map((benefit, i) => (
+                            <span key={i} className={`text-xs px-2 py-0.5 rounded border ${
+                              isDark 
+                                ? 'text-[#666666] bg-[#111111] border-[#1A1A1A]' 
+                                : 'text-[#64676A] bg-white border-[#E8E9E7]'
+                            }`}>
+                              {benefit}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right ml-4">
-                    <div className="text-xl font-bold text-[#111315]">${price}</div>
+                    <div className={`text-xl font-bold transition-all ${
+                      item.checked ? 'line-through opacity-60' : ''
+                    } ${isDark ? 'text-white' : 'text-[#111315]'}`}>${price}</div>
                     <div className="text-xs text-[#3B7C9E]">-15%</div>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E8E9E7]">
+                <div className={`grid grid-cols-2 gap-3 pt-3 border-t ${isDark ? 'border-[#1A1A1A]' : 'border-[#E8E9E7]'}`}>
                   <div>
-                    <p className="text-xs text-[#64676A] mb-1">Wochenmenge</p>
-                    <p className="text-sm font-medium text-[#111315]">{item.weekly_amount || 'N/A'}</p>
+                    <p className={`text-xs mb-1 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>{t('weeklyAmount')}</p>
+                    <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#111315]'}`}>{item.weekly_amount || 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-[#64676A] mb-1">Tägliche Empfehlung</p>
+                    <p className={`text-xs mb-1 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>{t('dailyRecommendation')}</p>
                     <p className="text-sm font-medium text-[#3B7C9E]">{item.daily_recommendation || 'N/A'}</p>
                   </div>
                 </div>
@@ -141,7 +172,7 @@ export default function NutritionSection() {
       </div>
 
       <button className="w-full py-4 bg-[#B7323F] text-white rounded-2xl font-medium hover:bg-[#9A2835] transition-all">
-        Add to Shopping List
+        {t('addToShoppingList')}
       </button>
     </div>
   );
