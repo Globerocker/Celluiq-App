@@ -17,8 +17,16 @@ import {
 } from "lucide-react";
 
 export default function Settings() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('theme') !== 'light';
+  });
   const [notifications, setNotifications] = useState(true);
+
+  const toggleDarkMode = (checked) => {
+    setDarkMode(checked);
+    localStorage.setItem('theme', checked ? 'dark' : 'light');
+    document.documentElement.classList.toggle('light-mode', !checked);
+  };
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -56,9 +64,26 @@ export default function Settings() {
                 <p className="text-[#808080]">{user?.email}</p>
               </div>
             </div>
-            <Button className="w-full bg-[#1A1A1A] text-white hover:bg-[#222222]">
-              Edit Profile
-            </Button>
+            <Link to={createPageUrl("Profile")}>
+              <Button className="w-full bg-[#1A1A1A] text-white hover:bg-[#222222]">
+                View Profile
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Subscription Management */}
+        <Card className="bg-[#111111] border-[#1A1A1A]">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Subscription</h3>
+            <p className="text-sm text-[#808080] mb-4">
+              Manage your supplement subscription plan
+            </p>
+            <Link to={createPageUrl("Subscription")}>
+              <Button className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
+                Manage Subscription
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -118,7 +143,7 @@ export default function Settings() {
               </div>
               <Switch 
                 checked={darkMode} 
-                onCheckedChange={setDarkMode}
+                onCheckedChange={toggleDarkMode}
                 className="data-[state=checked]:bg-[#3B7C9E]"
               />
             </div>

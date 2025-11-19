@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1A1A1A;
+  --text-primary: #FFFFFF;
+  --text-secondary: #808080;
+  --text-tertiary: #666666;
+  --border-color: #1A1A1A;
+  --accent-red: #B7323F;
+  --accent-blue: #3B7C9E;
+}
+
+.light-mode {
+  --bg-primary: #F6F7F5;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #E8E9E7;
+  --text-primary: #111315;
+  --text-secondary: #64676A;
+  --text-tertiary: #808080;
+  --border-color: #E8E9E7;
+  --accent-red: #B7323F;
+  --accent-blue: #3B7C9E;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Override Tailwind colors with CSS variables */
+.bg-\[\#0A0A0A\] {
+  background-color: var(--bg-primary) !important;
+}
+
+.bg-\[\#111111\] {
+  background-color: var(--bg-secondary) !important;
+}
+
+.bg-\[\#1A1A1A\] {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.text-white {
+  color: var(--text-primary) !important;
+}
+
+.text-\[\#808080\] {
+  color: var(--text-secondary) !important;
+}
+
+.text-\[\#666666\] {
+  color: var(--text-tertiary) !important;
+}
+
+.border-\[\#1A1A1A\] {
+  border-color: var(--border-color) !important;
+}

@@ -95,7 +95,10 @@ export default function NutritionSection() {
 
       {/* Shopping List */}
       <div className="bg-[#111111] rounded-2xl p-5 border border-[#1A1A1A]">
-        <h3 className="text-lg font-semibold text-white mb-4">Shopping List</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">Weekly Shopping List</h3>
+          <span className="text-xs text-[#666666] bg-[#0A0A0A] px-3 py-1 rounded-full">7 days</span>
+        </div>
         <div className="space-y-3">
           {filteredItems.map((item, index) => {
             const prices = { budget: 8, moderate: 15, premium: 24 };
@@ -127,6 +130,9 @@ export default function NutritionSection() {
                         <h4 className={`font-medium text-white mb-1 transition-all ${item.checked ? 'line-through opacity-50' : ''}`}>
                           {item.name}
                         </h4>
+                        {item.daily_recommendation && (
+                          <p className="text-xs text-[#3B7C9E] mb-1">Daily: {item.daily_recommendation}</p>
+                        )}
                         {item.benefits && item.benefits.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {item.benefits.map((benefit, i) => (
