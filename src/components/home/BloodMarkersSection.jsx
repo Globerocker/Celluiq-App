@@ -1,8 +1,9 @@
 import React from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingDown, TrendingUp, Droplet } from "lucide-react";
+import { TrendingDown, TrendingUp, Droplet, Upload, ArrowUp, ArrowDown } from "lucide-react";
 import { format } from 'date-fns';
+import { Button } from "@/components/ui/button";
 
 export default function BloodMarkersSection() {
   const { data: bloodMarkers, isLoading } = useQuery({
@@ -22,8 +23,14 @@ export default function BloodMarkersSection() {
     .sort((a, b) => {
       const priority = { critical: 1, high: 1, low: 1, suboptimal: 2, optimal: 3 };
       return (priority[a.status] || 3) - (priority[b.status] || 3);
-    })
-    .slice(0, 6);
+    });
+
+  const getPreviousValue = (markerName, currentDate) => {
+    const previous = bloodMarkers
+      .filter(m => m.marker_name === markerName && m.test_date < currentDate)
+      .sort((a, b) => new Date(b.test_date) - new Date(a.test_date))[0];
+    return previous?.value;
+  };
 
   const getStatusColor = (status) => {
     switch(status) {
@@ -37,7 +44,7 @@ export default function BloodMarkersSection() {
     return (
       <div className="p-6 space-y-3">
         {[1,2,3].map(i => (
-          <div key={i} className="h-24 bg-white rounded-2xl animate-pulse" />
+          <div key={i} className="h-24 bg-[#111111] rounded-2xl animate-pulse" />
         ))}
       </div>
     );
@@ -45,55 +52,71 @@ export default function BloodMarkersSection() {
 
   return (
     <div className="p-6 space-y-4">
+      <Button className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
+        <Upload className="w-4 h-4 mr-2" />
+        Aktuelles Blutbild hochladen
+      </Button>
+
       {markersList.length === 0 ? (
         <div className="text-center py-12">
-          <Droplet className="w-12 h-12 text-[#64676A] mx-auto mb-3 opacity-50" />
-          <p className="text-[#64676A]">No blood markers yet</p>
+          <Droplet className="w-12 h-12 text-[#333333] mx-auto mb-3" />
+          <p className="text-[#808080]">No blood markers yet</p>
         </div>
       ) : (
         <>
           {markersList.map((marker, index) => {
             const Icon = marker.status === 'optimal' ? TrendingUp : TrendingDown;
             const statusColor = getStatusColor(marker.status);
+            const previousValue = getPreviousValue(marker.marker_name, marker.test_date);
+            const change = previousValue ? marker.value - previousValue : null;
+            const changePercent = previousValue ? ((change / previousValue) * 100).toFixed(1) : null;
             
             return (
               <div 
                 key={index} 
-                className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all"
+                className="bg-[#111111] rounded-2xl p-5 hover:bg-[#1A1A1A] transition-all border border-[#1A1A1A]"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl bg-[#F6F7F5]`}>
+                    <div className={`p-2.5 rounded-xl bg-[#0A0A0A]`}>
                       <Icon className={`w-5 h-5 ${statusColor}`} />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#111315]">
+                      <h4 className="font-semibold text-white">
                         {marker.marker_name}
                       </h4>
-                      <p className="text-xs text-[#64676A]">
+                      <p className="text-xs text-[#666666]">
                         {format(new Date(marker.test_date), 'MMM d, yyyy')}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-[#111315]">
-                      {marker.value}
+                    <div className="flex items-center gap-2">
+                      <div className="text-2xl font-bold text-white">
+                        {marker.value}
+                      </div>
+                      {change !== null && (
+                        <div className={`flex items-center gap-1 text-xs ${change > 0 ? 'text-[#3B7C9E]' : 'text-[#B7323F]'}`}>
+                          {change > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+                          <span>{Math.abs(changePercent)}%</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-[#64676A]">{marker.unit}</div>
+                    <div className="text-xs text-[#666666]">{marker.unit}</div>
                   </div>
                 </div>
                 
                 {marker.optimal_min && marker.optimal_max && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#64676A]">Optimal range</span>
-                    <span className="text-[#64676A]">
+                  <div className="flex items-center justify-between text-xs mb-3">
+                    <span className="text-[#666666]">Optimal range</span>
+                    <span className="text-[#808080]">
                       {marker.optimal_min} - {marker.optimal_max} {marker.unit}
                     </span>
                   </div>
                 )}
                 
-                <div className="mt-3 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-[#F6F7F5] rounded-full overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-[#0A0A0A] rounded-full overflow-hidden">
                     <div 
                       className={`h-full ${statusColor.replace('text-', 'bg-')}`}
                       style={{ 
@@ -109,10 +132,6 @@ export default function BloodMarkersSection() {
               </div>
             );
           })}
-          
-          <button className="w-full py-3 bg-[#F6F7F5] text-[#B7323F] rounded-2xl font-medium hover:bg-[#E8E9E7] transition-all mt-4">
-            Upload new test results
-          </button>
         </>
       )}
     </div>
