@@ -65,6 +65,13 @@ export default function Dashboard() {
     });
   }, [bloodMarkers, dateRange]);
 
+  const tabs = [
+    { id: "overview", label: "Overview" },
+    { id: "vitals", label: "Vital Signs" },
+    { id: "blood", label: "Blood Markers" },
+    { id: "medications", label: "Medications" }
+  ];
+
   return (
     <div className="min-h-screen bg-[#F6F7F5] p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -72,9 +79,9 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#111315] tracking-tight">
-              CELLUIQ Dashboard
+              Health Dashboard
             </h1>
-            <p className="text-[#64676A] mt-1">Your personalized health insights</p>
+            <p className="text-[#64676A] mt-1 text-lg">Track your wellness journey in one place</p>
           </div>
           <DateRangeFilter dateRange={dateRange} setDateRange={setDateRange} />
         </div>
@@ -87,27 +94,22 @@ export default function Dashboard() {
           medicationLogs={medicationLogs}
         />
 
-        {/* Navigation Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-white border border-[#24272A1A] w-full md:w-auto">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="vitals" className="flex items-center gap-2">
-              <Heart className="w-4 h-4" />
-              Vital Signs
-            </TabsTrigger>
-            <TabsTrigger value="blood" className="flex items-center gap-2">
-              <Droplet className="w-4 h-4" />
-              Blood Markers
-            </TabsTrigger>
-            <TabsTrigger value="medications" className="flex items-center gap-2">
-              <Pill className="w-4 h-4" />
-              Medications
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 bg-white rounded-2xl p-1.5 shadow-sm mb-6">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 px-6 py-3 text-sm font-medium rounded-xl transition-all ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-r from-[#B7323F] to-[#9A2835] text-white shadow-md'
+                  : 'text-[#64676A] hover:bg-[#F6F7F5]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
         {/* Content Based on Active Tab */}
         {activeTab === "overview" && (
