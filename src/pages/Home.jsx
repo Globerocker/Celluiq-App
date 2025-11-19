@@ -44,21 +44,25 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] pb-8">
       {/* Header with Health Score */}
-      <div className="bg-[#111111] px-6 pt-8 pb-6 border-b border-[#1A1A1A]">
-        <div className="max-w-2xl mx-auto text-center">
-          <p className="text-[#808080] text-sm uppercase tracking-wider mb-3">
-            CELLUIQ Health Score
+      <div className="bg-gradient-to-br from-[#111111] via-[#111111] to-[#1A1A1A] px-6 pt-10 pb-8 border-b border-[#1A1A1A] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
+        <div className="max-w-2xl mx-auto text-center relative z-10">
+          <p className="text-[#808080] text-xs uppercase tracking-[0.2em] mb-4 font-medium">
+            YOUR CELLUIQ SCORE
           </p>
-          <div className="relative inline-block">
-            <div className="text-7xl font-bold text-white mb-2">
+          <div className="relative inline-block mb-4">
+            <div className="text-8xl font-bold text-white mb-2 tracking-tight">
               {healthScore}
             </div>
-            <div className="absolute -top-2 -right-8 text-2xl text-[#3B7C9E]">
-              +5
+            <div className="absolute -top-3 -right-10 flex items-center gap-1 bg-[#3B7C9E20] px-3 py-1 rounded-full border border-[#3B7C9E40]">
+              <span className="text-lg text-[#3B7C9E] font-bold">+5</span>
             </div>
           </div>
-          <p className="text-[#808080] text-sm mt-3">
-            Your score improved by 5 points this week. Keep up the excellent recovery habits.
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
+          </div>
+          <p className="text-[#808080] text-sm mt-4 max-w-md mx-auto leading-relaxed">
+            Outstanding progress this week. Your biomarkers are trending toward optimal ranges.
           </p>
         </div>
       </div>

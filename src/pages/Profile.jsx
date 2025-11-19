@@ -89,31 +89,84 @@ export default function Profile() {
           })}
         </div>
 
+        {/* Health Journey */}
+        <Card className="bg-[#111111] border-[#1A1A1A]">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Health Journey</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[#666666]">Total Improvement</p>
+                  <p className="text-2xl font-bold text-white">+18%</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-[#666666]">Days Tracked</p>
+                  <p className="text-2xl font-bold text-white">127</p>
+                </div>
+              </div>
+              <div className="h-2 bg-[#0A0A0A] rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-[#B7323F] to-[#3B7C9E]" style={{ width: '68%' }} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Recent Activity */}
         <Card className="bg-[#111111] border-[#1A1A1A]">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3 py-3 border-b border-[#1A1A1A]">
-                <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
+                <div className="w-8 h-8 rounded-full bg-[#3B7C9E15] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
+                </div>
                 <div className="flex-1">
-                  <p className="text-white text-sm">Blood test uploaded</p>
-                  <p className="text-xs text-[#666666]">2 days ago</p>
+                  <p className="text-white text-sm font-medium">Blood test uploaded</p>
+                  <p className="text-xs text-[#666666]">2 days ago • Vitamin D improved</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 py-3 border-b border-[#1A1A1A]">
-                <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
+                <div className="w-8 h-8 rounded-full bg-[#3B7C9E15] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
+                </div>
                 <div className="flex-1">
-                  <p className="text-white text-sm">Health score improved</p>
-                  <p className="text-xs text-[#666666]">1 week ago</p>
+                  <p className="text-white text-sm font-medium">Health score improved</p>
+                  <p className="text-xs text-[#666666]">1 week ago • +5 points</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 py-3">
-                <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
-                <div className="flex-1">
-                  <p className="text-white text-sm">Started supplement stack</p>
-                  <p className="text-xs text-[#666666]">2 weeks ago</p>
+                <div className="w-8 h-8 rounded-full bg-[#B7323F15] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-[#B7323F]" />
                 </div>
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">Started supplement stack</p>
+                  <p className="text-xs text-[#666666]">2 weeks ago • Personalized plan</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bio & Goals */}
+        <Card className="bg-[#111111] border-[#1A1A1A]">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">About</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
+                <span className="text-[#666666]">Age</span>
+                <span className="text-white font-medium">32 years</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
+                <span className="text-[#666666]">Height</span>
+                <span className="text-white font-medium">178 cm</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
+                <span className="text-[#666666]">Weight</span>
+                <span className="text-white font-medium">82 kg</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-[#666666]">Goal</span>
+                <span className="text-white font-medium">Performance & Longevity</span>
               </div>
             </div>
           </CardContent>

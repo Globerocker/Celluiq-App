@@ -104,14 +104,14 @@ export default function NutritionSection() {
             const price = prices[item.price_range] || 10;
             
             return (
-              <div key={index} className="bg-[#F6F7F5] rounded-xl p-4">
-                <div className="flex items-start justify-between mb-2">
+              <div key={index} className="bg-[#F6F7F5] rounded-xl p-4 border border-[#E8E9E7] hover:border-[#3B7C9E] transition-all">
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h4 className="font-medium text-[#111315] mb-1">{item.name}</h4>
+                    <h4 className="font-semibold text-[#111315] mb-2">{item.name}</h4>
                     {item.benefits && item.benefits.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 mb-2">
                         {item.benefits.map((benefit, i) => (
-                          <span key={i} className="text-xs text-[#64676A] bg-white px-2 py-0.5 rounded">
+                          <span key={i} className="text-xs text-[#64676A] bg-white px-2 py-0.5 rounded border border-[#E8E9E7]">
                             {benefit}
                           </span>
                         ))}
@@ -119,8 +119,19 @@ export default function NutritionSection() {
                     )}
                   </div>
                   <div className="text-right ml-4">
-                    <div className="text-lg font-bold text-[#111315]">${price}</div>
-                    <div className="text-xs text-[#3B7C9E]">Save ${Math.round(price * 0.15)}</div>
+                    <div className="text-xl font-bold text-[#111315]">${price}</div>
+                    <div className="text-xs text-[#3B7C9E]">-15%</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E8E9E7]">
+                  <div>
+                    <p className="text-xs text-[#64676A] mb-1">Wochenmenge</p>
+                    <p className="text-sm font-medium text-[#111315]">{item.weekly_amount || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#64676A] mb-1">Tägliche Empfehlung</p>
+                    <p className="text-sm font-medium text-[#3B7C9E]">{item.daily_recommendation || 'N/A'}</p>
                   </div>
                 </div>
               </div>

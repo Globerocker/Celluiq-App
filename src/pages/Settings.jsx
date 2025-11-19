@@ -92,20 +92,59 @@ export default function Settings() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <Activity className="w-5 h-5 text-[#3B7C9E]" />
-              <h3 className="text-lg font-semibold text-white">Fitness Trackers</h3>
+              <h3 className="text-lg font-semibold text-white">Connected Devices</h3>
             </div>
-            <div className="space-y-3">
-              <Button className="w-full bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between">
-                <span>Connect Apple Health</span>
-                <LinkIcon className="w-4 h-4" />
+            <p className="text-sm text-[#666666] mb-4">
+              Sync your fitness data for personalized recommendations
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Apple Health</span>
               </Button>
-              <Button className="w-full bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between">
-                <span>Connect Garmin</span>
-                <LinkIcon className="w-4 h-4" />
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Garmin</span>
               </Button>
-              <Button className="w-full bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between">
-                <span>Connect Google Fit</span>
-                <LinkIcon className="w-4 h-4" />
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Google Fit</span>
+              </Button>
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Fitbit</span>
+              </Button>
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Whoop</span>
+              </Button>
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Oura Ring</span>
+              </Button>
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Strava</span>
+              </Button>
+              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                </div>
+                <span className="text-xs">Polar</span>
               </Button>
             </div>
           </CardContent>

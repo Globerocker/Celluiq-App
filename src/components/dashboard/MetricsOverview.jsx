@@ -67,23 +67,23 @@ export default function MetricsOverview({ vitalSigns, bloodMarkers, medications,
       {metrics.map((metric, index) => {
         const Icon = metric.icon;
         return (
-          <Card key={index} className="border-none shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-2 rounded-lg" style={{ backgroundColor: `${metric.color}15` }}>
-                  <Icon className="w-5 h-5" style={{ color: metric.color }} />
-                </div>
-                <TrendIcon trend={metric.trend} />
-              </div>
-              <div>
-                <p className="text-sm text-[#64676A] font-medium mb-1">{metric.title}</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-2xl font-bold text-[#111315]">{metric.value}</p>
-                  <span className="text-sm text-[#64676A]">{metric.unit}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                <Card key={index} className="border-none shadow-sm hover:shadow-md transition-all hover:-translate-y-1 cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-white to-gray-50" style={{ boxShadow: `0 0 0 1px ${metric.color}20` }}>
+                        <Icon className="w-6 h-6" style={{ color: metric.color }} />
+                      </div>
+                      <TrendIcon trend={metric.trend} />
+                    </div>
+                    <div>
+                      <p className="text-sm text-[#64676A] font-medium mb-2 uppercase tracking-wide">{metric.title}</p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-3xl font-bold text-[#111315]">{metric.value}</p>
+                        <span className="text-sm text-[#64676A] font-medium">{metric.unit}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
         );
       })}
     </div>
