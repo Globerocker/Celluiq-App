@@ -2,16 +2,16 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Settings, User } from "lucide-react";
-import { useLanguage } from "./components/LanguageProvider";
+import { LanguageProvider } from "./components/LanguageProvider";
 
 export default function Layout({ children, currentPageName }) {
-  const { t } = useLanguage();
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#111111] border-b border-[#1A1A1A] px-4 py-3 backdrop-blur-xl bg-opacity-90">
+    <LanguageProvider>
+      <div className="min-h-screen bg-[#0A0A0A]">
+        {/* Header */}
+        <header className="sticky top-0 z-50 bg-[#111111] border-b border-[#1A1A1A] px-4 py-3 backdrop-blur-xl bg-opacity-90">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <Link to={createPageUrl("Home")} className="flex items-center gap-3 hover:opacity-80 transition-opacity group">
             <div className="relative">
@@ -41,10 +41,11 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="min-h-screen">
-        {children}
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="min-h-screen">
+          {children}
+        </main>
+      </div>
+    </LanguageProvider>
   );
 }
