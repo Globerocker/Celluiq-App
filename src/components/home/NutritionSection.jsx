@@ -78,7 +78,7 @@ export default function NutritionSection() {
             <p className={`text-xs mt-1 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>Good for your blood markers</p>
           </div>
           <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-[#F59E0B]" />
+            <span className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>Cheap alternatives</span>
             <Switch 
               checked={showAffordable} 
               onCheckedChange={setShowAffordable}
