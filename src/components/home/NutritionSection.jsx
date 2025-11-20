@@ -75,18 +75,6 @@ export default function NutritionSection() {
       <div className="space-y-3">
         <div className={`rounded-2xl p-4 flex items-center justify-between shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-[#3B7C9E]" />
-            <span className={`text-sm ${isDark ? 'text-white' : 'text-[#111315]'}`}>{t('basedOnBiomarkers')}</span>
-          </div>
-          <Switch 
-            checked={basedOnBiomarkers} 
-            onCheckedChange={setBasedOnBiomarkers}
-            className="data-[state=checked]:bg-[#3B7C9E]"
-          />
-        </div>
-
-        <div className={`rounded-2xl p-4 flex items-center justify-between shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
-          <div className="flex items-center gap-3">
             <DollarSign className="w-4 h-4 text-[#F59E0B]" />
             <span className={`text-sm ${isDark ? 'text-white' : 'text-[#111315]'}`}>{t('showAffordable')}</span>
           </div>
