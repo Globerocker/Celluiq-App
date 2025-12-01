@@ -210,24 +210,22 @@ export default function SupplementStackSection() {
           </div>
         </div>
       )}
-          
-          {/* Recommended Add-ons */}
-          <div className="bg-[#3B7C9E15] rounded-xl p-4 border border-[#3B7C9E30]">
-            <h4 className="font-semibold text-[#3B7C9E] mb-2 text-sm">Recommended Add-ons</h4>
-            <p className="text-xs text-[#808080] mb-3">Based on your biomarkers:</p>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white">Creatine Monohydrate</span>
-                <span className="text-xs text-[#666666]">5g daily</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white">Vitamin B Complex</span>
-                <span className="text-xs text-[#666666]">1 capsule</span>
-              </div>
-            </div>
+
+      {/* Recommended Add-ons */}
+      <div className="bg-[#3B7C9E15] rounded-xl p-4 border border-[#3B7C9E30]">
+        <h4 className="font-semibold text-[#3B7C9E] mb-2 text-sm">Recommended Add-ons</h4>
+        <p className="text-xs text-[#808080] mb-3">Based on your biomarkers:</p>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-white">Creatine Monohydrate</span>
+            <span className="text-xs text-[#666666]">5g daily</span>
           </div>
-        </>
-      )}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-white">Vitamin B Complex</span>
+            <span className="text-xs text-[#666666]">1 capsule</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
