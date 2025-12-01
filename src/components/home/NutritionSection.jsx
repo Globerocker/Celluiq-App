@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ShoppingCart, DollarSign, TrendingUp } from "lucide-react";
+import { ShoppingCart, TrendingUp, Lock } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useLanguage } from "../LanguageProvider";
+import ProUpgradeModal from '../ProUpgradeModal';
 
 export default function NutritionSection() {
   const { t } = useLanguage();
-  const [basedOnBiomarkers, setBasedOnBiomarkers] = useState(true);
   const [showAffordable, setShowAffordable] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
   const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const isPro = user?.subscription_tier === 'pro';
 
   const { data: shoppingItems, isLoading } = useQuery({
     queryKey: ['shoppingItems'],
@@ -50,6 +58,55 @@ export default function NutritionSection() {
   }
 
   const isDark = !document.documentElement.classList.contains('light-mode');
+
+  // Show locked state for free users
+  if (!isPro) {
+    return (
+      <div className="p-6 space-y-6">
+        <ProUpgradeModal 
+          isOpen={showProModal} 
+          onClose={() => setShowProModal(false)} 
+          feature="personalized nutrition"
+        />
+        
+        <div 
+          onClick={() => setShowProModal(true)}
+          className="relative rounded-2xl p-6 bg-[#111111] border border-[#1A1A1A] cursor-pointer hover:border-[#B7323F] transition-all group overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent z-10" />
+          
+          {/* Blurred preview */}
+          <div className="blur-sm opacity-50">
+            <div className="rounded-2xl p-5 bg-[#0A0A0A] mb-4">
+              <div className="grid grid-cols-4 gap-3">
+                {macros.map((macro, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-xl font-bold text-white">{macro.value}</div>
+                    <div className="text-xs mt-1 text-[#666666]">{macro.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-14 bg-[#0A0A0A] rounded-xl" />
+              <div className="h-14 bg-[#0A0A0A] rounded-xl" />
+              <div className="h-14 bg-[#0A0A0A] rounded-xl" />
+            </div>
+          </div>
+          
+          {/* Lock overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+            <div className="w-16 h-16 rounded-full bg-[#B7323F20] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Lock className="w-8 h-8 text-[#B7323F]" />
+            </div>
+            <h3 className="text-white font-semibold text-lg mb-1">Personalized Nutrition</h3>
+            <p className="text-[#808080] text-sm text-center mb-2">Get recommendations based on your blood markers</p>
+            <span className="text-[#B7323F] text-sm font-medium uppercase tracking-wider">PRO • $9/mo</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
