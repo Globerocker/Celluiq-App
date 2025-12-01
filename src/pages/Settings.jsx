@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useLanguage } from "../components/LanguageProvider";
+import ProUpgradeModal from "../components/ProUpgradeModal";
 import { 
   User, 
   Moon, 
@@ -14,7 +15,7 @@ import {
   Lock, 
   LogOut,
   Activity,
-  Link as LinkIcon
+  Sparkles
 } from "lucide-react";
 
 export default function Settings() {
@@ -23,6 +24,7 @@ export default function Settings() {
     return localStorage.getItem('theme') !== 'light';
   });
   const [notifications, setNotifications] = useState(true);
+  const [showProModal, setShowProModal] = useState(false);
 
   const toggleDarkMode = (checked) => {
     setDarkMode(checked);
@@ -39,8 +41,16 @@ export default function Settings() {
     await base44.auth.logout();
   };
 
+  const isPro = user?.subscription_tier === 'pro';
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] p-6">
+      <ProUpgradeModal 
+        isOpen={showProModal} 
+        onClose={() => setShowProModal(false)} 
+        feature="health integrations"
+      />
+      
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Back Button */}
         <Link to={createPageUrl("Home")}>
@@ -53,6 +63,31 @@ export default function Settings() {
           <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
           <p className="text-[#808080]">Manage your account and preferences</p>
         </div>
+
+        {/* Pro Subscription Banner */}
+        {!isPro && (
+          <Card 
+            className="bg-gradient-to-r from-[#B7323F20] to-[#3B7C9E20] border-[#B7323F30] cursor-pointer hover:border-[#B7323F] transition-all"
+            onClick={() => setShowProModal(true)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#B7323F] flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">Upgrade to Pro</p>
+                    <p className="text-[#808080] text-xs">Unlock all features for $9/mo</p>
+                  </div>
+                </div>
+                <Button className="bg-[#B7323F] hover:bg-[#9A2835] text-white text-sm">
+                  Upgrade
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Profile Section */}
         <Card className="bg-[#111111] border-[#1A1A1A]">
@@ -90,65 +125,73 @@ export default function Settings() {
         </Card>
 
         {/* Fitness Tracker Integration */}
-        <Card className="bg-[#111111] border-[#1A1A1A]">
+        <Card className={`bg-[#111111] border-[#1A1A1A] ${!isPro ? 'relative overflow-hidden' : ''}`}>
           <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Activity className="w-5 h-5 text-[#3B7C9E]" />
-              <h3 className="text-lg font-semibold text-white">Connected Devices</h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                <h3 className="text-lg font-semibold text-white">Connected Devices</h3>
+              </div>
+              {!isPro && (
+                <span className="text-xs bg-[#B7323F20] text-[#B7323F] px-2 py-1 rounded-full font-medium">PRO</span>
+              )}
             </div>
             <p className="text-sm text-[#666666] mb-4">
               Sync your fitness data for personalized recommendations
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
+            
+            {isPro ? (
+              <div className="grid grid-cols-2 gap-3">
+                <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                  <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                  </div>
+                  <span className="text-xs">Apple Health</span>
+                </Button>
+                <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                  <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                  </div>
+                  <span className="text-xs">Garmin</span>
+                </Button>
+                <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                  <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                  </div>
+                  <span className="text-xs">Whoop</span>
+                </Button>
+                <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
+                  <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                  </div>
+                  <span className="text-xs">Oura Ring</span>
+                </Button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => setShowProModal(true)}
+                className="grid grid-cols-2 gap-3 blur-sm opacity-50 cursor-pointer"
+              >
+                <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+                <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+                <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+                <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+              </div>
+            )}
+            
+            {!isPro && (
+              <div 
+                className="absolute inset-0 flex items-center justify-center bg-[#0A0A0A]/60 cursor-pointer"
+                onClick={() => setShowProModal(true)}
+              >
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full bg-[#B7323F20] flex items-center justify-center mx-auto mb-2">
+                    <Lock className="w-6 h-6 text-[#B7323F]" />
+                  </div>
+                  <p className="text-white font-medium text-sm">Unlock with Pro</p>
                 </div>
-                <span className="text-xs">Apple Health</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Garmin</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Google Fit</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Fitbit</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Whoop</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Oura Ring</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Strava</span>
-              </Button>
-              <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] justify-between h-auto py-3 flex-col gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                </div>
-                <span className="text-xs">Polar</span>
-              </Button>
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
