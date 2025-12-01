@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingDown, TrendingUp, Droplet, Upload, ArrowUp, ArrowDown } from "lucide-react";
+import { TrendingDown, TrendingUp, Droplet, Upload, ArrowUp, ArrowDown, X } from "lucide-react";
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
+import BloodMarkerUpload from '../BloodMarkerUpload';
 
 export default function BloodMarkersSection() {
+  const [showUpload, setShowUpload] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState(null);
   const { data: bloodMarkers, isLoading } = useQuery({
     queryKey: ['bloodMarkers'],
     queryFn: () => base44.entities.BloodMarker.list('-test_date'),
@@ -50,11 +53,26 @@ export default function BloodMarkersSection() {
     );
   }
 
+  const getMarkerPosition = (marker) => {
+    if (!marker.optimal_min || !marker.optimal_max) return 50;
+    const optimalMid = (marker.optimal_min + marker.optimal_max) / 2;
+    const range = marker.optimal_max - marker.optimal_min;
+    const extendedMin = marker.optimal_min - range;
+    const extendedMax = marker.optimal_max + range;
+    const position = ((marker.value - extendedMin) / (extendedMax - extendedMin)) * 100;
+    return Math.max(5, Math.min(95, position));
+  };
+
   return (
     <div className="p-6 space-y-4">
-      <Button className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
+      <BloodMarkerUpload isOpen={showUpload} onClose={() => setShowUpload(false)} />
+      
+      <Button 
+        className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]"
+        onClick={() => setShowUpload(true)}
+      >
         <Upload className="w-4 h-4 mr-2" />
-        Aktuelles Blutbild hochladen
+        Upload Blood Results
       </Button>
 
       {markersList.length === 0 ? (
@@ -106,29 +124,53 @@ export default function BloodMarkersSection() {
                   </div>
                 </div>
                 
+                {/* Interactive Range Bar */}
                 {marker.optimal_min && marker.optimal_max && (
-                  <div className="flex items-center justify-between text-xs mb-3">
-                    <span className="text-[#666666]">Optimal range</span>
-                    <span className="text-[#808080]">
-                      {marker.optimal_min} - {marker.optimal_max} {marker.unit}
-                    </span>
+                  <div 
+                    className="mt-3 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMarker(selectedMarker?.marker_name === marker.marker_name ? null : marker);
+                    }}
+                  >
+                    <div className="relative h-3 rounded-full overflow-hidden bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#B7323F]">
+                      {/* Optimal zone indicator */}
+                      <div 
+                        className="absolute top-0 bottom-0 bg-[#3B7C9E]"
+                        style={{
+                          left: '25%',
+                          right: '25%'
+                        }}
+                      />
+                      {/* Current value marker */}
+                      <div 
+                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-[#111111] shadow-lg transition-all"
+                        style={{ left: `calc(${getMarkerPosition(marker)}% - 8px)` }}
+                      />
+                    </div>
+                    
+                    {/* Expanded detail view */}
+                    {selectedMarker?.marker_name === marker.marker_name && (
+                      <div className="mt-3 p-3 bg-[#0A0A0A] rounded-xl text-xs">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[#B7323F]">Low</span>
+                          <span className="text-[#3B7C9E] font-medium">Optimal</span>
+                          <span className="text-[#B7323F]">High</span>
+                        </div>
+                        <div className="flex justify-between text-[#666666]">
+                          <span>&lt;{marker.optimal_min}</span>
+                          <span>{marker.optimal_min} - {marker.optimal_max}</span>
+                          <span>&gt;{marker.optimal_max}</span>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-[#1A1A1A]">
+                          <p className="text-[#808080]">
+                            Your value: <span className="text-white font-medium">{marker.value} {marker.unit}</span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
-                
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-[#0A0A0A] rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full ${statusColor.replace('text-', 'bg-')}`}
-                      style={{ 
-                        width: marker.status === 'optimal' ? '100%' : 
-                               marker.status === 'suboptimal' ? '65%' : '35%' 
-                      }}
-                    />
-                  </div>
-                  <span className={`text-xs font-medium ${statusColor}`}>
-                    {marker.status}
-                  </span>
-                </div>
               </div>
             );
           })}
