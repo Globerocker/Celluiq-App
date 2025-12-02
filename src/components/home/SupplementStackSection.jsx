@@ -11,6 +11,15 @@ export default function SupplementStackSection() {
   const { t } = useLanguage();
   const [showProModal, setShowProModal] = useState(false);
   const [selectedSupplement, setSelectedSupplement] = useState(null);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  
+  React.useEffect(() => {
+    const handleThemeChange = () => setTheme(localStorage.getItem('theme') || 'dark');
+    window.addEventListener('themeChange', handleThemeChange);
+    return () => window.removeEventListener('themeChange', handleThemeChange);
+  }, []);
+  
+  const isDark = theme === 'dark';
   
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -192,32 +201,32 @@ export default function SupplementStackSection() {
       </div>
 
       {/* Morning Stack */}
-      <div className="bg-[#111111] rounded-2xl p-5 border border-[#1A1A1A]">
+      <div className={`rounded-2xl p-5 border ${isDark ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0] shadow-sm'}`}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center">
             <Sunrise className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-white font-semibold">{t('morningStack')}</h3>
-            <p className="text-[#666666] text-xs">{t('takeWithBreakfast')}</p>
+            <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('morningStack')}</h3>
+            <p className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{t('takeWithBreakfast')}</p>
           </div>
         </div>
         
         <div className="space-y-3">
           {morningStack.length > 0 ? morningStack.map((med, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
+            <div key={index} className={`flex items-center justify-between p-3 rounded-xl ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F1F5F9]'}`}>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-[#1A1A1A]' : 'bg-white'}`}>
                   <Pill className="w-4 h-4 text-[#F59E0B]" />
                 </div>
                 <div>
-                  <p className="text-white text-sm font-medium">{med.name}</p>
-                  <p className="text-[#666666] text-xs">{med.dosage}</p>
+                  <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{med.name}</p>
+                  <p className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{med.dosage}</p>
                 </div>
               </div>
             </div>
           )) : (
-            <p className="text-[#666666] text-sm text-center py-4">{t('noSupplementsYet')}</p>
+            <p className={`text-sm text-center py-4 ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{t('noSupplementsYet')}</p>
           )}
         </div>
       </div>

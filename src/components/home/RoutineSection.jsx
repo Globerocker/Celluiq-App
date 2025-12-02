@@ -22,6 +22,15 @@ export default function RoutineSection() {
     }
     return [];
   });
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  
+  React.useEffect(() => {
+    const handleThemeChange = () => setTheme(localStorage.getItem('theme') || 'dark');
+    window.addEventListener('themeChange', handleThemeChange);
+    return () => window.removeEventListener('themeChange', handleThemeChange);
+  }, []);
+  
+  const isDark = theme === 'dark';
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -172,49 +181,9 @@ export default function RoutineSection() {
       });
     }
 
-    // Add lifestyle recommendations from suboptimal markers
-    suboptimalMarkers.forEach(marker => {
-      const ref = markerReferences.find(r => 
-        r.marker_name?.toLowerCase() === marker.marker_name?.toLowerCase()
-      );
-      
-      if (ref?.lifestyle_low && marker.status === 'low') {
-        const existing = [...morningRoutine, ...eveningRoutine, ...exerciseRoutine];
-        if (!existing.some(r => r.markerBased === ref.marker_name)) {
-          const recommendation = {
-            id: `marker_${ref.marker_name}`,
-            icon: Target,
-            title: `${ref.marker_name} ${t('optimize')}`,
-            description: ref.lifestyle_low.substring(0, 100) + '...',
-            duration: t('daily'),
-            benefits: [ref.marker_name],
-            color: 'teal',
-            markerBased: ref.marker_name
-          };
-          morningRoutine.push(recommendation);
-        }
-      }
-      
-      if (ref?.lifestyle_high && marker.status === 'high') {
-        const existing = [...morningRoutine, ...eveningRoutine, ...exerciseRoutine];
-        if (!existing.some(r => r.markerBased === ref.marker_name)) {
-          const recommendation = {
-            id: `marker_${ref.marker_name}`,
-            icon: Target,
-            title: `${ref.marker_name} ${t('reduce')}`,
-            description: ref.lifestyle_high.substring(0, 100) + '...',
-            duration: t('daily'),
-            benefits: [ref.marker_name],
-            color: 'rose',
-            markerBased: ref.marker_name
-          };
-          eveningRoutine.push(recommendation);
-        }
-      }
-    });
-
+    // Skip marker-based lifestyle recommendations - keep it simple
     return { morningRoutine, eveningRoutine, exerciseRoutine };
-  }, [user, suboptimalMarkers, markerReferences, t]);
+  }, [user, t]);
 
   const toggleCheck = (id) => {
     const newChecked = checkedItems.includes(id) 
@@ -258,7 +227,9 @@ export default function RoutineSection() {
         className={`w-full p-4 rounded-xl border transition-all text-left ${
           isChecked 
             ? 'bg-green-500/10 border-green-500/30' 
-            : 'bg-[#111111] border-[#1A1A1A] hover:border-[#333333]'
+            : isDark 
+              ? 'bg-[#111111] border-[#1A1A1A] hover:border-[#333333]'
+              : 'bg-white border-[#E2E8F0] hover:border-[#CBD5E1] shadow-sm'
         }`}
       >
         <div className="flex items-start gap-3">
@@ -267,23 +238,23 @@ export default function RoutineSection() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h4 className={`font-medium ${isChecked ? 'text-green-400 line-through' : 'text-white'}`}>
+              <h4 className={`font-medium ${isChecked ? 'text-green-400 line-through' : isDark ? 'text-white' : 'text-[#0F172A]'}`}>
                 {item.title}
               </h4>
               {isChecked ? (
                 <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
               ) : (
-                <Circle className="w-5 h-5 text-[#333333] shrink-0" />
+                <Circle className={`w-5 h-5 shrink-0 ${isDark ? 'text-[#333333]' : 'text-[#CBD5E1]'}`} />
               )}
             </div>
-            <p className="text-[#666666] text-sm mt-1 line-clamp-2">{item.description}</p>
+            <p className={`text-sm mt-1 line-clamp-2 ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{item.description}</p>
             <div className="flex items-center gap-3 mt-2">
-              <span className="text-[#808080] text-xs flex items-center gap-1">
+              <span className={`text-xs flex items-center gap-1 ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
                 <Timer className="w-3 h-3" /> {item.duration}
               </span>
               <div className="flex gap-1">
                 {item.benefits.slice(0, 2).map((b, i) => (
-                  <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-[#1A1A1A] text-[#808080]">
+                  <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full ${isDark ? 'bg-[#1A1A1A] text-[#808080]' : 'bg-[#F1F5F9] text-[#64748B]'}`}>
                     {b}
                   </span>
                 ))}
@@ -296,21 +267,21 @@ export default function RoutineSection() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`p-6 space-y-6 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F8FAFC]'}`}>
       {/* Progress Header */}
-      <Card className="bg-gradient-to-br from-[#111111] to-[#1A1A1A] border-[#1A1A1A]">
+      <Card className={isDark ? 'bg-gradient-to-br from-[#111111] to-[#1A1A1A] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0] shadow-sm'}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-xl font-bold text-white">{t('yourDailyRoutine')}</h2>
-              <p className="text-[#808080] text-sm">{t('routineDescription')}</p>
+              <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('yourDailyRoutine')}</h2>
+              <p className={`text-sm ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{t('routineDescription')}</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-white">{progress}%</p>
-              <p className="text-[#666666] text-xs">{completedCount}/{totalCount} {t('completed')}</p>
+              <p className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{progress}%</p>
+              <p className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{completedCount}/{totalCount} {t('completed')}</p>
             </div>
           </div>
-          <div className="w-full h-2 bg-[#1A1A1A] rounded-full overflow-hidden">
+          <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#1A1A1A]' : 'bg-[#E2E8F0]'}`}>
             <div 
               className="h-full bg-gradient-to-r from-[#B7323F] to-[#3B7C9E] rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
@@ -324,7 +295,7 @@ export default function RoutineSection() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Sun className="w-5 h-5 text-yellow-500" />
-            <h3 className="text-lg font-semibold text-white">{t('morningRoutine')}</h3>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('morningRoutine')}</h3>
           </div>
           <div className="space-y-3">
             {routine.morningRoutine.map(item => (
@@ -339,7 +310,7 @@ export default function RoutineSection() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Dumbbell className="w-5 h-5 text-red-500" />
-            <h3 className="text-lg font-semibold text-white">{t('exerciseRoutine')}</h3>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('exerciseRoutine')}</h3>
           </div>
           <div className="space-y-3">
             {routine.exerciseRoutine.map(item => (
@@ -354,7 +325,7 @@ export default function RoutineSection() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <Moon className="w-5 h-5 text-purple-500" />
-            <h3 className="text-lg font-semibold text-white">{t('eveningRoutine')}</h3>
+            <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('eveningRoutine')}</h3>
           </div>
           <div className="space-y-3">
             {routine.eveningRoutine.map(item => (
@@ -369,8 +340,8 @@ export default function RoutineSection() {
         <div className="flex items-start gap-3">
           <Sparkles className="w-5 h-5 text-[#3B7C9E] shrink-0 mt-0.5" />
           <div>
-            <p className="text-white font-medium text-sm">{t('personalizedRoutine')}</p>
-            <p className="text-[#808080] text-xs mt-1">
+            <p className={`font-medium text-sm ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('personalizedRoutine')}</p>
+            <p className={`text-xs mt-1 ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
               {t('personalizedRoutineDesc')}
             </p>
           </div>
