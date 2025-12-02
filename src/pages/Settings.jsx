@@ -392,7 +392,7 @@ export default function Settings() {
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                     <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('activityLevel')}</span>
-                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) : '-'}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) || user.activity_level : '-'}</span>
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                     <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('dietLabel')}</span>
@@ -408,25 +408,25 @@ export default function Settings() {
 
             {/* Recent Tests */}
             {testDates.length > 0 && (
-              <Card className="bg-[#111111] border-[#1A1A1A]">
+              <Card className={darkMode ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'}>
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">{t('lastBloodTests')}</h3>
+                  <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('lastBloodTests')}</h3>
                   <div className="space-y-3">
                     {testDates.slice(0, 3).map((date, idx) => {
                       const markersOnDate = bloodMarkers.filter(m => m.test_date === date);
                       const optOnDate = markersOnDate.filter(m => m.status === 'optimal').length;
                       return (
-                        <div key={idx} className="flex items-center justify-between py-2 border-b border-[#1A1A1A] last:border-0">
+                        <div key={idx} className={`flex items-center justify-between py-2 border-b last:border-0 ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-[#3B7C9E20] flex items-center justify-center">
                               <Droplet className="w-4 h-4 text-[#3B7C9E]" />
                             </div>
                             <div>
-                              <p className="text-white text-sm">{format(new Date(date), 'dd. MMM yyyy', { locale: dateLocale })}</p>
-                              <p className="text-[#666666] text-xs">{markersOnDate.length} {t('marker')}</p>
+                              <p className={`text-sm ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{format(new Date(date), 'dd. MMM yyyy', { locale: dateLocale })}</p>
+                              <p className={`text-xs ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>{markersOnDate.length} Marker</p>
                             </div>
                           </div>
-                          <span className="text-green-400 text-sm">{optOnDate} {t('optimal')}</span>
+                          <span className="text-green-400 text-sm">{optOnDate} Optimal</span>
                         </div>
                       );
                     })}
