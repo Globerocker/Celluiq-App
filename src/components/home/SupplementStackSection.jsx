@@ -96,14 +96,14 @@ export default function SupplementStackSection() {
   // Empty state - no blood markers
   if (Object.keys(latestMarkers).length === 0) {
     return (
-      <div className="p-6">
+      <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="text-center py-12">
           <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
             <Pill className="w-10 h-10" style={{ color: 'var(--text-tertiary)' }} />
           </div>
-          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{t('noRecommendationsYet')}</h2>
+          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{t('noRecommendationsYetSupp')}</h2>
           <p className="max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            {t('uploadBloodworkSupplements')}
+            {t('uploadBloodForSupplements')}
           </p>
         </div>
       </div>
@@ -142,8 +142,8 @@ export default function SupplementStackSection() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{t('basedOnBloodwork')}</h3>
-              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{suboptimalMarkers.length} {t('markersNeedAttention')}</p>
+              <h3 style={{ color: 'var(--text-primary)' }} className="font-semibold">{t('basedOnBloodwork')}</h3>
+              <p style={{ color: 'var(--text-secondary)' }} className="text-xs">{suboptimalMarkers.length} {t('markersNeedingAttention')}</p>
             </div>
           </div>
           
@@ -153,10 +153,10 @@ export default function SupplementStackSection() {
                 key={index} 
                 onClick={() => setSelectedSupplement(supp)}
                 className="flex items-center justify-between p-3 rounded-xl transition-colors text-left w-full"
-                style={{ backgroundColor: 'var(--bg-primary)' }}
+                style={{ backgroundColor: 'var(--bg-tertiary)' }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                     <Pill className="w-4 h-4 text-[#3B7C9E]" />
                   </div>
                   <div>
@@ -186,8 +186,8 @@ export default function SupplementStackSection() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('amPmStackComingSoon')}</p>
-            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('supplementPackages')}</p>
+            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('comingSoon')}</p>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('comingSoonDesc')}</p>
           </div>
         </div>
       </div>
@@ -218,49 +218,48 @@ export default function SupplementStackSection() {
               </div>
             </div>
           )) : (
-            <p className="text-sm text-center py-4" style={{ color: 'var(--text-tertiary)' }}>{t('noSupplementsAdded')}</p>
+            <p className="text-sm text-center py-4" style={{ color: 'var(--text-tertiary)' }}>{t('noSupplementsYet')}</p>
           )}
         </div>
       </div>
 
       {/* Evening Stack - Locked for Free Users */}
       {isPro ? (
-        <div className="rounded-2xl p-5 border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+        <div className="bg-[#111111] rounded-2xl p-5 border border-[#1A1A1A]">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#4F46E5] flex items-center justify-center">
               <Moon className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{t('eveningStack')}</h3>
-              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('takeBeforeBed')}</p>
+              <h3 className="text-white font-semibold">Evening Stack</h3>
+              <p className="text-[#666666] text-xs">Vor dem Schlafengehen</p>
             </div>
           </div>
           
           <div className="space-y-3">
             {eveningStack.length > 0 ? eveningStack.map((med, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+              <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+                  <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
                     <Pill className="w-4 h-4 text-[#6366F1]" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{med.name}</p>
-                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{med.dosage}</p>
+                    <p className="text-white text-sm font-medium">{med.name}</p>
+                    <p className="text-[#666666] text-xs">{med.dosage}</p>
                   </div>
                 </div>
               </div>
             )) : (
-              <p className="text-sm text-center py-4" style={{ color: 'var(--text-tertiary)' }}>{t('noSupplementsAdded')}</p>
+              <p className="text-[#666666] text-sm text-center py-4">Noch keine Supplements hinzugefügt</p>
             )}
           </div>
         </div>
       ) : (
         <div 
           onClick={() => setShowProModal(true)}
-          className="relative rounded-2xl p-5 border cursor-pointer hover:border-[#B7323F] transition-all group overflow-hidden"
-          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+          className="relative rounded-2xl p-5 bg-[#111111] border border-[#1A1A1A] cursor-pointer hover:border-[#B7323F] transition-all group overflow-hidden"
         >
-          <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, var(--bg-primary), var(--bg-primary)/80, transparent)' }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent z-10" />
           
           <div className="blur-sm opacity-50">
             <div className="flex items-center gap-3 mb-4">
@@ -268,13 +267,13 @@ export default function SupplementStackSection() {
                 <Moon className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{t('eveningStack')}</h3>
-                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('takeBeforeBed')}</p>
+                <h3 className="text-white font-semibold">Evening Stack</h3>
+                <p className="text-[#666666] text-xs">Vor dem Schlafengehen</p>
               </div>
             </div>
             <div className="space-y-3">
-              <div className="p-3 rounded-xl h-14" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
-              <div className="p-3 rounded-xl h-14" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
+              <div className="p-3 bg-[#0A0A0A] rounded-xl h-14" />
+              <div className="p-3 bg-[#0A0A0A] rounded-xl h-14" />
             </div>
           </div>
           
@@ -282,8 +281,8 @@ export default function SupplementStackSection() {
             <div className="w-12 h-12 rounded-full bg-[#B7323F20] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <Lock className="w-6 h-6 text-[#B7323F]" />
             </div>
-            <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{t('eveningStack')}</p>
-            <p className="text-[#B7323F] text-xs font-medium mt-1">PRO • 9€/{t('perMonth').replace('/', '')}</p>
+            <p className="text-white font-semibold text-sm">Evening Stack</p>
+            <p className="text-[#B7323F] text-xs font-medium mt-1">PRO • 9€/Monat</p>
           </div>
         </div>
       )}

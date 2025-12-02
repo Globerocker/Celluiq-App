@@ -91,19 +91,22 @@ export default function NutritionSection() {
     other: '🍽️'
   };
 
-  const categoryLabels = {
-    protein: t('protein'),
-    vegetables: t('vegetables'),
-    fruits: t('fruits'),
-    grains: t('grains'),
-    dairy: t('dairy'),
-    fats: t('healthyFats'),
-    nuts_seeds: t('nutsSeeds'),
-    legumes: t('legumes'),
-    seafood: t('seafood'),
-    herbs_spices: t('herbsSpices'),
-    beverages: t('beverages'),
-    other: t('other')
+  const getCategoryLabel = (cat) => {
+    const labels = {
+      protein: t('proteinCat'),
+      vegetables: t('vegetablesCat'),
+      fruits: t('fruitsCat'),
+      grains: t('grainsCat'),
+      dairy: t('dairyCat'),
+      fats: t('fatsCat'),
+      nuts_seeds: t('nutsSeeds'),
+      legumes: t('legumesCat'),
+      seafood: t('seafoodCat'),
+      herbs_spices: t('herbsSpices'),
+      beverages: t('beveragesCat'),
+      other: t('otherCat')
+    };
+    return labels[cat] || cat;
   };
 
   if (isLoading) {
@@ -122,14 +125,14 @@ export default function NutritionSection() {
   // Empty state - no blood markers
   if (Object.keys(latestMarkers).length === 0) {
     return (
-      <div className="p-6">
+      <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="text-center py-12">
           <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
             <Utensils className="w-10 h-10" style={{ color: 'var(--text-tertiary)' }} />
           </div>
           <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{t('noRecommendationsYet')}</h2>
           <p className="max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            {t('uploadBloodworkSupplements')}
+            {t('uploadBloodForNutrition')}
           </p>
         </div>
       </div>
@@ -139,14 +142,14 @@ export default function NutritionSection() {
   // No food references in database
   if (foodReferences.length === 0) {
     return (
-      <div className="p-6">
+      <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="bg-gradient-to-r from-[#3B7C9E20] to-[#3B7C9E10] border border-[#3B7C9E30] rounded-2xl p-6">
           <div className="flex items-start gap-4">
             <Sparkles className="w-6 h-6 text-[#3B7C9E] shrink-0" />
             <div>
-              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('nutritionRecommendation')}</h3>
+              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('nutritionRecommendations')}</h3>
               <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                {t('basedOnBiomarkers')}
+                {t('databaseBeingBuilt')}
               </p>
             </div>
           </div>
@@ -198,7 +201,7 @@ export default function NutritionSection() {
           <div key={category}>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">{categoryIcons[category]}</span>
-              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{categoryLabels[category]}</h3>
+              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{getCategoryLabel(category)}</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
