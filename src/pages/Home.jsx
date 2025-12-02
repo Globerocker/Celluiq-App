@@ -56,16 +56,16 @@ export default function Home() {
   const ActiveComponent = sections[activeSection].component;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-8">
+    <div className="min-h-screen pb-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header with Health Score */}
-      <div className="bg-gradient-to-br from-[#111111] via-[#111111] to-[#1A1A1A] px-6 pt-10 pb-8 border-b border-[#1A1A1A] relative overflow-hidden">
+      <div className="px-6 pt-10 pb-8 border-b relative overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <p className="text-[#808080] text-xs uppercase tracking-[0.2em] mb-4 font-medium">
+          <p className="text-xs uppercase tracking-[0.2em] mb-4 font-medium" style={{ color: 'var(--text-secondary)' }}>
             {t('yourCelluiqScore')}
           </p>
           <div className="relative inline-block mb-4">
-            <div className="text-7xl md:text-8xl font-bold text-white mb-2 tracking-tight">
+            <div className="text-7xl md:text-8xl font-bold mb-2 tracking-tight" style={{ color: 'var(--text-primary)' }}>
               {healthScore}
             </div>
             {bloodMarkers.length > 0 && (
@@ -77,14 +77,14 @@ export default function Home() {
           <div className="flex items-center justify-center gap-2 text-sm">
             <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
           </div>
-          <p className="text-[#808080] text-sm mt-4 max-w-md mx-auto leading-relaxed">
+          <p className="text-sm mt-4 max-w-md mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             {bloodMarkers.length > 0 ? t('outstandingProgress') : 'Lade dein erstes Blutbild hoch um zu starten'}
           </p>
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="sticky top-[57px] z-40 bg-[#0A0A0A] border-b border-[#1A1A1A]">
+      <div className="sticky top-[57px] z-40 border-b" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-center gap-2">
             {sections.map((section, index) => (
@@ -94,8 +94,9 @@ export default function Home() {
                 className={`px-4 md:px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                   activeSection === index 
                     ? 'bg-[#B7323F] text-white' 
-                    : 'bg-[#1A1A1A] text-[#808080] hover:bg-[#222222]'
+                    : ''
                 }`}
+                style={activeSection !== index ? { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' } : {}}
               >
                 {section.title}
               </button>

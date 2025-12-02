@@ -70,7 +70,8 @@ export default function Layout({ children, currentPageName }) {
           </Link>
           <Link 
             to={createPageUrl("Settings")}
-            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[#1A1A1A] transition-all"
+            className="flex items-center gap-2 p-1.5 rounded-xl transition-all"
+            style={{ '--hover-bg': 'var(--bg-tertiary)' }}
           >
             <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center">
               {user?.profile_photo ? (
