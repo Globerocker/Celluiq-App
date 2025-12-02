@@ -15,8 +15,17 @@ export default function BloodMarkersSection() {
   const { t } = useLanguage();
   const [showUpload, setShowUpload] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
-  const [statusFilter, setStatusFilter] = useState(null); // null = all, 'optimal', 'suboptimal', 'critical'
+  const [statusFilter, setStatusFilter] = useState(null);
   const [showAddManual, setShowAddManual] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  
+  React.useEffect(() => {
+    const handleThemeChange = () => setTheme(localStorage.getItem('theme') || 'dark');
+    window.addEventListener('themeChange', handleThemeChange);
+    return () => window.removeEventListener('themeChange', handleThemeChange);
+  }, []);
+  
+  const isDark = theme === 'dark';
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -193,7 +202,7 @@ export default function BloodMarkersSection() {
   }
 
   return (
-    <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className={`p-6 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F8FAFC]'}`}>
       <BloodMarkerUpload isOpen={showUpload} onClose={() => setShowUpload(false)} />
 
       {selectedMarker && (
@@ -254,11 +263,14 @@ export default function BloodMarkersSection() {
         
         <button
           onClick={() => setShowAddManual(true)}
-          className="rounded-xl p-4 flex items-center gap-2 transition-all border"
-          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+          className={`border rounded-xl p-4 flex items-center gap-2 transition-all ${
+            isDark 
+              ? 'bg-[#111111] border-[#333333] hover:bg-[#1A1A1A]' 
+              : 'bg-white border-[#E2E8F0] hover:bg-[#F1F5F9]'
+          }`}
         >
-          <Plus className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
-          <span className="text-sm hidden md:block" style={{ color: 'var(--text-secondary)' }}>{t('addManually')}</span>
+          <Plus className={`w-5 h-5 ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`} />
+          <span className={`text-sm hidden md:block ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>Manuell hinzufügen</span>
         </button>
       </div>
 
@@ -309,7 +321,7 @@ export default function BloodMarkersSection() {
             onClick={() => setStatusFilter(null)}
             className="text-[#B7323F] text-sm flex items-center gap-1 hover:opacity-80"
           >
-            <X className="w-3 h-3" /> {t('showAll')}
+            <X className="w-3 h-3" /> Alle anzeigen
           </button>
         </div>
       )}
@@ -330,18 +342,22 @@ export default function BloodMarkersSection() {
             <button
               key={marker.id}
               onClick={() => setSelectedMarker(marker)}
-              className="w-full bg-[#111111] rounded-2xl p-4 border border-[#1A1A1A] hover:border-[#333333] transition-all text-left"
+              className={`w-full rounded-2xl p-4 border transition-all text-left ${
+                isDark 
+                  ? 'bg-[#111111] border-[#1A1A1A] hover:border-[#333333]' 
+                  : 'bg-white border-[#E2E8F0] hover:border-[#CBD5E1] shadow-sm'
+              }`}
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-white font-semibold">{marker.marker_name}</h3>
+                    <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{marker.marker_name}</h3>
                     {reference && <Info className="w-3.5 h-3.5 text-[#3B7C9E]" />}
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-[#666666] text-xs capitalize">{marker.category?.replace('_', ' ')}</p>
+                    <p className={`text-xs capitalize ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{marker.category?.replace('_', ' ')}</p>
                     {marker.test_date && (
-                      <span className="text-[#666666] text-xs">
+                      <span className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
                         • {format(new Date(marker.test_date), 'dd.MM.yy', { locale: de })}
                       </span>
                     )}
@@ -349,11 +365,11 @@ export default function BloodMarkersSection() {
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-bold text-lg">{marker.value}</span>
-                    <span className="text-[#666666] text-sm">{marker.unit}</span>
+                    <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{marker.value}</span>
+                    <span className={`text-sm ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{marker.unit}</span>
                     {trend === 'up' && <TrendingUp className="w-4 h-4 text-green-400" />}
                     {trend === 'down' && <TrendingDown className="w-4 h-4 text-red-400" />}
-                    {trend === 'same' && <Minus className="w-4 h-4 text-[#666666]" />}
+                    {trend === 'same' && <Minus className={`w-4 h-4 ${isDark ? 'text-[#666666]' : 'text-[#94A3B8]'}`} />}
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor(marker.status)}`}>
                     {marker.status === 'optimal' ? 'Optimal' : 
@@ -366,16 +382,11 @@ export default function BloodMarkersSection() {
 
               {/* Range Bar */}
               <div className="relative h-3">
-                <div className="absolute inset-0 bg-[#1A1A1A] rounded-full overflow-hidden">
-                  {/* Low zone */}
+                <div className={`absolute inset-0 rounded-full overflow-hidden ${isDark ? 'bg-[#1A1A1A]' : 'bg-[#E2E8F0]'}`}>
                   <div className="absolute inset-y-0 left-0 w-[18%] bg-red-500/20" />
-                  {/* Suboptimal low */}
                   <div className="absolute inset-y-0 left-[18%] w-[12%] bg-yellow-500/20" />
-                  {/* Optimal zone - centered */}
                   <div className="absolute inset-y-0 left-[30%] right-[30%] bg-green-500/30" />
-                  {/* Suboptimal high */}
                   <div className="absolute inset-y-0 right-[18%] w-[12%] bg-yellow-500/20" />
-                  {/* High zone */}
                   <div className="absolute inset-y-0 right-0 w-[18%] bg-red-500/20" />
                 </div>
                 <div 
@@ -388,11 +399,11 @@ export default function BloodMarkersSection() {
                 />
               </div>
               <div className="flex justify-between mt-1.5">
-                <span className="text-[#666666] text-[10px]">
+                <span className={`text-[10px] ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
                   {marker.optimal_min || reference?.celluiq_range_min || '—'} {marker.unit}
                 </span>
                 <span className="text-green-500/70 text-[10px] font-medium">{t('optimalRange')}</span>
-                <span className="text-[#666666] text-[10px]">
+                <span className={`text-[10px] ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
                   {marker.optimal_max || reference?.celluiq_range_max || '—'} {marker.unit}
                 </span>
               </div>
@@ -404,8 +415,8 @@ export default function BloodMarkersSection() {
       {/* Empty filter result */}
       {sortedMarkers.length === 0 && statusFilter && (
         <div className="text-center py-8">
-          <p style={{ color: 'var(--text-secondary)' }}>{t('noMarkersFound')}</p>
-          <button onClick={() => setStatusFilter(null)} className="text-[#3B7C9E] mt-2 text-sm">{t('showAll')}</button>
+          <p className="text-[#808080]">Keine {statusFilter === 'optimal' ? 'optimalen' : statusFilter === 'suboptimal' ? 'suboptimalen' : 'kritischen'} Marker gefunden</p>
+          <button onClick={() => setStatusFilter(null)} className="text-[#3B7C9E] mt-2 text-sm">Alle Marker anzeigen</button>
         </div>
       )}
 
