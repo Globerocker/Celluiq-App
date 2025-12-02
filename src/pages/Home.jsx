@@ -58,7 +58,7 @@ export default function Home() {
   const ActiveComponent = sections[activeSection].component;
 
   return (
-    <div className="min-h-screen pb-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Header with Health Score */}
       <div className="px-6 pt-10 pb-8 border-b relative overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
@@ -85,9 +85,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="sticky top-[57px] z-40 border-b" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
-        <div className="max-w-4xl mx-auto px-6 py-4">
+      {/* Content Area - Desktop optimized */}
+      <div className="max-w-4xl mx-auto">
+        <ActiveComponent />
+      </div>
+
+      {/* Bottom Tab Navigation - Fixed */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t safe-area-bottom" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+        <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-center gap-2">
             {sections.map((section, index) => (
               <button
@@ -105,11 +110,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Content Area - Desktop optimized */}
-      <div className="max-w-4xl mx-auto">
-        <ActiveComponent />
       </div>
     </div>
   );

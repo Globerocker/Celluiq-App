@@ -17,17 +17,22 @@ export default function Layout({ children, currentPageName }) {
   // Apply theme on mount and watch for changes
   useEffect(() => {
     const applyTheme = () => {
-      const theme = localStorage.getItem('theme');
+      const theme = localStorage.getItem('theme') || 'dark'; // Default to dark
+      const html = document.documentElement;
+      const body = document.body;
+      
       if (theme === 'light') {
-        document.documentElement.classList.add('light-mode');
-        document.body.classList.add('light-mode');
-        document.body.style.backgroundColor = '#F8F9FA';
-        document.body.style.color = '#1A1A1A';
+        html.classList.add('light-mode');
+        body.classList.add('light-mode');
+        html.style.backgroundColor = '#F5F5F7';
+        body.style.backgroundColor = '#F5F5F7';
+        body.style.color = '#1D1D1F';
       } else {
-        document.documentElement.classList.remove('light-mode');
-        document.body.classList.remove('light-mode');
-        document.body.style.backgroundColor = '#0A0A0A';
-        document.body.style.color = '#FFFFFF';
+        html.classList.remove('light-mode');
+        body.classList.remove('light-mode');
+        html.style.backgroundColor = '#0A0A0A';
+        body.style.backgroundColor = '#0A0A0A';
+        body.style.color = '#FFFFFF';
       }
     };
     

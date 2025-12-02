@@ -8,9 +8,9 @@
   --bg-tertiary: #1A1A1A;
   --bg-card: #111111;
   --text-primary: #FFFFFF;
-  --text-secondary: #808080;
-  --text-tertiary: #666666;
-  --border-color: #1A1A1A;
+  --text-secondary: #A0A0A0;
+  --text-tertiary: #707070;
+  --border-color: #222222;
   --border-hover: #333333;
   --accent-red: #B7323F;
   --accent-blue: #3B7C9E;
@@ -18,18 +18,23 @@
 }
 
 .light-mode {
-  --bg-primary: #F8F9FA;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F1F3F4;
-  --bg-card: #FFFFFF;
-  --text-primary: #1A1A1A;
-  --text-secondary: #5F6368;
-  --text-tertiary: #80868B;
-  --border-color: #E8EAED;
-  --border-hover: #DADCE0;
-  --accent-red: #B7323F;
-  --accent-blue: #3B7C9E;
-  --shadow-color: rgba(0, 0, 0, 0.08);
+  --bg-primary: #F5F5F7 !important;
+  --bg-secondary: #FFFFFF !important;
+  --bg-tertiary: #EBEBEB !important;
+  --bg-card: #FFFFFF !important;
+  --text-primary: #1D1D1F !important;
+  --text-secondary: #6E6E73 !important;
+  --text-tertiary: #86868B !important;
+  --border-color: #D2D2D7 !important;
+  --border-hover: #C7C7CC !important;
+  --accent-red: #B7323F !important;
+  --accent-blue: #3B7C9E !important;
+  --shadow-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Safe area for bottom navigation */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 body {
@@ -59,18 +64,64 @@ body {
   background-color: #E8EAED !important;
 }
 
-/* Dynamic text colors - exclude specific elements */
-.light-mode .text-white:not(.bg-gradient-to-r):not(.bg-\[\#B7323F\]):not(.bg-\[\#3B7C9E\]):not([class*="bg-gradient"]) {
-  color: #1A1A1A !important;
+/* Light mode - force all backgrounds */
+.light-mode,
+.light-mode body,
+.light-mode #root {
+  background-color: #F5F5F7 !important;
+  color: #1D1D1F !important;
 }
 
-/* Keep white text on colored backgrounds */
-.light-mode .bg-\[\#B7323F\] .text-white,
-.light-mode .bg-\[\#3B7C9E\] .text-white,
-.light-mode .bg-gradient-to-r .text-white,
-.light-mode .bg-gradient-to-br .text-white,
-.light-mode [class*="from-\[\#B7323F\]"] .text-white,
-.light-mode [class*="from-\[\#3B7C9E\]"] .text-white {
+/* Light mode specific overrides */
+.light-mode .bg-\[\#0A0A0A\],
+.light-mode .bg-\[\#111111\],
+.light-mode .bg-\[\#1A1A1A\] {
+  background-color: #FFFFFF !important;
+}
+
+.light-mode .bg-\[\#222222\] {
+  background-color: #EBEBEB !important;
+}
+
+/* Text colors in light mode */
+.light-mode .text-white {
+  color: #1D1D1F !important;
+}
+
+.light-mode .text-\[\#808080\],
+.light-mode .text-\[\#A0A0A0\] {
+  color: #6E6E73 !important;
+}
+
+.light-mode .text-\[\#666666\],
+.light-mode .text-\[\#707070\] {
+  color: #86868B !important;
+}
+
+/* Border colors */
+.light-mode .border-\[\#1A1A1A\],
+.light-mode .border-\[\#222222\],
+.light-mode .border-\[\#333333\] {
+  border-color: #D2D2D7 !important;
+}
+
+/* Keep white text on accent buttons */
+.light-mode .bg-\[\#B7323F\],
+.light-mode .bg-\[\#3B7C9E\],
+.light-mode button.bg-\[\#B7323F\],
+.light-mode button.bg-\[\#3B7C9E\] {
+  color: #FFFFFF !important;
+}
+
+.light-mode .bg-\[\#B7323F\] *,
+.light-mode .bg-\[\#3B7C9E\] * {
+  color: #FFFFFF !important;
+}
+
+/* Gradient backgrounds keep white text */
+.light-mode .bg-gradient-to-r.from-\[\#B7323F\] *,
+.light-mode .bg-gradient-to-br.from-\[\#B7323F\] *,
+.light-mode [class*="from-\[\#B7323F\]"][class*="to-"] * {
   color: #FFFFFF !important;
 }
 
@@ -295,26 +346,55 @@ html {
   background-color: #E8EAED !important;
 }
 
-/* Keep accent colors the same */
-.light-mode .bg-\[\#B7323F\],
-.light-mode button.bg-\[\#B7323F\] {
-  background-color: #B7323F !important;
-  color: white !important;
+/* Cards and containers */
+.light-mode [class*="rounded-xl"],
+.light-mode [class*="rounded-2xl"] {
+  background-color: #FFFFFF;
+  border-color: #D2D2D7;
 }
 
-.light-mode .bg-\[\#3B7C9E\],
-.light-mode button.bg-\[\#3B7C9E\] {
-  background-color: #3B7C9E !important;
-  color: white !important;
+/* Input fields */
+.light-mode input,
+.light-mode textarea,
+.light-mode select {
+  background-color: #FFFFFF !important;
+  border-color: #D2D2D7 !important;
+  color: #1D1D1F !important;
 }
 
-/* Gradient buttons stay dark text on light backgrounds only */
-.light-mode .bg-gradient-to-r.from-\[\#B7323F\] {
-  color: white !important;
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: #86868B !important;
 }
 
-.light-mode .bg-gradient-to-br.from-\[\#B7323F\] {
-  color: white !important;
+/* Modals and dialogs */
+.light-mode [role="dialog"],
+.light-mode .fixed.inset-0 > div:not(.bg-black) {
+  background-color: #FFFFFF !important;
+}
+
+/* Status colors stay the same */
+.light-mode .text-green-400,
+.light-mode .text-green-500 {
+  color: #22C55E !important;
+}
+
+.light-mode .text-yellow-400,
+.light-mode .text-yellow-500 {
+  color: #EAB308 !important;
+}
+
+.light-mode .text-red-400,
+.light-mode .text-red-500 {
+  color: #EF4444 !important;
+}
+
+.light-mode .text-\[\#3B7C9E\] {
+  color: #3B7C9E !important;
+}
+
+.light-mode .text-\[\#B7323F\] {
+  color: #B7323F !important;
 }
 
 /* Stats boxes */
