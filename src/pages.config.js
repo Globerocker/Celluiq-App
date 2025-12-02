@@ -4,6 +4,7 @@ import Profile from './pages/Profile';
 import Subscription from './pages/Subscription';
 import Onboarding from './pages/Onboarding';
 import ShoppingList from './pages/ShoppingList';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "Subscription": Subscription,
     "Onboarding": Onboarding,
     "ShoppingList": ShoppingList,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {

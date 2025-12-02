@@ -16,7 +16,8 @@ import {
   LogOut,
   Activity,
   Sparkles,
-  ChevronLeft
+  ChevronLeft,
+  ExternalLink
 } from "lucide-react";
 
 export default function Settings() {
@@ -24,7 +25,7 @@ export default function Settings() {
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') !== 'light';
   });
-  const [notifications, setNotifications] = useState(true);
+  
   const [showProModal, setShowProModal] = useState(false);
 
   // Apply theme on mount
@@ -246,7 +247,7 @@ export default function Settings() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
+                <Link to={createPageUrl("Notifications")} className="flex items-center justify-between py-3 border-b border-[#1A1A1A] hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
                   <div className="flex items-center gap-3">
                     <Bell className="w-5 h-5 text-[#808080]" />
                     <div>
@@ -254,14 +255,15 @@ export default function Settings() {
                       <p className="text-xs text-[#666666]">Gesundheitserinnerungen</p>
                     </div>
                   </div>
-                  <Switch 
-                    checked={notifications} 
-                    onCheckedChange={setNotifications}
-                    className="data-[state=checked]:bg-[#3B7C9E]"
-                  />
-                </div>
+                  <ChevronLeft className="w-4 h-4 text-[#666666] rotate-180" />
+                </Link>
 
-                <div className="flex items-center justify-between py-3">
+                <a 
+                  href="https://celluiq.com/privacy" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between py-3 hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <Lock className="w-5 h-5 text-[#808080]" />
                     <div>
@@ -269,7 +271,8 @@ export default function Settings() {
                       <p className="text-xs text-[#666666]">Deine Daten verwalten</p>
                     </div>
                   </div>
-                </div>
+                  <ChevronLeft className="w-4 h-4 text-[#666666] rotate-180" />
+                </a>
               </CardContent>
             </Card>
           </div>
