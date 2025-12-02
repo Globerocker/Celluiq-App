@@ -327,14 +327,16 @@ export const translations = {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguageState] = useState(() => {
+  const [language, setLanguageInternal] = useState(() => {
     return localStorage.getItem('language') || 'de';
   });
 
   const setLanguage = (lang) => {
-    setLanguageState(lang);
+    setLanguageInternal(lang);
     localStorage.setItem('language', lang);
     document.documentElement.lang = lang;
+    // Force re-render of all components using translations
+    window.dispatchEvent(new Event('languageChange'));
   };
 
   useEffect(() => {
