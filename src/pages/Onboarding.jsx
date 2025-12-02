@@ -101,6 +101,13 @@ export default function Onboarding() {
       ...prev,
       [questions[step].id]: value
     }));
+    
+    // Auto-advance to next step after selection
+    setTimeout(() => {
+      if (step < questions.length - 1) {
+        setStep(step + 1);
+      }
+    }, 300);
   };
 
   const handleNext = () => {
@@ -195,27 +202,22 @@ export default function Onboarding() {
               className="flex-1 bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]"
             >
               <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
+              Zurück
             </Button>
           )}
-          <Button
-            onClick={handleNext}
-            disabled={!currentAnswer || updateUserMutation.isPending}
-            className={`flex-1 bg-[#B7323F] hover:bg-[#9A2835] text-white ${
-              step === 0 ? "w-full" : ""
-            }`}
-          >
-            {updateUserMutation.isPending ? (
-              "Saving..."
-            ) : step === questions.length - 1 ? (
-              "Complete"
-            ) : (
-              <>
-                Continue
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </>
-            )}
-          </Button>
+          {step === questions.length - 1 && (
+            <Button
+              onClick={handleNext}
+              disabled={!currentAnswer || updateUserMutation.isPending}
+              className="flex-1 bg-[#B7323F] hover:bg-[#9A2835] text-white"
+            >
+              {updateUserMutation.isPending ? (
+                "Speichern..."
+              ) : (
+                "Fertig"
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>
