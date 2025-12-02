@@ -29,8 +29,24 @@ export default function Settings() {
   const toggleDarkMode = (checked) => {
     setDarkMode(checked);
     localStorage.setItem('theme', checked ? 'dark' : 'light');
-    document.documentElement.classList.toggle('light-mode', !checked);
+    if (checked) {
+      document.documentElement.classList.remove('light-mode');
+      document.body.classList.remove('light-mode');
+    } else {
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.add('light-mode');
+    }
   };
+
+  // Apply theme on mount
+  React.useEffect(() => {
+    const isDark = localStorage.getItem('theme') !== 'light';
+    setDarkMode(isDark);
+    if (!isDark) {
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.add('light-mode');
+    }
+  }, []);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],

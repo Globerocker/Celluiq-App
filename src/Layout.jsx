@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Settings, User } from "lucide-react";
@@ -6,6 +6,18 @@ import { LanguageProvider } from "./components/LanguageProvider";
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+
+  // Apply theme on app load
+  useEffect(() => {
+    const isDark = localStorage.getItem('theme') !== 'light';
+    if (!isDark) {
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.add('light-mode');
+    } else {
+      document.documentElement.classList.remove('light-mode');
+      document.body.classList.remove('light-mode');
+    }
+  }, []);
 
   return (
     <LanguageProvider>

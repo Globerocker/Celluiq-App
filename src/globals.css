@@ -8,23 +8,34 @@ css
   --bg-secondary: #111111;
   --bg-tertiary: #1A1A1A;
   --text-primary: #FFFFFF;
-  --text-secondary: #808080;
+  --text-secondary: #A0A0A0;
   --text-tertiary: #666666;
-  --border-color: #1A1A1A;
+  --border-color: #2A2A2A;
   --accent-red: #B7323F;
   --accent-blue: #3B7C9E;
 }
 
 .light-mode {
-  --bg-primary: #F6F7F5;
+  --bg-primary: #F8F9FA;
   --bg-secondary: #FFFFFF;
-  --bg-tertiary: #E8E9E7;
-  --text-primary: #111315;
-  --text-secondary: #64676A;
-  --text-tertiary: #808080;
-  --border-color: #E8E9E7;
+  --bg-tertiary: #F0F1F2;
+  --text-primary: #1A1A1A;
+  --text-secondary: #5A5A5A;
+  --text-tertiary: #8A8A8A;
+  --border-color: #E5E5E5;
   --accent-red: #B7323F;
   --accent-blue: #3B7C9E;
+}
+
+.light-mode .bg-\[\#0A0A0A\],
+.light-mode .bg-\[\#111111\],
+.light-mode .bg-\[\#1A1A1A\] {
+  background-color: var(--bg-secondary) !important;
+}
+
+.light-mode .border-\[\#1A1A1A\],
+.light-mode .border-\[\#333333\] {
+  border-color: var(--border-color) !important;
 }
 
 body {
@@ -35,6 +46,28 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Card styling for light mode */
+.light-mode [class*="bg-[#111111]"],
+.light-mode [class*="bg-[#0A0A0A]"] {
+  background-color: var(--bg-secondary) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Input styling for light mode */
+.light-mode input,
+.light-mode select,
+.light-mode textarea {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Button hover states in light mode */
+.light-mode [class*="hover:bg-[#222222]"]:hover,
+.light-mode [class*="hover:bg-[#1A1A1A]"]:hover {
+  background-color: var(--bg-tertiary) !important;
 }
 
 /* Override Tailwind colors with CSS variables */
