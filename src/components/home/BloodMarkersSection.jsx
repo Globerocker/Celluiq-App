@@ -8,6 +8,8 @@ import BloodMarkerDetailModal from "../bloodmarkers/BloodMarkerDetailModal";
 import ManualMarkerDialog from "../bloodmarkers/ManualMarkerDialog";
 import RecommendedMarkersSection from "../bloodmarkers/RecommendedMarkersSection";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 export default function BloodMarkersSection() {
   const { t } = useLanguage();
@@ -335,7 +337,14 @@ export default function BloodMarkersSection() {
                     <h3 className="text-white font-semibold">{marker.marker_name}</h3>
                     {reference && <Info className="w-3.5 h-3.5 text-[#3B7C9E]" />}
                   </div>
-                  <p className="text-[#666666] text-xs mt-0.5 capitalize">{marker.category?.replace('_', ' ')}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-[#666666] text-xs capitalize">{marker.category?.replace('_', ' ')}</p>
+                    {marker.test_date && (
+                      <span className="text-[#666666] text-xs">
+                        • {format(new Date(marker.test_date), 'dd.MM.yy', { locale: de })}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-2">

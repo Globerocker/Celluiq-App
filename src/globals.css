@@ -59,9 +59,19 @@ body {
   background-color: #E8EAED !important;
 }
 
-/* Dynamic text colors */
-.light-mode .text-white {
+/* Dynamic text colors - exclude specific elements */
+.light-mode .text-white:not(.bg-gradient-to-r):not(.bg-\[\#B7323F\]):not(.bg-\[\#3B7C9E\]):not([class*="bg-gradient"]) {
   color: #1A1A1A !important;
+}
+
+/* Keep white text on colored backgrounds */
+.light-mode .bg-\[\#B7323F\] .text-white,
+.light-mode .bg-\[\#3B7C9E\] .text-white,
+.light-mode .bg-gradient-to-r .text-white,
+.light-mode .bg-gradient-to-br .text-white,
+.light-mode [class*="from-\[\#B7323F\]"] .text-white,
+.light-mode [class*="from-\[\#3B7C9E\]"] .text-white {
+  color: #FFFFFF !important;
 }
 
 .light-mode .text-\[\#808080\] {
@@ -289,6 +299,21 @@ html {
 .light-mode .bg-\[\#B7323F\],
 .light-mode button.bg-\[\#B7323F\] {
   background-color: #B7323F !important;
+  color: white !important;
+}
+
+.light-mode .bg-\[\#3B7C9E\],
+.light-mode button.bg-\[\#3B7C9E\] {
+  background-color: #3B7C9E !important;
+  color: white !important;
+}
+
+/* Gradient buttons stay dark text on light backgrounds only */
+.light-mode .bg-gradient-to-r.from-\[\#B7323F\] {
+  color: white !important;
+}
+
+.light-mode .bg-gradient-to-br.from-\[\#B7323F\] {
   color: white !important;
 }
 
