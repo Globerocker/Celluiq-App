@@ -169,7 +169,7 @@ export default function Settings() {
   const dateLocale = language === 'de' ? de : language === 'es' ? es : enUS;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <ProUpgradeModal isOpen={showProModal} onClose={() => setShowProModal(false)} feature="health integrations" />
       <input type="file" ref={fileInputRef} onChange={handlePhotoUpload} accept="image/*" className="hidden" />
       

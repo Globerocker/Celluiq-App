@@ -95,7 +95,7 @@ export default function Notifications() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="max-w-2xl mx-auto space-y-6">
         <Link to={createPageUrl("Settings")}>
           <Button variant="ghost" className="text-[#808080] hover:text-white">
@@ -105,11 +105,11 @@ export default function Notifications() {
         </Link>
         
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            {t('notifications') || 'Benachrichtigungen'}
+          <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+            {t('notifications')}
           </h1>
-          <p className="text-[#808080]">
-            {t('manageNotifications') || 'Verwalte deine Benachrichtigungen'}
+          <p style={{ color: 'var(--text-secondary)' }}>
+            {t('manageNotifications')}
           </p>
         </div>
 
