@@ -127,7 +127,7 @@ export default function BloodMarkersSection() {
   // Empty State for new users
   if (allMarkers.length === 0) {
     return (
-      <div className="p-6">
+      <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <BloodMarkerUpload isOpen={showUpload} onClose={() => setShowUpload(false)} />
         
         <div className="text-center py-8 max-w-lg mx-auto">
@@ -191,9 +191,9 @@ export default function BloodMarkersSection() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <BloodMarkerUpload isOpen={showUpload} onClose={() => setShowUpload(false)} />
-      
+
       {selectedMarker && (
         <BloodMarkerDetailModal 
           marker={selectedMarker} 
