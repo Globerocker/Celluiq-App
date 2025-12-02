@@ -111,9 +111,15 @@ export default function BloodMarkersSection() {
 
   const getMarkerPosition = (value, min, max) => {
     if (!min || !max) return 50;
+    
+    // Extend the visual range by 30% on each side to show values outside optimal
     const range = max - min;
-    const position = ((value - min) / range) * 100;
-    return Math.max(0, Math.min(100, position));
+    const extendedMin = min - (range * 0.3);
+    const extendedMax = max + (range * 0.3);
+    const extendedRange = extendedMax - extendedMin;
+    
+    const position = ((value - extendedMin) / extendedRange) * 100;
+    return Math.max(2, Math.min(98, position));
   };
 
   const canOrderBloodTest = user?.postal_code;
@@ -493,22 +499,35 @@ export default function BloodMarkersSection() {
               </div>
 
               {/* Range Bar */}
-              <div className="relative">
-                <div className="h-2 bg-[#1A1A1A] rounded-full overflow-hidden">
-                  <div className="absolute inset-y-0 left-[20%] right-[20%] bg-green-500/30 rounded-full" />
+              <div className="relative h-3">
+                <div className="absolute inset-0 bg-[#1A1A1A] rounded-full overflow-hidden">
+                  {/* Low zone */}
+                  <div className="absolute inset-y-0 left-0 w-[18%] bg-red-500/20" />
+                  {/* Suboptimal low */}
+                  <div className="absolute inset-y-0 left-[18%] w-[12%] bg-yellow-500/20" />
+                  {/* Optimal zone - centered */}
+                  <div className="absolute inset-y-0 left-[30%] right-[30%] bg-green-500/30" />
+                  {/* Suboptimal high */}
+                  <div className="absolute inset-y-0 right-[18%] w-[12%] bg-yellow-500/20" />
+                  {/* High zone */}
+                  <div className="absolute inset-y-0 right-0 w-[18%] bg-red-500/20" />
                 </div>
                 <div 
-                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-[#B7323F] shadow-lg"
-                  style={{ left: `calc(${position}% - 6px)` }}
+                  className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-lg border-2 ${
+                    marker.status === 'optimal' ? 'border-green-500' :
+                    marker.status === 'suboptimal' ? 'border-yellow-500' :
+                    'border-red-500'
+                  }`}
+                  style={{ left: `calc(${position}% - 7px)` }}
                 />
               </div>
-              <div className="flex justify-between mt-1">
-                <span className="text-[#666666] text-xs">
-                  {marker.optimal_min || reference?.celluiq_range_min || '—'}
+              <div className="flex justify-between mt-1.5">
+                <span className="text-[#666666] text-[10px]">
+                  {marker.optimal_min || reference?.celluiq_range_min || '—'} {marker.unit}
                 </span>
-                <span className="text-[#666666] text-xs">{t('optimalRange')}</span>
-                <span className="text-[#666666] text-xs">
-                  {marker.optimal_max || reference?.celluiq_range_max || '—'}
+                <span className="text-green-500/70 text-[10px] font-medium">{t('optimalRange')}</span>
+                <span className="text-[#666666] text-[10px]">
+                  {marker.optimal_max || reference?.celluiq_range_max || '—'} {marker.unit}
                 </span>
               </div>
             </button>
