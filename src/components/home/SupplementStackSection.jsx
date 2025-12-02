@@ -4,11 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Sunrise, Moon, Pill, Lock, Sparkles, ShoppingCart, ChevronRight } from "lucide-react";
 import { useLanguage } from '../LanguageProvider';
 import ProUpgradeModal from '../ProUpgradeModal';
+import SupplementDetailModal from '../modals/SupplementDetailModal';
 import { Button } from "@/components/ui/button";
 
 export default function SupplementStackSection() {
   const { t } = useLanguage();
   const [showProModal, setShowProModal] = useState(false);
+  const [selectedSupplement, setSelectedSupplement] = useState(null);
   
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -108,6 +110,14 @@ export default function SupplementStackSection() {
     );
   }
 
+  // Find reference for selected supplement
+  const getSupplementReference = (supp) => {
+    if (!supp) return null;
+    return markerReferences.find(ref => 
+      ref.marker_name?.toLowerCase() === supp.forMarker?.toLowerCase()
+    );
+  };
+
   return (
     <div className="p-6 space-y-6">
       <ProUpgradeModal 
@@ -115,6 +125,14 @@ export default function SupplementStackSection() {
         onClose={() => setShowProModal(false)} 
         feature="evening supplements"
       />
+
+      {selectedSupplement && (
+        <SupplementDetailModal 
+          supplement={selectedSupplement}
+          reference={getSupplementReference(selectedSupplement)}
+          onClose={() => setSelectedSupplement(null)}
+        />
+      )}
 
       {/* Personalized Recommendations from Blood Markers */}
       {recommendedSupplements.length > 0 && (
@@ -131,7 +149,11 @@ export default function SupplementStackSection() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {recommendedSupplements.map((supp, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A80] rounded-xl">
+              <button 
+                key={index} 
+                onClick={() => setSelectedSupplement(supp)}
+                className="flex items-center justify-between p-3 bg-[#0A0A0A80] rounded-xl hover:bg-[#0A0A0A] transition-colors text-left w-full"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
                     <Pill className="w-4 h-4 text-[#3B7C9E]" />
@@ -144,7 +166,7 @@ export default function SupplementStackSection() {
                 <span className="text-[#3B7C9E] text-xs bg-[#3B7C9E20] px-2 py-1 rounded-full whitespace-nowrap">
                   {supp.forMarker}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
 

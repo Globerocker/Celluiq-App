@@ -6,9 +6,11 @@ import { ShoppingCart, Clock, ChevronRight, Sparkles, Utensils } from "lucide-re
 import { useLanguage } from "../LanguageProvider";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import FoodDetailModal from "../modals/FoodDetailModal";
 
 export default function NutritionSection() {
   const { t } = useLanguage();
+  const [selectedFood, setSelectedFood] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -164,6 +166,10 @@ export default function NutritionSection() {
 
   return (
     <div className="p-6">
+      {selectedFood && (
+        <FoodDetailModal food={selectedFood} onClose={() => setSelectedFood(null)} />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -198,17 +204,18 @@ export default function NutritionSection() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {foods.slice(0, 4).map((food) => (
-                <div 
+                <button 
                   key={food.id}
-                  className="bg-[#111111] rounded-xl p-4 border border-[#1A1A1A]"
+                  onClick={() => setSelectedFood(food)}
+                  className="bg-[#111111] rounded-xl p-4 border border-[#1A1A1A] hover:border-[#333333] transition-colors text-left w-full"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="text-white font-medium">{food.food_name}</h4>
-                      <p className="text-[#666666] text-xs mt-1">{food.primary_benefits}</p>
+                      <p className="text-[#666666] text-xs mt-1 line-clamp-2">{food.primary_benefits}</p>
                       
                       {food.influenced_markers && (
-                        <p className="text-[#3B7C9E] text-xs mt-2">
+                        <p className="text-[#3B7C9E] text-xs mt-2 line-clamp-1">
                           {food.influenced_markers}
                         </p>
                       )}
@@ -220,25 +227,10 @@ export default function NutritionSection() {
                           <Clock className="w-3 h-3" />
                           {food.daily_dosage || '-'}
                         </div>
-                        {food.best_time && food.best_time !== 'anytime' && (
-                          <p className="text-[#666666] mt-1 capitalize">{food.best_time.replace('_', ' ')}</p>
-                        )}
                       </div>
                     </div>
                   </div>
-                  
-                  {food.combinations && (
-                    <div className="mt-3 pt-3 border-t border-[#1A1A1A]">
-                      <p className="text-[#666666] text-xs">
-                        <span className="text-[#808080]">Kombiniere mit:</span> {food.combinations}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {food.warnings && food.warnings !== 'None' && (
-                    <p className="text-yellow-500/80 text-xs mt-2">⚠️ {food.warnings}</p>
-                  )}
-                </div>
+                </button>
               ))}
             </div>
           </div>
