@@ -1,7 +1,11 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================
+   DARK MODE (Default)
+   ========================================== */
 :root {
   --bg-primary: #0A0A0A;
   --bg-secondary: #111111;
@@ -13,18 +17,25 @@
   --border-color: #222222;
   --border-hover: #333333;
   --accent-red: #B7323F;
-  --accent-blue: #3A6DFF;
-  --accent-blue-hover: #1F3FB8;
+  --accent-blue: #3B7C9E;
   --accent-green: #22C55E;
   --accent-orange: #F97316;
-  --accent-cyan: #06B6D4;
   --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
+html, body {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ==========================================
+   LIGHT MODE
+   ========================================== */
 .light-mode {
   --bg-primary: #F8FAFC !important;
   --bg-secondary: #FFFFFF !important;
-  --bg-tertiary: #F2F7FF !important;
+  --bg-tertiary: #F1F5F9 !important;
   --bg-card: #FFFFFF !important;
   --text-primary: #0F172A !important;
   --text-secondary: #475569 !important;
@@ -33,238 +44,167 @@
   --border-hover: #CBD5E1 !important;
   --accent-red: #B7323F !important;
   --accent-blue: #3A6DFF !important;
-  --accent-blue-hover: #1F3FB8 !important;
   --accent-green: #22C55E !important;
   --accent-orange: #F97316 !important;
-  --accent-cyan: #06B6D4 !important;
-  --shadow-color: rgba(0, 0, 0, 0.04) !important;
+  --shadow-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Safe area for bottom navigation */
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  font-feature-settings: "kern" 1, "liga" 1;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-
-
-/* ========================================
-   CELLUIQ LIGHT MODE - Style Guide
-   ======================================== */
-
-/* Light mode - force all backgrounds */
 .light-mode,
 .light-mode body,
-.light-mode #root {
+html.light-mode {
   background-color: #F8FAFC !important;
   color: #0F172A !important;
 }
 
-/* Background overrides */
-.light-mode .bg-\[\#0A0A0A\] {
-  background-color: #F8FAFC !important;
-}
+/* Light mode background overrides */
+.light-mode .bg-\[\#0A0A0A\] { background-color: #F8FAFC !important; }
+.light-mode .bg-\[\#111111\] { background-color: #FFFFFF !important; }
+.light-mode .bg-\[\#1A1A1A\] { background-color: #F1F5F9 !important; }
+.light-mode .bg-\[\#222222\] { background-color: #E2E8F0 !important; }
 
-.light-mode .bg-\[\#111111\] {
-  background-color: #FFFFFF !important;
-}
+/* Light mode text overrides */
+.light-mode .text-white { color: #0F172A !important; }
+.light-mode .text-\[\#FFFFFF\] { color: #0F172A !important; }
+.light-mode .text-\[\#808080\] { color: #475569 !important; }
+.light-mode .text-\[\#A0A0A0\] { color: #475569 !important; }
+.light-mode .text-\[\#666666\] { color: #64748B !important; }
+.light-mode .text-\[\#707070\] { color: #64748B !important; }
 
-.light-mode .bg-\[\#1A1A1A\] {
-  background-color: #F2F7FF !important;
-}
+/* Light mode border overrides */
+.light-mode .border-\[\#1A1A1A\] { border-color: #E2E8F0 !important; }
+.light-mode .border-\[\#222222\] { border-color: #E2E8F0 !important; }
+.light-mode .border-\[\#333333\] { border-color: #CBD5E1 !important; }
 
-.light-mode .bg-\[\#222222\] {
-  background-color: #F1F5F9 !important;
-}
-
-/* Text colors */
-.light-mode .text-white {
-  color: #0F172A !important;
-}
-
-.light-mode .text-\[\#808080\],
-.light-mode .text-\[\#A0A0A0\] {
-  color: #475569 !important;
-}
-
-.light-mode .text-\[\#666666\],
-.light-mode .text-\[\#707070\] {
-  color: #94A3B8 !important;
-}
-
-/* Border colors */
-.light-mode .border-\[\#1A1A1A\],
-.light-mode .border-\[\#222222\] {
-  border-color: #E2E8F0 !important;
-}
-
-.light-mode .border-\[\#333333\] {
-  border-color: #CBD5E1 !important;
-}
-
-/* Primary Blue Button */
-.light-mode .bg-\[\#3B7C9E\],
-.light-mode button.bg-\[\#3B7C9E\] {
-  background-color: #3A6DFF !important;
-  color: #FFFFFF !important;
-}
-
-.light-mode .bg-\[\#3B7C9E\]:hover,
-.light-mode button.bg-\[\#3B7C9E\]:hover {
-  background-color: #1F3FB8 !important;
-}
-
-.light-mode .text-\[\#3B7C9E\] {
-  color: #3A6DFF !important;
-}
-
-.light-mode .bg-\[\#3B7C9E20\],
-.light-mode .bg-\[\#3B7C9E10\] {
-  background-color: rgba(58, 109, 255, 0.1) !important;
-}
-
-.light-mode .border-\[\#3B7C9E30\],
-.light-mode .border-\[\#3B7C9E40\] {
-  border-color: rgba(58, 109, 255, 0.2) !important;
-}
-
-/* Red/Accent Button */
+/* KEEP accent buttons with WHITE text */
 .light-mode .bg-\[\#B7323F\],
-.light-mode button.bg-\[\#B7323F\] {
-  background-color: #B7323F !important;
+.light-mode .bg-\[\#3B7C9E\],
+.light-mode .bg-\[\#B7323F\]:hover,
+.light-mode .bg-\[\#3B7C9E\]:hover {
   color: #FFFFFF !important;
 }
 
 .light-mode .bg-\[\#B7323F\] *,
-.light-mode .bg-\[\#3B7C9E\] *,
-.light-mode .bg-\[\#3A6DFF\] * {
+.light-mode .bg-\[\#3B7C9E\] * {
   color: #FFFFFF !important;
 }
 
-/* Gradient backgrounds keep white text */
+/* Blue Button overrides - using new accent-blue values */
+.light-mode .bg-\[\#3B7C9E\],
+.light-mode button.bg-\[\#3B7C9E\] {
+  background-color: var(--accent-blue) !important;
+  color: #FFFFFF !important;
+}
+.light-mode .bg-\[\#3B7C9E\]:hover { background-color: #1F3FB8 !important; } /* A slightly darker blue for hover */
+.light-mode .text-\[\#3B7C9E\] { color: var(--accent-blue) !important; }
+.light-mode .bg-\[\#3B7C9E20\],
+.light-mode .bg-\[\#3B7C9E10\] { background-color: rgba(58, 109, 255, 0.1) !important; }
+
+/* Red Button stays red */
+.light-mode .bg-\[\#B7323F\],
+.light-mode button.bg-\[\#B7323F\] {
+  background-color: var(--accent-red) !important;
+  color: #FFFFFF !important;
+}
+
+/* Gradients keep white text */
 .light-mode .bg-gradient-to-r.from-\[\#B7323F\],
 .light-mode .bg-gradient-to-br.from-\[\#B7323F\],
-.light-mode [class*="from-\[\#B7323F\]"][class*="to-"] {
+.light-mode .bg-gradient-to-br.from-\[\#F59E0B\],
+.light-mode .bg-gradient-to-br.from-\[\#6366F1\] {
   color: #FFFFFF !important;
 }
 
 .light-mode .bg-gradient-to-r.from-\[\#B7323F\] *,
 .light-mode .bg-gradient-to-br.from-\[\#B7323F\] *,
-.light-mode [class*="from-\[\#B7323F\]"][class*="to-"] * {
+.light-mode .bg-gradient-to-br.from-\[\#F59E0B\] *,
+.light-mode .bg-gradient-to-br.from-\[\#6366F1\] * {
   color: #FFFFFF !important;
 }
 
-.light-mode .text-\[\#808080\] {
-  color: #5F6368 !important;
-}
-
-.light-mode .text-\[\#666666\] {
-  color: #80868B !important;
-}
-
-/* Dynamic border colors */
-.light-mode .border-\[\#1A1A1A\] {
-  border-color: #E8EAED !important;
-}
-
-.light-mode .border-\[\#333333\] {
-  border-color: #DADCE0 !important;
-}
-
-/* Hover states in light mode */
-.light-mode .hover\:bg-\[\#222222\]:hover {
-  background-color: #E8EAED !important;
-}
-
-.light-mode .hover\:bg-\[\#1A1A1A\]:hover {
-  background-color: #F1F3F4 !important;
-}
-
-.light-mode .hover\:text-white:hover {
-  color: #1A1A1A !important;
-}
-
 /* Cards in light mode */
-.light-mode [class*="CardContent"],
-.light-mode .card {
+.light-mode .rounded-xl.bg-\[\#111111\],
+.light-mode .rounded-2xl.bg-\[\#111111\] {
   background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Modal/Dialog backgrounds */
-.light-mode .bg-black\/80 {
-  background-color: rgba(0, 0, 0, 0.4) !important;
-}
-
-/* Select/Dropdown styling for dark mode */
-select option {
-  background-color: #111111;
-  color: #FFFFFF;
-}
-
-.light-mode select option {
-  background-color: #FFFFFF;
-  color: #1A1A1A;
-}
-
-/* SelectContent from shadcn */
-[data-radix-popper-content-wrapper] [role="listbox"],
-[data-radix-popper-content-wrapper] [role="option"] {
-  color: white;
-}
-
-.light-mode [data-radix-popper-content-wrapper] [role="listbox"],
-.light-mode [data-radix-popper-content-wrapper] [role="option"] {
-  color: #1A1A1A;
-  background-color: #FFFFFF;
-}
-
-/* Input styling */
+/* Inputs in light mode */
 .light-mode input,
-.light-mode textarea {
-  background-color: #F8F9FA !important;
-  border-color: #E8EAED !important;
-  color: #1A1A1A !important;
+.light-mode textarea,
+.light-mode select {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
 }
 
 .light-mode input::placeholder,
 .light-mode textarea::placeholder {
-  color: #80868B !important;
+  color: #94A3B8 !important;
 }
 
-/* Button variants in light mode */
-.light-mode .bg-\[\#B7323F\] {
-  background-color: #B7323F !important;
+.light-mode input:focus,
+.light-mode textarea:focus,
+.light-mode select:focus {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 2px rgba(58, 109, 255, 0.15) !important;
 }
 
-.light-mode .bg-\[\#3B7C9E\] {
-  background-color: #3B7C9E !important;
+/* Dialogs/Modals */
+.light-mode [role="dialog"] {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important; /* Kept existing shadow, adjusted values */
 }
 
-/* Gradient backgrounds in light mode */
-.light-mode .from-\[\#111111\] {
-  --tw-gradient-from: #FFFFFF !important;
+/* Dropdown menus */
+.light-mode [data-radix-popper-content-wrapper] > div {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
 }
 
-.light-mode .to-\[\#1A1A1A\] {
-  --tw-gradient-to: #F8F9FA !important;
+.light-mode [role="option"] {
+  color: #0F172A !important;
 }
 
-/* Switch component */
+.light-mode [role="option"]:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* Switch */
 .light-mode [role="switch"] {
-  background-color: #E8EAED;
+  background-color: #CBD5E1 !important;
 }
 
 .light-mode [role="switch"][data-state="checked"] {
-  background-color: #3B7C9E;
+  background-color: var(--accent-blue) !important; /* Changed to accent-blue variable */
+}
+
+/* Tab buttons */
+.light-mode button.bg-\[\#B7323F\] {
+  background-color: var(--accent-blue) !important; /* Changed to accent-blue variable */
+  color: #FFFFFF !important;
+}
+
+/* Keep profile gradient */
+.light-mode .from-\[\#B7323F\].to-\[\#8B1F2F\] {
+  background: linear-gradient(to bottom right, #B7323F, #8B1F2F) !important;
+}
+
+/* Status colors stay same in both modes */
+.text-green-400, .text-green-500 { color: #22C55E !important; }
+.text-yellow-400, .text-yellow-500 { color: #F59E0B !important; }
+.text-red-400, .text-red-500 { color: #EF4444 !important; }
+
+/* Hover states */
+.light-mode .hover\:bg-\[\#1A1A1A\]:hover,
+.light-mode .hover\:bg-\[\#222222\]:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* Safe area for mobile */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* Scrollbar */
@@ -282,312 +222,14 @@ select option {
   border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
-}
-
-/* Light mode scrollbar */
 .light-mode ::-webkit-scrollbar-track {
-  background: #F1F3F4;
+  background: #F1F5F9; /* Updated to new light-mode tertiary background */
 }
 
 .light-mode ::-webkit-scrollbar-thumb {
-  background: #DADCE0;
+  background: #CBD5E1; /* Updated to new light-mode border-hover */
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
-}
-
-/* Animations */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(183, 50, 63, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(183, 50, 63, 0.5);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Glass effect */
-.glass {
-  background: rgba(17, 17, 17, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.light-mode .glass {
-  background: rgba(255, 255, 255, 0.8);
-}
-
-/* Status badges stay consistent */
-.bg-green-500\/10,
-.bg-green-500\/20,
-.bg-yellow-500\/10,
-.bg-yellow-500\/20,
-.bg-red-500\/10,
-.bg-red-500\/20,
-.bg-blue-500\/10,
-.bg-blue-500\/20 {
-  /* Keep status colors consistent in both modes */
-}
-
-/* Dialog/Modal in light mode */
-.light-mode [role="dialog"] {
-  background-color: #FFFFFF !important;
-  border-color: #E8EAED !important;
-}
-
-.light-mode [role="dialog"] h2,
-.light-mode [role="dialog"] h3,
-.light-mode [role="dialog"] p {
-  color: #1A1A1A;
-}
-
-.light-mode [role="dialog"] .text-\[\#808080\],
-.light-mode [role="dialog"] .text-\[\#666666\] {
-  color: #5F6368 !important;
-}
-
-/* Card components in light mode */
-.light-mode .bg-gradient-to-br.from-\[\#111111\] {
-  background: linear-gradient(to bottom right, #FFFFFF, #F8F9FA) !important;
-}
-
-.light-mode .bg-gradient-to-r.from-\[\#B7323F20\] {
-  background: linear-gradient(to right, rgba(183, 50, 63, 0.1), rgba(59, 124, 158, 0.1)) !important;
-}
-
-/* Specific text fixes for light mode */
-.light-mode h1,
-.light-mode h2,
-.light-mode h3 {
-  color: #1A1A1A !important;
-}
-
-.light-mode p {
-  color: #5F6368;
-}
-
-/* Tab buttons in light mode */
-.light-mode button.bg-\[\#1A1A1A\] {
-  background-color: #F1F3F4 !important;
-  color: #5F6368 !important;
-}
-
-.light-mode button.bg-\[\#1A1A1A\]:hover {
-  background-color: #E8EAED !important;
-}
-
-/* Cards - Apple-like styling */
-.light-mode .bg-\[\#111111\].rounded-xl,
-.light-mode .bg-\[\#111111\].rounded-2xl {
-  background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-}
-
-/* Input fields */
-.light-mode input,
-.light-mode textarea,
-.light-mode select {
-  background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  color: #0F172A !important;
-}
-
-.light-mode input::placeholder,
-.light-mode textarea::placeholder {
-  color: #94A3B8 !important;
-}
-
-.light-mode input:focus,
-.light-mode textarea:focus,
-.light-mode select:focus {
-  border-color: #3A6DFF !important;
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(58, 109, 255, 0.1) !important;
-}
-
-/* Modals and dialogs */
-.light-mode [role="dialog"] {
-  background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Status colors - Health indicators */
-.light-mode .text-green-400,
-.light-mode .text-green-500 {
-  color: #22C55E !important;
-}
-
-.light-mode .bg-green-500\/10,
-.light-mode .bg-green-500\/20 {
-  background-color: rgba(34, 197, 94, 0.1) !important;
-}
-
-/* Warning colors */
-.light-mode .text-yellow-400,
-.light-mode .text-yellow-500 {
-  color: #F97316 !important;
-}
-
-.light-mode .bg-yellow-500\/10,
-.light-mode .bg-yellow-500\/20 {
-  background-color: rgba(249, 115, 22, 0.1) !important;
-}
-
-/* Error/Critical colors */
-.light-mode .text-red-400,
-.light-mode .text-red-500 {
-  color: #EF4444 !important;
-}
-
-.light-mode .bg-red-500\/10,
-.light-mode .bg-red-500\/20 {
-  background-color: rgba(239, 68, 68, 0.1) !important;
-}
-
-/* Blue accent text */
-.light-mode .text-\[\#3B7C9E\] {
-  color: #3A6DFF !important;
-}
-
-/* Hover states */
-.light-mode .hover\:bg-\[\#1A1A1A\]:hover,
-.light-mode .hover\:bg-\[\#222222\]:hover {
-  background-color: #F1F5F9 !important;
-}
-
-.light-mode button:hover {
-  transition: all 0.2s ease;
-}
-
-/* Stats boxes */
-.light-mode .bg-\[\#0A0A0A\].px-4.py-2 {
-  background-color: #F1F3F4 !important;
-}
-
-/* Font colors in stats */
-.light-mode .text-white.font-semibold,
-.light-mode .text-white.font-bold {
-  color: #1A1A1A !important;
-}
-
-/* Keep green/yellow/red status colors */
-.light-mode .text-green-400,
-.light-mode .text-green-500 {
-  color: rgb(34, 197, 94) !important;
-}
-
-.light-mode .text-yellow-400,
-.light-mode .text-yellow-500 {
-  color: rgb(234, 179, 8) !important;
-}
-
-.light-mode .text-red-400,
-.light-mode .text-red-500 {
-  color: rgb(239, 68, 68) !important;
-}
-
-/* SelectItem text color */
-.light-mode [role="option"] {
-  color: #0F172A !important;
-}
-
-.light-mode [role="option"]:hover {
-  background-color: #F2F7FF !important;
-}
-
-/* Dropdown content */
-.light-mode [data-radix-popper-content-wrapper] > div {
-  background-color: #FFFFFF !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-}
-
-/* Secondary/Outline buttons */
-.light-mode button.border-\[\#333333\] {
-  border-color: #CBD5E1 !important;
-  color: #0F172A !important;
-}
-
-.light-mode button.border-\[\#333333\]:hover {
-  background-color: #F1F5F9 !important;
-}
-
-/* Switch component */
-.light-mode [role="switch"] {
-  background-color: #CBD5E1 !important;
-}
-
-.light-mode [role="switch"][data-state="checked"] {
-  background-color: #3A6DFF !important;
-}
-
-/* Tab navigation in light mode */
-.light-mode button.bg-\[\#B7323F\] {
-  background-color: #3A6DFF !important;
-  color: #FFFFFF !important;
-}
-
-/* Gradient overlays for light mode */
-.light-mode .bg-gradient-to-r.from-\[\#B7323F20\] {
-  background: linear-gradient(to right, rgba(58, 109, 255, 0.08), rgba(6, 182, 212, 0.08)) !important;
-}
-
-.light-mode .bg-gradient-to-br.from-\[\#3B7C9E20\] {
-  background: linear-gradient(to bottom right, rgba(58, 109, 255, 0.08), rgba(58, 109, 255, 0.04)) !important;
-}
-
-/* Section backgrounds */
-.light-mode .bg-\[\#0A0A0A80\] {
-  background-color: #F8FAFC !important;
-}
-
-/* Keep profile gradient */
-.light-mode .from-\[\#B7323F\].to-\[\#8B1F2F\] {
-  background: linear-gradient(to bottom right, #B7323F, #8B1F2F) !important;
-}
-
-/* Keep gradient text white */
-.light-mode .bg-gradient-to-r.from-\[\#B7323F\] .text-white,
-.light-mode .bg-gradient-to-br.from-\[\#B7323F\] .text-white,
-.light-mode .bg-\[\#B7323F\] .text-white,
-.light-mode .bg-\[\#3B7C9E\] .text-white,
-.light-mode .bg-gradient-to-br.from-\[\#F59E0B\] .text-white,
-.light-mode .bg-gradient-to-br.from-\[\#6366F1\] .text-white {
-  color: #FFFFFF !important;
-}
-
-/* Ensure buttons with accent colors have white text */
-.light-mode button.bg-\[\#B7323F\],
-.light-mode button.bg-\[\#3B7C9E\],
-.light-mode .Button.bg-\[\#B7323F\] {
-  color: #FFFFFF !important;
-}
-
-.light-mode button.bg-\[\#B7323F\] svg,
-.light-mode button.bg-\[\#3B7C9E\] svg {
-  color: #FFFFFF !important;
-}
-
-/* Dialog select items */
-.light-mode [data-radix-select-viewport] {
-  background-color: #FFFFFF !important;
-}
-
-/* Range bar backgrounds */
-.light-mode .bg-green-500\/30 {
-  background-color: rgba(34, 197, 94, 0.2) !important;
-}
-
-.light-mode .bg-red-500\/20 {
-  background-color: rgba(239, 68, 68, 0.15) !important;
 }
