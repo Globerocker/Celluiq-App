@@ -24,14 +24,14 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
   };
 
   const getStatusLabel = (status) => {
-    const labels = {
-      optimal: t('optimal'),
-      suboptimal: t('suboptimal'),
-      high: language === 'de' ? 'Erhöht' : language === 'es' ? 'Elevado' : 'High',
-      low: language === 'de' ? 'Niedrig' : language === 'es' ? 'Bajo' : 'Low',
-      critical: language === 'de' ? 'Kritisch' : language === 'es' ? 'Crítico' : 'Critical'
-    };
-    return labels[status] || status;
+    switch (status) {
+      case 'optimal': return t('optimal');
+      case 'suboptimal': return t('suboptimal');
+      case 'high': return language === 'de' ? 'Erhöht' : 'High';
+      case 'low': return language === 'de' ? 'Niedrig' : 'Low';
+      case 'critical': return language === 'de' ? 'Kritisch' : 'Critical';
+      default: return status;
+    }
   };
 
   return (
@@ -39,6 +39,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       
       <div className="relative rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[90vh] overflow-y-auto border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+        {/* Header */}
         <div className="sticky top-0 p-6 border-b" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <button 
             onClick={onClose}
@@ -59,7 +60,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
                 <div className="flex items-center gap-1 mt-1">
                   <Calendar className="w-3 h-3" style={{ color: 'var(--text-tertiary)' }} />
                   <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                    {format(new Date(marker.test_date), 'dd. MMM yyyy', { locale: dateLocale })}
+                    {t('asOf')}: {format(new Date(marker.test_date), 'dd. MMM yyyy', { locale: dateLocale })}
                   </span>
                 </div>
               )}
@@ -68,6 +69,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
         </div>
 
         <div className="p-6 space-y-6">
+          {/* Status & Range */}
           <div className="rounded-2xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('yourStatus')}</span>
@@ -95,6 +97,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
             </div>
           </div>
 
+          {/* Symptoms */}
           {reference && (isLow ? reference.symptoms_if_low : reference.symptoms_if_high) && (
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -107,6 +110,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
             </div>
           )}
 
+          {/* Supplement Recommendation */}
           {reference && (isLow ? reference.supplement_low : reference.supplement_high) && 
            (isLow ? reference.supplement_low : reference.supplement_high) !== 'N/A' && (
             <div>
@@ -126,13 +130,20 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
                 {(isLow ? reference.form_low : reference.form_high) && 
                  (isLow ? reference.form_low : reference.form_high) !== 'N/A' && (
                   <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
-                    {t('form')}: {isLow ? reference.form_low : reference.form_high}
+                    Form: {isLow ? reference.form_low : reference.form_high}
+                  </p>
+                )}
+                {(isLow ? reference.mechanism_low : reference.mechanism_high) && 
+                 (isLow ? reference.mechanism_low : reference.mechanism_high) !== 'N/A' && (
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    {isLow ? reference.mechanism_low : reference.mechanism_high}
                   </p>
                 )}
               </div>
             </div>
           )}
 
+          {/* Food Recommendation */}
           {reference && (isLow ? reference.food_low : reference.food_high) && (
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -145,6 +156,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
             </div>
           )}
 
+          {/* Lifestyle */}
           {reference && (isLow ? reference.lifestyle_low : reference.lifestyle_high) && (
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -157,6 +169,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
             </div>
           )}
 
+          {/* Warnings */}
           {reference && (isLow ? reference.warnings_low : reference.warnings_high) && 
            (isLow ? reference.warnings_low : reference.warnings_high) !== 'N/A' && (
             <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
@@ -170,6 +183,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
             </div>
           )}
 
+          {/* Studies */}
           {reference?.studies && reference.studies !== 'N/A' && (
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -180,6 +194,7 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
             </div>
           )}
 
+          {/* Disclaimer */}
           <p className="text-xs text-center px-4 py-2 border-t mt-4" style={{ color: 'var(--text-tertiary)', borderColor: 'var(--border-color)' }}>
             {t('medicalDisclaimer')}
           </p>

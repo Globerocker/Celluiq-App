@@ -144,7 +144,7 @@ export default function Settings() {
 
   const isPro = user?.subscription_tier === 'pro';
 
-  const goalOptions = [
+  const goalOptions = language === 'de' ? [
     { value: 'performance', label: 'Peak Performance' },
     { value: 'longevity', label: 'Longevity & Anti-Aging' },
     { value: 'energy', label: 'Mehr Energie' },
@@ -153,19 +153,61 @@ export default function Settings() {
     { value: 'mental', label: 'Mentale Klarheit' },
     { value: 'muscle', label: 'Muskelaufbau' },
     { value: 'recovery', label: 'Schnellere Regeneration' }
+  ] : language === 'es' ? [
+    { value: 'performance', label: 'Rendimiento Máximo' },
+    { value: 'longevity', label: 'Longevidad' },
+    { value: 'energy', label: 'Más Energía' },
+    { value: 'weight', label: 'Control de Peso' },
+    { value: 'sleep', label: 'Mejor Sueño' },
+    { value: 'mental', label: 'Claridad Mental' },
+    { value: 'muscle', label: 'Ganar Músculo' },
+    { value: 'recovery', label: 'Recuperación Rápida' }
+  ] : [
+    { value: 'performance', label: 'Peak Performance' },
+    { value: 'longevity', label: 'Longevity & Anti-Aging' },
+    { value: 'energy', label: 'More Energy' },
+    { value: 'weight', label: 'Weight Management' },
+    { value: 'sleep', label: 'Better Sleep' },
+    { value: 'mental', label: 'Mental Clarity' },
+    { value: 'muscle', label: 'Muscle Gain' },
+    { value: 'recovery', label: 'Faster Recovery' }
   ];
 
-  const activityOptions = [
+  const activityOptions = language === 'de' ? [
     { value: 'sedentary', label: 'Wenig aktiv' },
     { value: 'light', label: 'Leicht aktiv' },
     { value: 'moderate', label: 'Moderat aktiv' },
     { value: 'active', label: 'Sehr aktiv' },
     { value: 'athlete', label: 'Athlet' }
+  ] : language === 'es' ? [
+    { value: 'sedentary', label: 'Sedentario' },
+    { value: 'light', label: 'Ligeramente activo' },
+    { value: 'moderate', label: 'Moderadamente activo' },
+    { value: 'active', label: 'Muy activo' },
+    { value: 'athlete', label: 'Atleta' }
+  ] : [
+    { value: 'sedentary', label: 'Sedentary' },
+    { value: 'light', label: 'Lightly active' },
+    { value: 'moderate', label: 'Moderately active' },
+    { value: 'active', label: 'Very active' },
+    { value: 'athlete', label: 'Athlete' }
   ];
 
-  const dietOptions = [
+  const dietOptions = language === 'de' ? [
     { value: 'omnivore', label: 'Mischkost' },
     { value: 'vegetarian', label: 'Vegetarisch' },
+    { value: 'vegan', label: 'Vegan' },
+    { value: 'keto', label: 'Keto' },
+    { value: 'paleo', label: 'Paleo' }
+  ] : language === 'es' ? [
+    { value: 'omnivore', label: 'Omnívoro' },
+    { value: 'vegetarian', label: 'Vegetariano' },
+    { value: 'vegan', label: 'Vegano' },
+    { value: 'keto', label: 'Keto' },
+    { value: 'paleo', label: 'Paleo' }
+  ] : [
+    { value: 'omnivore', label: 'Omnivore' },
+    { value: 'vegetarian', label: 'Vegetarian' },
     { value: 'vegan', label: 'Vegan' },
     { value: 'keto', label: 'Keto' },
     { value: 'paleo', label: 'Paleo' }
@@ -188,7 +230,7 @@ export default function Settings() {
         </Link>
 
         {/* Profile Header Card */}
-        <Card className="bg-gradient-to-br from-[#111111] to-[#1A1A1A] border-[#1A1A1A] overflow-hidden">
+        <Card className="overflow-hidden border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Profile Photo */}
@@ -203,7 +245,8 @@ export default function Settings() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#3B7C9E] flex items-center justify-center border-4 border-[#111111] hover:bg-[#2D5F7A] transition-colors"
+                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#3B7C9E] flex items-center justify-center border-4 hover:bg-[#2D5F7A] transition-colors"
+                  style={{ borderColor: 'var(--bg-secondary)' }}
                 >
                   {uploading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -215,25 +258,25 @@ export default function Settings() {
 
               {/* User Info */}
               <div className="flex-1 text-center md:text-left">
-                <h1 className="text-2xl font-bold text-white mb-1">{user?.full_name || 'User'}</h1>
-                <p className="text-[#808080] text-sm mb-4">{user?.email}</p>
+                <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{user?.full_name || 'User'}</h1>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{user?.email}</p>
                 
                 {/* Stats Row */}
                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                     <Droplet className="w-4 h-4 text-[#3B7C9E]" />
-                    <span className="text-white font-semibold">{testDates.length}</span>
-                    <span className="text-[#666666] text-sm">Tests</span>
+                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{testDates.length}</span>
+                    <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Tests</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                     <TrendingUp className="w-4 h-4 text-green-500" />
-                    <span className="text-white font-semibold">{healthScore}%</span>
-                    <span className="text-[#666666] text-sm">Score</span>
+                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{healthScore}%</span>
+                    <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Score</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                     <Award className="w-4 h-4 text-yellow-500" />
-                    <span className="text-white font-semibold">{optimalCount}</span>
-                    <span className="text-[#666666] text-sm">Optimal</span>
+                    <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{optimalCount}</span>
+                    <span className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{t('optimal')}</span>
                   </div>
                 </div>
               </div>
@@ -241,10 +284,10 @@ export default function Settings() {
               {/* Edit Button */}
               <Button
                 onClick={() => setIsEditing(true)}
-                className="bg-[#1A1A1A] text-white hover:bg-[#222222]"
+                style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
               >
                 <Pencil className="w-4 h-4 mr-2" />
-                {t('profile')} bearbeiten
+                {t('editProfile')}
               </Button>
             </div>
           </CardContent>
@@ -252,101 +295,101 @@ export default function Settings() {
 
         {/* Edit Profile Dialog */}
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="bg-[#111111] border-[#333333] text-white max-w-md">
+          <DialogContent className="max-w-md border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
             <DialogHeader>
-              <DialogTitle>{t('profile')} bearbeiten</DialogTitle>
+              <DialogTitle style={{ color: 'var(--text-primary)' }}>{t('editProfile')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Name</label>
+                <label className="text-sm mb-1 block" style={{ color: 'var(--text-secondary)' }}>Name</label>
                 <Input
                   value={editData.full_name || ''}
                   onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
-                  className="bg-[#0A0A0A] border-[#333333] text-white"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
                 />
               </div>
               
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Geschlecht</label>
+                <label className="text-sm mb-1 block" style={{ color: 'var(--text-secondary)' }}>{t('gender')}</label>
                 <Select value={editData.gender} onValueChange={(v) => setEditData(prev => ({ ...prev, gender: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                  <SelectTrigger style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="male" className="text-white">Männlich</SelectItem>
-                    <SelectItem value="female" className="text-white">Weiblich</SelectItem>
+                  <SelectContent style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+                    <SelectItem value="male" style={{ color: 'var(--text-primary)' }}>{t('male')}</SelectItem>
+                    <SelectItem value="female" style={{ color: 'var(--text-primary)' }}>{t('female')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Altersgruppe</label>
+                <label className="text-sm mb-1 block" style={{ color: 'var(--text-secondary)' }}>{t('ageGroup')}</label>
                 <Select value={editData.age_range} onValueChange={(v) => setEditData(prev => ({ ...prev, age_range: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                  <SelectTrigger style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="18-25" className="text-white">18-25</SelectItem>
-                    <SelectItem value="26-35" className="text-white">26-35</SelectItem>
-                    <SelectItem value="36-45" className="text-white">36-45</SelectItem>
-                    <SelectItem value="46-55" className="text-white">46-55</SelectItem>
-                    <SelectItem value="56+" className="text-white">56+</SelectItem>
+                  <SelectContent style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+                    <SelectItem value="18-25" style={{ color: 'var(--text-primary)' }}>18-25</SelectItem>
+                    <SelectItem value="26-35" style={{ color: 'var(--text-primary)' }}>26-35</SelectItem>
+                    <SelectItem value="36-45" style={{ color: 'var(--text-primary)' }}>36-45</SelectItem>
+                    <SelectItem value="46-55" style={{ color: 'var(--text-primary)' }}>46-55</SelectItem>
+                    <SelectItem value="56+" style={{ color: 'var(--text-primary)' }}>56+</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Aktivitätslevel</label>
+                <label className="text-sm mb-1 block" style={{ color: 'var(--text-secondary)' }}>{t('activityLevel')}</label>
                 <Select value={editData.activity_level} onValueChange={(v) => setEditData(prev => ({ ...prev, activity_level: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                  <SelectTrigger style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectContent style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
                     {activityOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} style={{ color: 'var(--text-primary)' }}>{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Ernährung</label>
+                <label className="text-sm mb-1 block" style={{ color: 'var(--text-secondary)' }}>{t('diet')}</label>
                 <Select value={editData.diet} onValueChange={(v) => setEditData(prev => ({ ...prev, diet: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                  <SelectTrigger style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectContent style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
                     {dietOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} style={{ color: 'var(--text-primary)' }}>{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Ziel</label>
+                <label className="text-sm mb-1 block" style={{ color: 'var(--text-secondary)' }}>{t('goal')}</label>
                 <Select value={editData.goal} onValueChange={(v) => setEditData(prev => ({ ...prev, goal: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                  <SelectTrigger style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectContent style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
                     {goalOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} style={{ color: 'var(--text-primary)' }}>{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button variant="outline" className="flex-1 border-[#333333] text-white hover:bg-[#1A1A1A]" onClick={() => setIsEditing(false)}>
-                  Abbrechen
+                <Button variant="outline" className="flex-1" style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} onClick={() => setIsEditing(false)}>
+                  {t('cancel')}
                 </Button>
                 <Button 
-                  className="flex-1 bg-[#B7323F] hover:bg-[#9A2835]" 
+                  className="flex-1 bg-[#B7323F] hover:bg-[#9A2835] text-white" 
                   onClick={handleSaveProfile}
                   disabled={updateUserMutation.isPending}
                 >
-                  {updateUserMutation.isPending ? 'Speichern...' : 'Speichern'}
+                  {updateUserMutation.isPending ? '...' : t('save')}
                 </Button>
               </div>
             </div>
@@ -380,29 +423,29 @@ export default function Settings() {
             )}
 
             {/* About You Card */}
-            <Card className="bg-[#111111] border-[#1A1A1A]">
+            <Card className="border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Über dich</h3>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{t('aboutYou')}</h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Geschlecht</span>
-                    <span className="text-white">{user?.gender === 'male' ? 'Männlich' : user?.gender === 'female' ? 'Weiblich' : '-'}</span>
+                  <div className="flex justify-between py-2 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('gender')}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{user?.gender === 'male' ? t('male') : user?.gender === 'female' ? t('female') : '-'}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Altersgruppe</span>
-                    <span className="text-white">{user?.age_range || '-'}</span>
+                  <div className="flex justify-between py-2 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('ageGroup')}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{user?.age_range || '-'}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Aktivität</span>
-                    <span className="text-white capitalize">{activityOptions.find(o => o.value === user?.activity_level)?.label || '-'}</span>
+                  <div className="flex justify-between py-2 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('activityLevel')}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{activityOptions.find(o => o.value === user?.activity_level)?.label || '-'}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Ernährung</span>
-                    <span className="text-white">{dietOptions.find(o => o.value === user?.diet)?.label || '-'}</span>
+                  <div className="flex justify-between py-2 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('diet')}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{dietOptions.find(o => o.value === user?.diet)?.label || '-'}</span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-[#666666]">Ziel</span>
-                    <span className="text-white">{goalOptions.find(o => o.value === user?.goal)?.label || '-'}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>{t('goal')}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>{goalOptions.find(o => o.value === user?.goal)?.label || '-'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -410,25 +453,25 @@ export default function Settings() {
 
             {/* Recent Tests */}
             {testDates.length > 0 && (
-              <Card className="bg-[#111111] border-[#1A1A1A]">
+              <Card className="border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Letzte Bluttests</h3>
+                  <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{t('recentBloodTests')}</h3>
                   <div className="space-y-3">
                     {testDates.slice(0, 3).map((date, idx) => {
                       const markersOnDate = bloodMarkers.filter(m => m.test_date === date);
                       const optOnDate = markersOnDate.filter(m => m.status === 'optimal').length;
                       return (
-                        <div key={idx} className="flex items-center justify-between py-2 border-b border-[#1A1A1A] last:border-0">
+                        <div key={idx} className="flex items-center justify-between py-2 border-b last:border-0" style={{ borderColor: 'var(--border-color)' }}>
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-[#3B7C9E20] flex items-center justify-center">
                               <Droplet className="w-4 h-4 text-[#3B7C9E]" />
                             </div>
                             <div>
-                              <p className="text-white text-sm">{format(new Date(date), 'dd. MMM yyyy', { locale: dateLocale })}</p>
-                              <p className="text-[#666666] text-xs">{markersOnDate.length} Marker</p>
+                              <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{format(new Date(date), 'dd. MMM yyyy', { locale: dateLocale })}</p>
+                              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{markersOnDate.length} {t('markers')}</p>
                             </div>
                           </div>
-                          <span className="text-green-400 text-sm">{optOnDate} optimal</span>
+                          <span className="text-green-400 text-sm">{optOnDate} {t('optimal')}</span>
                         </div>
                       );
                     })}
@@ -441,10 +484,10 @@ export default function Settings() {
           {/* Right Column - Settings */}
           <div className="space-y-6">
             {/* Subscription */}
-            <Card className="bg-[#111111] border-[#1A1A1A]">
+            <Card className="border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('subscription')}</h3>
-                <p className="text-sm text-[#808080] mb-4">{t('manageSubscriptionDesc')}</p>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{t('subscription')}</h3>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{t('manageSubscriptionDesc')}</p>
                 <Link to={createPageUrl("Subscription")}>
                   <Button className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
                     {t('manageSubscription')}
@@ -454,31 +497,31 @@ export default function Settings() {
             </Card>
 
             {/* Preferences */}
-            <Card className="bg-[#111111] border-[#1A1A1A]">
+            <Card className="border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
               <CardContent className="p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('preferences')}</h3>
+                <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{t('preferences')}</h3>
                 
                 {/* Language */}
-                <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
+                <div className="flex items-center justify-between py-3 border-b" style={{ borderColor: 'var(--border-color)' }}>
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-[#808080]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--text-secondary)' }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
                     <div>
-                      <p className="text-white font-medium">{t('language')}</p>
-                      <p className="text-xs text-[#666666]">
+                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('language')}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
                         {language === 'en' ? 'English' : language === 'de' ? 'Deutsch' : 'Español'}
                       </p>
                     </div>
                   </div>
                   <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger className="w-32 bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectTrigger className="w-32" style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#111111] border-[#333333]">
-                      <SelectItem value="de" className="text-white">Deutsch</SelectItem>
-                      <SelectItem value="en" className="text-white">English</SelectItem>
-                      <SelectItem value="es" className="text-white">Español</SelectItem>
+                    <SelectContent style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+                      <SelectItem value="de" style={{ color: 'var(--text-primary)' }}>Deutsch</SelectItem>
+                      <SelectItem value="en" style={{ color: 'var(--text-primary)' }}>English</SelectItem>
+                      <SelectItem value="es" style={{ color: 'var(--text-primary)' }}>Español</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -496,53 +539,53 @@ export default function Settings() {
                 </div>
 
                 {/* Notifications */}
-                <Link to={createPageUrl("Notifications")} className="flex items-center justify-between py-3 border-b border-[#1A1A1A] hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
+                <Link to={createPageUrl("Notifications")} className="flex items-center justify-between py-3 border-b -mx-2 px-2 rounded-lg transition-colors" style={{ borderColor: 'var(--border-color)' }}>
                   <div className="flex items-center gap-3">
-                    <Bell className="w-5 h-5 text-[#808080]" />
+                    <Bell className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
                     <div>
-                      <p className="text-white font-medium">{t('notifications')}</p>
-                      <p className="text-xs text-[#666666]">{t('getHealthReminders')}</p>
+                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('notifications')}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('getHealthReminders')}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#666666]" />
+                  <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
                 </Link>
 
                 {/* Privacy */}
-                <a href="https://celluiq.com/privacy" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
+                <a href="https://celluiq.com/privacy" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 -mx-2 px-2 rounded-lg transition-colors">
                   <div className="flex items-center gap-3">
-                    <Lock className="w-5 h-5 text-[#808080]" />
+                    <Lock className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
                     <div>
-                      <p className="text-white font-medium">{t('privacySecurity')}</p>
-                      <p className="text-xs text-[#666666]">{t('manageYourData')}</p>
+                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('privacySecurity')}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{t('manageYourData')}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#666666]" />
+                  <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
                 </a>
               </CardContent>
             </Card>
 
             {/* Connected Devices - Pro Feature */}
-            <Card className={`bg-[#111111] border-[#1A1A1A] ${!isPro ? 'relative overflow-hidden' : ''}`}>
+            <Card className={`border ${!isPro ? 'relative overflow-hidden' : ''}`} style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                    <h3 className="text-lg font-semibold text-white">{t('connectedDevices')}</h3>
+                    <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{t('connectedDevices')}</h3>
                   </div>
                   {!isPro && <span className="text-xs bg-[#B7323F20] text-[#B7323F] px-2 py-1 rounded-full font-medium">PRO</span>}
                 </div>
-                <p className="text-sm text-[#666666] mb-4">{t('syncFitnessData')}</p>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>{t('syncFitnessData')}</p>
                 
                 {isPro ? (
                   <div className="grid grid-cols-2 gap-3">
-                    <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] h-auto py-3 flex-col gap-2">
-                      <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                    <Button className="h-auto py-3 flex-col gap-2" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                         <Activity className="w-5 h-5 text-[#3B7C9E]" />
                       </div>
                       <span className="text-xs">Apple Health</span>
                     </Button>
-                    <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] h-auto py-3 flex-col gap-2">
-                      <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                    <Button className="h-auto py-3 flex-col gap-2" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
                         <Activity className="w-5 h-5 text-[#3B7C9E]" />
                       </div>
                       <span className="text-xs">Garmin</span>
@@ -550,18 +593,18 @@ export default function Settings() {
                   </div>
                 ) : (
                   <div onClick={() => setShowProModal(true)} className="grid grid-cols-2 gap-3 blur-sm opacity-50 cursor-pointer">
-                    <div className="bg-[#1A1A1A] h-20 rounded-xl" />
-                    <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+                    <div className="h-20 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
+                    <div className="h-20 rounded-xl" style={{ backgroundColor: 'var(--bg-tertiary)' }} />
                   </div>
                 )}
                 
                 {!isPro && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-[#0A0A0A]/60 cursor-pointer" onClick={() => setShowProModal(true)}>
+                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }} onClick={() => setShowProModal(true)}>
                     <div className="text-center">
                       <div className="w-12 h-12 rounded-full bg-[#B7323F20] flex items-center justify-center mx-auto mb-2">
                         <Lock className="w-6 h-6 text-[#B7323F]" />
                       </div>
-                      <p className="text-white font-medium text-sm">Mit Pro freischalten</p>
+                      <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{t('unlockWithPro')}</p>
                     </div>
                   </div>
                 )}
