@@ -179,14 +179,14 @@ export default function Settings() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Back Button */}
         <Link to={createPageUrl("Home")}>
-          <Button variant="ghost" className="text-[#808080] hover:text-white">
+          <Button variant="ghost" className={darkMode ? 'text-[#808080] hover:text-white' : 'text-[#64748B] hover:text-[#0F172A]'}>
             <ChevronLeft className="w-4 h-4 mr-1" />
             {t('backToHome')}
           </Button>
         </Link>
 
         {/* Profile Header Card */}
-        <Card className="bg-gradient-to-br from-[#111111] to-[#1A1A1A] border-[#1A1A1A] overflow-hidden">
+        <Card className={`overflow-hidden ${darkMode ? 'bg-gradient-to-br from-[#111111] to-[#1A1A1A] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'}`}>
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Profile Photo */}
@@ -213,25 +213,25 @@ export default function Settings() {
 
               {/* User Info */}
               <div className="flex-1 text-center md:text-left">
-                <h1 className="text-2xl font-bold text-white mb-1">{user?.full_name || 'User'}</h1>
-                <p className="text-[#808080] text-sm mb-4">{user?.email}</p>
+                <h1 className={`text-2xl font-bold mb-1 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{user?.full_name || 'User'}</h1>
+                <p className={`text-sm mb-4 ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>{user?.email}</p>
                 
                 {/* Stats Row */}
                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${darkMode ? 'bg-[#0A0A0A]' : 'bg-[#F1F5F9]'}`}>
                     <Droplet className="w-4 h-4 text-[#3B7C9E]" />
-                    <span className="text-white font-semibold">{testDates.length}</span>
-                    <span className="text-[#666666] text-sm">Tests</span>
+                    <span className={`font-semibold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{testDates.length}</span>
+                    <span className={`text-sm ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>Tests</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${darkMode ? 'bg-[#0A0A0A]' : 'bg-[#F1F5F9]'}`}>
                     <TrendingUp className="w-4 h-4 text-green-500" />
-                    <span className="text-white font-semibold">{healthScore}%</span>
-                    <span className="text-[#666666] text-sm">Score</span>
+                    <span className={`font-semibold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{healthScore}%</span>
+                    <span className={`text-sm ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>Score</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${darkMode ? 'bg-[#0A0A0A]' : 'bg-[#F1F5F9]'}`}>
                     <Award className="w-4 h-4 text-yellow-500" />
-                    <span className="text-white font-semibold">{optimalCount}</span>
-                    <span className="text-[#666666] text-sm">Optimal</span>
+                    <span className={`font-semibold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{optimalCount}</span>
+                    <span className={`text-sm ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>Optimal</span>
                   </div>
                 </div>
               </div>
@@ -378,29 +378,29 @@ export default function Settings() {
             )}
 
             {/* About You Card */}
-            <Card className="bg-[#111111] border-[#1A1A1A]">
+            <Card className={darkMode ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'}>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('aboutYou')}</h3>
+                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('aboutYou')}</h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">{t('gender')}</span>
-                    <span className="text-white">{user?.gender ? t(user.gender) : '-'}</span>
+                  <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('gender')}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.gender ? t(user.gender) : '-'}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">{t('ageRange')}</span>
-                    <span className="text-white">{user?.age_range || '-'}</span>
+                  <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('ageRange')}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.age_range || '-'}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">{t('activityLevel')}</span>
-                    <span className="text-white">{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) : '-'}</span>
+                  <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('activityLevel')}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) : '-'}</span>
                   </div>
-                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">{t('dietLabel')}</span>
-                    <span className="text-white">{user?.diet ? t(dietOptions.find(o => o.value === user.diet)?.labelKey) : '-'}</span>
+                  <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('dietLabel')}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.diet ? t(dietOptions.find(o => o.value === user.diet)?.labelKey) : '-'}</span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-[#666666]">{t('goal')}</span>
-                    <span className="text-white">{user?.goal ? t(goalOptions.find(o => o.value === user.goal)?.labelKey) : '-'}</span>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('goal')}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.goal ? t(goalOptions.find(o => o.value === user.goal)?.labelKey) : '-'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -439,10 +439,10 @@ export default function Settings() {
           {/* Right Column - Settings */}
           <div className="space-y-6">
             {/* Subscription */}
-            <Card className="bg-[#111111] border-[#1A1A1A]">
+            <Card className={darkMode ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'}>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('subscription')}</h3>
-                <p className="text-sm text-[#808080] mb-4">{t('manageSubscriptionDesc')}</p>
+                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('subscription')}</h3>
+                <p className={`text-sm mb-4 ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>{t('manageSubscriptionDesc')}</p>
                 <Link to={createPageUrl("Subscription")}>
                   <Button className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
                     {t('manageSubscription')}
@@ -452,19 +452,19 @@ export default function Settings() {
             </Card>
 
             {/* Preferences */}
-            <Card className="bg-[#111111] border-[#1A1A1A]">
+            <Card className={darkMode ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'}>
               <CardContent className="p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('preferences')}</h3>
+                <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('preferences')}</h3>
                 
                 {/* Language */}
-                <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
+                <div className={`flex items-center justify-between py-3 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-[#808080]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className={`w-5 h-5 ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
                     <div>
-                      <p className="text-white font-medium">{t('language')}</p>
-                      <p className="text-xs text-[#666666]">
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('language')}</p>
+                      <p className={`text-xs ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>
                         {language === 'en' ? 'English' : language === 'de' ? 'Deutsch' : 'Español'}
                       </p>
                     </div>
@@ -482,54 +482,54 @@ export default function Settings() {
                 </div>
 
                 {/* Dark Mode */}
-                <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
+                <div className={`flex items-center justify-between py-3 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                   <div className="flex items-center gap-3">
-                    <Moon className="w-5 h-5 text-[#808080]" />
+                    <Moon className={`w-5 h-5 ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`} />
                     <div>
-                      <p className="text-white font-medium">{t('darkMode')}</p>
-                      <p className="text-xs text-[#666666]">{darkMode ? t('enabled') : t('disabled')}</p>
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('darkMode')}</p>
+                      <p className={`text-xs ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>{darkMode ? t('enabled') : t('disabled')}</p>
                     </div>
                   </div>
                   <Switch checked={darkMode} onCheckedChange={toggleDarkMode} className="data-[state=checked]:bg-[#3B7C9E]" />
                 </div>
 
                 {/* Notifications */}
-                <Link to={createPageUrl("Notifications")} className="flex items-center justify-between py-3 border-b border-[#1A1A1A] hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
+                <Link to={createPageUrl("Notifications")} className={`flex items-center justify-between py-3 border-b -mx-2 px-2 rounded-lg transition-colors ${darkMode ? 'border-[#1A1A1A] hover:bg-[#1A1A1A]' : 'border-[#E2E8F0] hover:bg-[#F1F5F9]'}`}>
                   <div className="flex items-center gap-3">
-                    <Bell className="w-5 h-5 text-[#808080]" />
+                    <Bell className={`w-5 h-5 ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`} />
                     <div>
-                      <p className="text-white font-medium">{t('notifications')}</p>
-                      <p className="text-xs text-[#666666]">{t('getHealthReminders')}</p>
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('notifications')}</p>
+                      <p className={`text-xs ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>{t('getHealthReminders')}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#666666]" />
+                  <ChevronRight className={`w-4 h-4 ${darkMode ? 'text-[#666666]' : 'text-[#94A3B8]'}`} />
                 </Link>
 
                 {/* Privacy */}
-                <a href="https://celluiq.com/privacy" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
+                <a href="https://celluiq.com/privacy" target="_blank" rel="noopener noreferrer" className={`flex items-center justify-between py-3 -mx-2 px-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-[#1A1A1A]' : 'hover:bg-[#F1F5F9]'}`}>
                   <div className="flex items-center gap-3">
-                    <Lock className="w-5 h-5 text-[#808080]" />
+                    <Lock className={`w-5 h-5 ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`} />
                     <div>
-                      <p className="text-white font-medium">{t('privacySecurity')}</p>
-                      <p className="text-xs text-[#666666]">{t('manageYourData')}</p>
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('privacySecurity')}</p>
+                      <p className={`text-xs ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>{t('manageYourData')}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[#666666]" />
+                  <ChevronRight className={`w-4 h-4 ${darkMode ? 'text-[#666666]' : 'text-[#94A3B8]'}`} />
                 </a>
               </CardContent>
             </Card>
 
             {/* Connected Devices - Pro Feature */}
-            <Card className={`bg-[#111111] border-[#1A1A1A] ${!isPro ? 'relative overflow-hidden' : ''}`}>
+            <Card className={`${darkMode ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'} ${!isPro ? 'relative overflow-hidden' : ''}`}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <Activity className="w-5 h-5 text-[#3B7C9E]" />
-                    <h3 className="text-lg font-semibold text-white">{t('connectedDevices')}</h3>
+                    <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-[#0F172A]'}`}>{t('connectedDevices')}</h3>
                   </div>
                   {!isPro && <span className="text-xs bg-[#B7323F20] text-[#B7323F] px-2 py-1 rounded-full font-medium">PRO</span>}
                 </div>
-                <p className="text-sm text-[#666666] mb-4">{t('syncFitnessData')}</p>
+                <p className={`text-sm mb-4 ${darkMode ? 'text-[#666666]' : 'text-[#64748B]'}`}>{t('syncFitnessData')}</p>
                 
                 {isPro ? (
                   <div className="grid grid-cols-2 gap-3">
