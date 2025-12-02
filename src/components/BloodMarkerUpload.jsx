@@ -99,11 +99,14 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
       // Start progress animation
       const progressPromise = simulateProgress();
       
-      // Upload the file
+      // Get user info first
+      const user = await base44.auth.me();
+      
+      // Upload the file (this serves as backup)
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
-      // Get user gender
-      const user = await base44.auth.me();
+      // Store file reference for future database improvements
+      // Files are stored with user email and date in the URL path
       const userGender = user?.gender || 'both';
       
       // Extract data
@@ -167,6 +170,16 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
         setExtractedMarkers(processedMarkers);
         
         await base44.entities.BloodMarker.bulkCreate(processedMarkers);
+        
+        // Save file reference for database/backup purposes
+        await base44.entities.BloodTestFile.create({
+          file_url,
+          file_name: file.name,
+          upload_date: today,
+          test_date: today,
+          markers_extracted: processedMarkers.length,
+          status: 'processed'
+        });
         
         // Update user's last test date
         await base44.auth.updateMe({ last_blood_test: today });
