@@ -33,9 +33,9 @@ export default function ProUpgradeModal({ isOpen, onClose, feature }) {
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('upgradeToPro')}</h2>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('upgradeToProTitle')}</h2>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            {t('unlockAllFeatures')}
+            {t('unlockFeatures')}
           </p>
         </div>
 

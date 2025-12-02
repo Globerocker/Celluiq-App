@@ -7,14 +7,17 @@ export default function FoodDetailModal({ food, onClose }) {
 
   if (!food) return null;
 
-  const bestTimeLabels = {
-    morning: 'Morgens',
-    afternoon: 'Nachmittags', 
-    evening: 'Abends',
-    anytime: 'Jederzeit',
-    with_meal: 'Mit einer Mahlzeit',
-    before_workout: 'Vor dem Training',
-    after_workout: 'Nach dem Training'
+  const getBestTimeLabel = (time) => {
+    const labels = {
+      morning: t('morning'),
+      afternoon: t('afternoon'),
+      evening: t('evening'),
+      anytime: t('anytime'),
+      with_meal: t('withMeal'),
+      before_workout: t('beforeWorkout'),
+      after_workout: t('afterWorkout')
+    };
+    return labels[time] || time;
   };
 
   return (
@@ -24,7 +27,6 @@ export default function FoodDetailModal({ food, onClose }) {
         style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="sticky top-0 border-b p-4 flex items-start justify-between z-10" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center text-2xl">
@@ -46,7 +48,6 @@ export default function FoodDetailModal({ food, onClose }) {
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Primary Benefits */}
           {food.primary_benefits && (
             <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <div className="flex items-center gap-2 mb-2">
@@ -57,7 +58,6 @@ export default function FoodDetailModal({ food, onClose }) {
             </div>
           )}
 
-          {/* Influenced Markers */}
           {food.influenced_markers && (
             <div className="bg-[#3B7C9E10] border border-[#3B7C9E30] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -68,30 +68,27 @@ export default function FoodDetailModal({ food, onClose }) {
             </div>
           )}
 
-          {/* Dosage */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <p className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('dailyAmount')}</p>
               <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{food.daily_dosage || '-'}</p>
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-              <p className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('weeklyAmount')}</p>
+              <p className="text-xs mb-1" style={{ color: 'var(--text-tertiary)' }}>{t('weeklyAmountModal')}</p>
               <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{food.weekly_dosage || '-'}</p>
             </div>
           </div>
 
-          {/* Best Time */}
           {food.best_time && (
             <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-[#3B7C9E]" />
-                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{t('bestTime')}</h3>
+                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{t('bestIntakeTime')}</h3>
               </div>
-              <p style={{ color: 'var(--text-secondary)' }}>{bestTimeLabels[food.best_time] || food.best_time}</p>
+              <p style={{ color: 'var(--text-secondary)' }}>{getBestTimeLabel(food.best_time)}</p>
             </div>
           )}
 
-          {/* Combinations */}
           {food.combinations && (
             <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <div className="flex items-center gap-2 mb-2">
@@ -102,18 +99,16 @@ export default function FoodDetailModal({ food, onClose }) {
             </div>
           )}
 
-          {/* Warnings */}
           {food.warnings && food.warnings !== 'None' && (
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                <h3 className="text-yellow-500 font-semibold">{t('warnings')}</h3>
+                <h3 className="text-yellow-500 font-semibold">{t('notes')}</h3>
               </div>
               <p className="text-yellow-500/80 text-sm">{food.warnings}</p>
             </div>
           )}
 
-          {/* Studies */}
           {food.studies && (
             <div className="rounded-xl p-4" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               <div className="flex items-center gap-2 mb-2">
