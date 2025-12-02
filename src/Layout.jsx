@@ -1,8 +1,36 @@
 import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Settings, User } from "lucide-react";
+import { User } from "lucide-react";
 import { LanguageProvider } from "./components/LanguageProvider";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+
+function ProfileButton() {
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  return (
+    <Link 
+      to={createPageUrl("Settings")}
+      className="p-1.5 rounded-xl hover:bg-[#1A1A1A] transition-all hover:scale-105"
+    >
+      {user?.profile_photo ? (
+        <img 
+          src={user.profile_photo} 
+          alt="Profile"
+          className="w-8 h-8 rounded-full object-cover"
+        />
+      ) : (
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center">
+          <User className="w-4 h-4 text-white" />
+        </div>
+      )}
+    </Link>
+  );
+}
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -62,18 +90,7 @@ export default function Layout({ children, currentPageName }) {
             <span className="font-bold text-xl tracking-wider" style={{ color: 'var(--text-primary, #FFFFFF)' }}>CELLUIQ</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link 
-              to={createPageUrl("Profile")}
-              className="p-2.5 rounded-xl hover:bg-[#1A1A1A] transition-all hover:scale-105"
-            >
-              <User className="w-5 h-5 text-[#808080] hover:text-white transition-colors" />
-            </Link>
-            <Link 
-              to={createPageUrl("Settings")}
-              className="p-2.5 rounded-xl hover:bg-[#1A1A1A] transition-all hover:scale-105"
-            >
-              <Settings className="w-5 h-5 text-[#808080] hover:text-white transition-colors" />
-            </Link>
+            <ProfileButton />
           </div>
         </div>
       </header>
