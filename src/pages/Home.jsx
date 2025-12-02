@@ -17,10 +17,9 @@ export default function Home() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: bloodMarkers } = useQuery({
+  const { data: bloodMarkers = [] } = useQuery({
     queryKey: ['bloodMarkers'],
     queryFn: () => base44.entities.BloodMarker.list('-test_date'),
-    initialData: [],
   });
 
   // Redirect to onboarding if not completed
@@ -61,36 +60,38 @@ export default function Home() {
       {/* Header with Health Score */}
       <div className="bg-gradient-to-br from-[#111111] via-[#111111] to-[#1A1A1A] px-6 pt-10 pb-8 border-b border-[#1A1A1A] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
-        <div className="max-w-2xl mx-auto text-center relative z-10">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <p className="text-[#808080] text-xs uppercase tracking-[0.2em] mb-4 font-medium">
             {t('yourCelluiqScore')}
           </p>
           <div className="relative inline-block mb-4">
-            <div className="text-8xl font-bold text-white mb-2 tracking-tight">
+            <div className="text-7xl md:text-8xl font-bold text-white mb-2 tracking-tight">
               {healthScore}
             </div>
-            <div className="absolute -top-3 -right-10 flex items-center gap-1 bg-[#3B7C9E20] px-3 py-1 rounded-full border border-[#3B7C9E40]">
-              <span className="text-lg text-[#3B7C9E] font-bold">+5</span>
-            </div>
+            {bloodMarkers.length > 0 && (
+              <div className="absolute -top-3 -right-10 flex items-center gap-1 bg-[#3B7C9E20] px-3 py-1 rounded-full border border-[#3B7C9E40]">
+                <span className="text-lg text-[#3B7C9E] font-bold">+5</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center justify-center gap-2 text-sm">
             <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
           </div>
           <p className="text-[#808080] text-sm mt-4 max-w-md mx-auto leading-relaxed">
-            {t('outstandingProgress')}
+            {bloodMarkers.length > 0 ? t('outstandingProgress') : 'Lade dein erstes Blutbild hoch um zu starten'}
           </p>
         </div>
       </div>
 
       {/* Tab Navigation */}
       <div className="sticky top-[57px] z-40 bg-[#0A0A0A] border-b border-[#1A1A1A]">
-        <div className="max-w-2xl mx-auto px-6 py-4">
+        <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-center gap-2">
             {sections.map((section, index) => (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(index)}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
+                className={`px-4 md:px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                   activeSection === index 
                     ? 'bg-[#B7323F] text-white' 
                     : 'bg-[#1A1A1A] text-[#808080] hover:bg-[#222222]'
@@ -103,8 +104,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Content Area */}
-      <div className="max-w-2xl mx-auto">
+      {/* Content Area - Desktop optimized */}
+      <div className="max-w-4xl mx-auto">
         <ActiveComponent />
       </div>
     </div>

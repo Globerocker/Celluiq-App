@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Sunrise, Moon, Pill, Lock, Sparkles, Info } from "lucide-react";
+import { Sunrise, Moon, Pill, Lock, Sparkles, ShoppingCart, ChevronRight } from "lucide-react";
 import { useLanguage } from '../LanguageProvider';
 import ProUpgradeModal from '../ProUpgradeModal';
+import { Button } from "@/components/ui/button";
 
 export default function SupplementStackSection() {
   const { t } = useLanguage();
@@ -32,8 +33,15 @@ export default function SupplementStackSection() {
   const isPro = user?.subscription_tier === 'pro';
 
   // Get suboptimal markers
-  const suboptimalMarkers = bloodMarkers.filter(m => 
-    m.status === 'suboptimal' || m.status === 'low' || m.status === 'high'
+  const latestMarkers = bloodMarkers.reduce((acc, marker) => {
+    if (!acc[marker.marker_name] || new Date(marker.test_date) > new Date(acc[marker.marker_name].test_date)) {
+      acc[marker.marker_name] = marker;
+    }
+    return acc;
+  }, {});
+
+  const suboptimalMarkers = Object.values(latestMarkers).filter(m => 
+    m.status === 'suboptimal' || m.status === 'low' || m.status === 'high' || m.status === 'critical'
   );
 
   // Get supplement recommendations from reference data
@@ -47,21 +55,20 @@ export default function SupplementStackSection() {
       );
       
       if (reference) {
-        const isLow = marker.status === 'low' || marker.value < (marker.optimal_min || 0);
+        const isLow = marker.status === 'low' || marker.status === 'critical' || 
+          (marker.value < (reference.celluiq_range_min ?? reference.clinical_range_min ?? 0));
         const supplement = isLow ? reference.supplement_low : reference.supplement_high;
         const dosage = isLow ? reference.dosage_low : reference.dosage_high;
         const form = isLow ? reference.form_low : reference.form_high;
-        const mechanism = isLow ? reference.mechanism_low : reference.mechanism_high;
         
-        if (supplement && supplement !== 'N/A' && supplement !== 'None standard') {
-          // Check if already exists
+        if (supplement && supplement !== 'N/A' && supplement !== 'None standard' && supplement.trim()) {
           if (!recommendations.find(r => r.name === supplement)) {
             recommendations.push({
               name: supplement,
               dosage,
               form,
-              mechanism,
-              forMarker: marker.marker_name
+              forMarker: marker.marker_name,
+              status: marker.status
             });
           }
         }
@@ -73,18 +80,30 @@ export default function SupplementStackSection() {
 
   const recommendedSupplements = getRecommendedSupplements();
 
-  const morningStack = medications.filter(m => 
-    m.time_of_day?.includes('morning')
-  );
-
-  const eveningStack = medications.filter(m => 
-    m.time_of_day?.includes('evening') || m.time_of_day?.includes('before_bed')
-  );
+  const morningStack = medications.filter(m => m.time_of_day?.includes('morning'));
+  const eveningStack = medications.filter(m => m.time_of_day?.includes('evening') || m.time_of_day?.includes('before_bed'));
 
   if (isLoading) {
     return (
       <div className="p-6 space-y-4">
         <div className="h-64 bg-[#111111] rounded-2xl animate-pulse" />
+      </div>
+    );
+  }
+
+  // Empty state - no blood markers
+  if (Object.keys(latestMarkers).length === 0) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <div className="w-20 h-20 rounded-full bg-[#1A1A1A] flex items-center justify-center mx-auto mb-6">
+            <Pill className="w-10 h-10 text-[#666666]" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-3">Noch keine Empfehlungen</h2>
+          <p className="text-[#808080] max-w-sm mx-auto">
+            Lade dein Blutbild hoch, um personalisierte Supplement-Empfehlungen zu erhalten.
+          </p>
+        </div>
       </div>
     );
   }
@@ -105,12 +124,12 @@ export default function SupplementStackSection() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-white font-semibold">Personalized for You</h3>
-              <p className="text-[#808080] text-xs">Based on your blood markers</p>
+              <h3 className="text-white font-semibold">Basierend auf deinem Blutbild</h3>
+              <p className="text-[#808080] text-xs">{suboptimalMarkers.length} Marker benötigen Aufmerksamkeit</p>
             </div>
           </div>
           
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {recommendedSupplements.map((supp, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-[#0A0A0A80] rounded-xl">
                 <div className="flex items-center gap-3">
@@ -119,17 +138,21 @@ export default function SupplementStackSection() {
                   </div>
                   <div>
                     <p className="text-white text-sm font-medium">{supp.name}</p>
-                    <p className="text-[#666666] text-xs">{supp.dosage}</p>
+                    <p className="text-[#666666] text-xs">{supp.dosage || 'Dosierung prüfen'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[#3B7C9E] text-xs bg-[#3B7C9E20] px-2 py-1 rounded-full">
-                    {supp.forMarker}
-                  </span>
-                </div>
+                <span className="text-[#3B7C9E] text-xs bg-[#3B7C9E20] px-2 py-1 rounded-full whitespace-nowrap">
+                  {supp.forMarker}
+                </span>
               </div>
             ))}
           </div>
+
+          <Button className="w-full mt-4 bg-[#3B7C9E] hover:bg-[#2D5F7A] text-white">
+            <ShoppingCart className="w-4 h-4 mr-2" />
+            Personalisiertes Bundle bestellen
+            <ChevronRight className="w-4 h-4 ml-auto" />
+          </Button>
         </div>
       )}
 
@@ -141,7 +164,7 @@ export default function SupplementStackSection() {
           </div>
           <div className="flex-1">
             <p className="text-white text-sm font-semibold">AM/PM Stack Coming Soon</p>
-            <p className="text-[#808080] text-xs">Personalized 30-day supplement packs delivered to your door</p>
+            <p className="text-[#808080] text-xs">30-Tage Supplement-Pakete, personalisiert und geliefert</p>
           </div>
         </div>
       </div>
@@ -153,8 +176,8 @@ export default function SupplementStackSection() {
             <Sunrise className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-white font-semibold">{t('supplementStack')} - Morning</h3>
-            <p className="text-[#666666] text-xs">Take with breakfast</p>
+            <h3 className="text-white font-semibold">Morning Stack</h3>
+            <p className="text-[#666666] text-xs">Mit Frühstück einnehmen</p>
           </div>
         </div>
         
@@ -172,30 +195,7 @@ export default function SupplementStackSection() {
               </div>
             </div>
           )) : (
-            <>
-              <div className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                    <Pill className="w-4 h-4 text-[#F59E0B]" />
-                  </div>
-                  <div>
-                    <p className="text-white text-sm font-medium">Vitamin D3</p>
-                    <p className="text-[#666666] text-xs">5000 IU</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                    <Pill className="w-4 h-4 text-[#F59E0B]" />
-                  </div>
-                  <div>
-                    <p className="text-white text-sm font-medium">Omega-3</p>
-                    <p className="text-[#666666] text-xs">1000mg EPA/DHA</p>
-                  </div>
-                </div>
-              </div>
-            </>
+            <p className="text-[#666666] text-sm text-center py-4">Noch keine Supplements hinzugefügt</p>
           )}
         </div>
       </div>
@@ -208,8 +208,8 @@ export default function SupplementStackSection() {
               <Moon className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-white font-semibold">{t('supplementStack')} - Evening</h3>
-              <p className="text-[#666666] text-xs">Take before bed</p>
+              <h3 className="text-white font-semibold">Evening Stack</h3>
+              <p className="text-[#666666] text-xs">Vor dem Schlafengehen</p>
             </div>
           </div>
           
@@ -227,30 +227,7 @@ export default function SupplementStackSection() {
                 </div>
               </div>
             )) : (
-              <>
-                <div className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                      <Pill className="w-4 h-4 text-[#6366F1]" />
-                    </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">Magnesium Glycinate</p>
-                      <p className="text-[#666666] text-xs">400mg</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-[#0A0A0A] rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
-                      <Pill className="w-4 h-4 text-[#6366F1]" />
-                    </div>
-                    <div>
-                      <p className="text-white text-sm font-medium">Ashwagandha KSM-66</p>
-                      <p className="text-[#666666] text-xs">600mg</p>
-                    </div>
-                  </div>
-                </div>
-              </>
+              <p className="text-[#666666] text-sm text-center py-4">Noch keine Supplements hinzugefügt</p>
             )}
           </div>
         </div>
@@ -268,7 +245,7 @@ export default function SupplementStackSection() {
               </div>
               <div>
                 <h3 className="text-white font-semibold">Evening Stack</h3>
-                <p className="text-[#666666] text-xs">Take before bed</p>
+                <p className="text-[#666666] text-xs">Vor dem Schlafengehen</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -282,7 +259,7 @@ export default function SupplementStackSection() {
               <Lock className="w-6 h-6 text-[#B7323F]" />
             </div>
             <p className="text-white font-semibold text-sm">Evening Stack</p>
-            <p className="text-[#B7323F] text-xs font-medium mt-1">PRO • $9/mo</p>
+            <p className="text-[#B7323F] text-xs font-medium mt-1">PRO • 9€/Monat</p>
           </div>
         </div>
       )}

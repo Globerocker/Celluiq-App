@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Clock, Users, ChevronRight, Sparkles } from "lucide-react";
+import { ShoppingCart, Clock, ChevronRight, Sparkles, Utensils } from "lucide-react";
 import { useLanguage } from "../LanguageProvider";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function NutritionSection() {
   const { t } = useLanguage();
-  const [showAffordable, setShowAffordable] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -27,21 +25,27 @@ export default function NutritionSection() {
     queryFn: () => base44.entities.BloodMarker.list('-test_date'),
   });
 
-  // Get user's suboptimal markers to recommend relevant foods
-  const suboptimalMarkers = bloodMarkers.filter(m => 
-    m.status === 'suboptimal' || m.status === 'low' || m.status === 'high'
+  // Get latest markers
+  const latestMarkers = bloodMarkers.reduce((acc, marker) => {
+    if (!acc[marker.marker_name] || new Date(marker.test_date) > new Date(acc[marker.marker_name].test_date)) {
+      acc[marker.marker_name] = marker;
+    }
+    return acc;
+  }, {});
+
+  // Get user's suboptimal markers
+  const suboptimalMarkers = Object.values(latestMarkers).filter(m => 
+    m.status === 'suboptimal' || m.status === 'low' || m.status === 'high' || m.status === 'critical'
   );
 
   // Filter foods based on user's markers and gender
   const getRecommendedFoods = () => {
     let foods = [...foodReferences];
     
-    // Filter by gender if user has set it
     if (user?.gender) {
       foods = foods.filter(f => f.gender === 'both' || f.gender === user.gender);
     }
 
-    // Prioritize foods that influence user's suboptimal markers
     if (suboptimalMarkers.length > 0) {
       const markerNames = suboptimalMarkers.map(m => m.marker_name.toLowerCase());
       
@@ -63,7 +67,6 @@ export default function NutritionSection() {
 
   const recommendedFoods = getRecommendedFoods();
 
-  // Group by category
   const foodsByCategory = recommendedFoods.reduce((acc, food) => {
     const cat = food.category || 'other';
     if (!acc[cat]) acc[cat] = [];
@@ -88,17 +91,17 @@ export default function NutritionSection() {
 
   const categoryLabels = {
     protein: 'Protein',
-    vegetables: 'Vegetables',
-    fruits: 'Fruits',
-    grains: 'Grains',
-    dairy: 'Dairy',
-    fats: 'Healthy Fats',
-    nuts_seeds: 'Nuts & Seeds',
-    legumes: 'Legumes',
-    seafood: 'Seafood',
-    herbs_spices: 'Herbs & Spices',
-    beverages: 'Beverages',
-    other: 'Other'
+    vegetables: 'Gemüse',
+    fruits: 'Obst',
+    grains: 'Getreide',
+    dairy: 'Milchprodukte',
+    fats: 'Gesunde Fette',
+    nuts_seeds: 'Nüsse & Samen',
+    legumes: 'Hülsenfrüchte',
+    seafood: 'Meeresfrüchte',
+    herbs_spices: 'Kräuter & Gewürze',
+    beverages: 'Getränke',
+    other: 'Sonstige'
   };
 
   if (isLoading) {
@@ -114,6 +117,51 @@ export default function NutritionSection() {
     );
   }
 
+  // Empty state - no blood markers
+  if (Object.keys(latestMarkers).length === 0) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <div className="w-20 h-20 rounded-full bg-[#1A1A1A] flex items-center justify-center mx-auto mb-6">
+            <Utensils className="w-10 h-10 text-[#666666]" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-3">Noch keine Empfehlungen</h2>
+          <p className="text-[#808080] max-w-sm mx-auto">
+            Lade dein Blutbild hoch, um personalisierte Ernährungsempfehlungen zu erhalten.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // No food references in database
+  if (foodReferences.length === 0) {
+    return (
+      <div className="p-6">
+        <div className="bg-gradient-to-r from-[#3B7C9E20] to-[#3B7C9E10] border border-[#3B7C9E30] rounded-2xl p-6">
+          <div className="flex items-start gap-4">
+            <Sparkles className="w-6 h-6 text-[#3B7C9E] shrink-0" />
+            <div>
+              <h3 className="text-white font-semibold mb-2">Ernährungsempfehlungen</h3>
+              <p className="text-[#808080] text-sm">
+                Basierend auf deinen {suboptimalMarkers.length} suboptimalen Markern können wir dir 
+                personalisierte Ernährungsempfehlungen geben. Die Datenbank wird gerade aufgebaut.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <Link to={createPageUrl("ShoppingList")}>
+          <Button className="w-full mt-6 bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 rounded-xl">
+            <ShoppingCart className="w-5 h-5 mr-2" />
+            Einkaufsliste generieren
+            <ChevronRight className="w-5 h-5 ml-auto" />
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -121,14 +169,6 @@ export default function NutritionSection() {
         <div>
           <h2 className="text-white font-bold text-lg">{t('nutrition')}</h2>
           <p className="text-[#666666] text-sm">{t('basedOnBiomarkers')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[#808080] text-xs">{t('showAffordable')}</span>
-          <Switch 
-            checked={showAffordable} 
-            onCheckedChange={setShowAffordable}
-            className="data-[state=checked]:bg-[#3B7C9E]"
-          />
         </div>
       </div>
 
@@ -138,9 +178,9 @@ export default function NutritionSection() {
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-[#3B7C9E] shrink-0 mt-0.5" />
             <div>
-              <p className="text-white text-sm font-medium mb-1">Personalized for you</p>
+              <p className="text-white text-sm font-medium mb-1">Personalisiert für dich</p>
               <p className="text-[#808080] text-xs">
-                Based on {suboptimalMarkers.length} markers that need attention
+                Basierend auf {suboptimalMarkers.length} Markern die Aufmerksamkeit brauchen
               </p>
             </div>
           </div>
@@ -156,7 +196,7 @@ export default function NutritionSection() {
               <h3 className="text-white font-semibold">{categoryLabels[category]}</h3>
             </div>
             
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {foods.slice(0, 4).map((food) => (
                 <div 
                   key={food.id}
@@ -178,7 +218,7 @@ export default function NutritionSection() {
                       <div className="text-[#808080] text-xs">
                         <div className="flex items-center gap-1 justify-end">
                           <Clock className="w-3 h-3" />
-                          {food.daily_dosage}
+                          {food.daily_dosage || '-'}
                         </div>
                         {food.best_time && food.best_time !== 'anytime' && (
                           <p className="text-[#666666] mt-1 capitalize">{food.best_time.replace('_', ' ')}</p>
@@ -190,7 +230,7 @@ export default function NutritionSection() {
                   {food.combinations && (
                     <div className="mt-3 pt-3 border-t border-[#1A1A1A]">
                       <p className="text-[#666666] text-xs">
-                        <span className="text-[#808080]">Best with:</span> {food.combinations}
+                        <span className="text-[#808080]">Kombiniere mit:</span> {food.combinations}
                       </p>
                     </div>
                   )}
@@ -209,7 +249,7 @@ export default function NutritionSection() {
       <Link to={createPageUrl("ShoppingList")}>
         <Button className="w-full mt-6 bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 rounded-xl">
           <ShoppingCart className="w-5 h-5 mr-2" />
-          Generate Shopping List
+          Einkaufsliste generieren
           <ChevronRight className="w-5 h-5 ml-auto" />
         </Button>
       </Link>

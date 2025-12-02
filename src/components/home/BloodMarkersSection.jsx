@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-import { Upload, TrendingUp, TrendingDown, Minus, ChevronRight, Info, ShoppingBag, Calendar, AlertCircle, Sparkles } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Upload, TrendingUp, TrendingDown, Minus, ChevronRight, Info, ShoppingBag, Calendar, Plus, Sparkles, X } from "lucide-react";
 import { useLanguage } from "../LanguageProvider";
 import BloodMarkerUpload from "../BloodMarkerUpload";
 import BloodMarkerDetailModal from "../bloodmarkers/BloodMarkerDetailModal";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function BloodMarkersSection() {
   const { t } = useLanguage();
   const [showUpload, setShowUpload] = useState(false);
   const [selectedMarker, setSelectedMarker] = useState(null);
+  const [statusFilter, setStatusFilter] = useState(null); // null = all, 'optimal', 'suboptimal', 'critical'
+  const [showAddManual, setShowAddManual] = useState(false);
+  const [manualMarker, setManualMarker] = useState({ marker_name: '', value: '', unit: '', category: 'other' });
+  
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -27,6 +35,15 @@ export default function BloodMarkersSection() {
     queryFn: () => base44.entities.BloodMarkerReference.list(),
   });
 
+  const addMarkerMutation = useMutation({
+    mutationFn: (data) => base44.entities.BloodMarker.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
+      setShowAddManual(false);
+      setManualMarker({ marker_name: '', value: '', unit: '', category: 'other' });
+    }
+  });
+
   // Get latest value for each marker
   const latestMarkers = bloodMarkers.reduce((acc, marker) => {
     if (!acc[marker.marker_name] || new Date(marker.test_date) > new Date(acc[marker.marker_name].test_date)) {
@@ -35,21 +52,30 @@ export default function BloodMarkersSection() {
     return acc;
   }, {});
 
-  const sortedMarkers = Object.values(latestMarkers).sort((a, b) => {
+  const allMarkers = Object.values(latestMarkers).sort((a, b) => {
     const priority = { critical: 0, high: 1, low: 2, suboptimal: 3, optimal: 4 };
     return (priority[a.status] || 5) - (priority[b.status] || 5);
   });
+
+  // Filter markers based on selected status
+  const sortedMarkers = statusFilter 
+    ? allMarkers.filter(m => {
+        if (statusFilter === 'critical') return ['critical', 'high', 'low'].includes(m.status);
+        if (statusFilter === 'suboptimal') return m.status === 'suboptimal';
+        if (statusFilter === 'optimal') return m.status === 'optimal';
+        return true;
+      })
+    : allMarkers;
+
+  // Stats
+  const optimalCount = allMarkers.filter(m => m.status === 'optimal').length;
+  const suboptimalCount = allMarkers.filter(m => m.status === 'suboptimal').length;
+  const criticalCount = allMarkers.filter(m => ['low', 'high', 'critical'].includes(m.status)).length;
 
   // Calculate days since last test
   const lastTestDate = user?.last_blood_test ? new Date(user.last_blood_test) : null;
   const daysSinceTest = lastTestDate ? Math.floor((new Date() - lastTestDate) / (1000 * 60 * 60 * 24)) : null;
   const needsNewTest = daysSinceTest && daysSinceTest > 90;
-
-  // Get recommended markers that user hasn't tested
-  const testedMarkerNames = Object.keys(latestMarkers).map(n => n.toLowerCase());
-  const recommendedMarkers = markerReferences
-    .filter(ref => !testedMarkerNames.includes(ref.marker_name?.toLowerCase()))
-    .slice(0, 6);
 
   const getReference = (markerName) => {
     return markerReferences.find(ref => 
@@ -90,19 +116,34 @@ export default function BloodMarkersSection() {
     return Math.max(0, Math.min(100, position));
   };
 
-  // Check if user is in supported region for blood test orders
-  const canOrderBloodTest = user?.postal_code && (
-    user.postal_code.startsWith('1') || // Germany starts with various
-    user.postal_code.startsWith('2') ||
-    user.postal_code.startsWith('3') ||
-    user.postal_code.startsWith('4') ||
-    user.postal_code.startsWith('5') ||
-    user.postal_code.startsWith('6') ||
-    user.postal_code.startsWith('7') ||
-    user.postal_code.startsWith('8') ||
-    user.postal_code.startsWith('9') ||
-    user.postal_code.startsWith('0')
-  );
+  const canOrderBloodTest = user?.postal_code;
+
+  const handleAddManualMarker = () => {
+    if (!manualMarker.marker_name || !manualMarker.value) return;
+    
+    const reference = getReference(manualMarker.marker_name);
+    const value = parseFloat(manualMarker.value);
+    
+    let status = 'suboptimal';
+    if (reference) {
+      const min = reference.celluiq_range_min ?? reference.clinical_range_min;
+      const max = reference.celluiq_range_max ?? reference.clinical_range_max;
+      if (min && max) {
+        if (value >= min && value <= max) status = 'optimal';
+        else if (value < min) status = 'low';
+        else if (value > max) status = 'high';
+      }
+    }
+
+    addMarkerMutation.mutate({
+      ...manualMarker,
+      value,
+      test_date: new Date().toISOString().split('T')[0],
+      status,
+      optimal_min: reference?.celluiq_range_min,
+      optimal_max: reference?.celluiq_range_max
+    });
+  };
 
   if (isLoading) {
     return (
@@ -118,12 +159,12 @@ export default function BloodMarkersSection() {
   }
 
   // Empty State for new users
-  if (sortedMarkers.length === 0) {
+  if (allMarkers.length === 0) {
     return (
       <div className="p-6">
         <BloodMarkerUpload isOpen={showUpload} onClose={() => setShowUpload(false)} />
         
-        <div className="text-center py-8">
+        <div className="text-center py-8 max-w-lg mx-auto">
           <div className="relative w-24 h-24 mx-auto mb-6">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#B7323F20] to-[#3B7C9E20] animate-pulse" />
             <div className="absolute inset-2 rounded-full bg-[#111111] flex items-center justify-center">
@@ -132,12 +173,11 @@ export default function BloodMarkersSection() {
           </div>
           
           <h2 className="text-2xl font-bold text-white mb-3">Willkommen bei CELLUIQ</h2>
-          <p className="text-[#808080] mb-8 max-w-sm mx-auto">
+          <p className="text-[#808080] mb-8">
             Lade dein erstes Blutbild hoch und erhalte personalisierte Gesundheitsempfehlungen
           </p>
 
-          <div className="space-y-3 max-w-sm mx-auto">
-            {/* Upload Option */}
+          <div className="space-y-3">
             <button
               onClick={() => setShowUpload(true)}
               className="w-full bg-gradient-to-r from-[#B7323F] to-[#8B1F2F] rounded-2xl p-5 flex items-center gap-4 hover:opacity-90 transition-all group"
@@ -152,11 +192,8 @@ export default function BloodMarkersSection() {
               <ChevronRight className="w-6 h-6 text-white/60" />
             </button>
 
-            {/* Order Option */}
             {canOrderBloodTest && (
-              <button
-                className="w-full bg-[#111111] border-2 border-[#3B7C9E] rounded-2xl p-5 flex items-center gap-4 hover:bg-[#3B7C9E10] transition-all group"
-              >
+              <button className="w-full bg-[#111111] border-2 border-[#3B7C9E] rounded-2xl p-5 flex items-center gap-4 hover:bg-[#3B7C9E10] transition-all group">
                 <div className="w-14 h-14 rounded-xl bg-[#3B7C9E20] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <ShoppingBag className="w-7 h-7 text-[#3B7C9E]" />
                 </div>
@@ -167,23 +204,74 @@ export default function BloodMarkersSection() {
                 <ChevronRight className="w-6 h-6 text-[#3B7C9E]" />
               </button>
             )}
-          </div>
 
-          {/* Recommended Markers Preview */}
-          {recommendedMarkers.length > 0 && (
-            <div className="mt-10">
-              <h3 className="text-white font-semibold mb-4 text-left">Empfohlene Marker</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {recommendedMarkers.slice(0, 4).map((ref, idx) => (
-                  <div key={idx} className="bg-[#111111] rounded-xl p-3 text-left border border-[#1A1A1A]">
-                    <p className="text-white text-sm font-medium">{ref.marker_name}</p>
-                    <p className="text-[#666666] text-xs">{ref.category}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            <button
+              onClick={() => setShowAddManual(true)}
+              className="w-full bg-[#111111] border border-[#333333] rounded-2xl p-4 flex items-center gap-3 hover:bg-[#1A1A1A] transition-all"
+            >
+              <Plus className="w-5 h-5 text-[#808080]" />
+              <span className="text-[#808080]">Marker manuell hinzufügen</span>
+            </button>
+          </div>
         </div>
+
+        {/* Manual Add Dialog */}
+        <Dialog open={showAddManual} onOpenChange={setShowAddManual}>
+          <DialogContent className="bg-[#111111] border-[#333333] text-white">
+            <DialogHeader>
+              <DialogTitle>Marker manuell hinzufügen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <Input
+                placeholder="Marker Name (z.B. Vitamin D)"
+                value={manualMarker.marker_name}
+                onChange={(e) => setManualMarker(prev => ({ ...prev, marker_name: e.target.value }))}
+                className="bg-[#0A0A0A] border-[#333333] text-white"
+              />
+              <div className="flex gap-3">
+                <Input
+                  type="number"
+                  placeholder="Wert"
+                  value={manualMarker.value}
+                  onChange={(e) => setManualMarker(prev => ({ ...prev, value: e.target.value }))}
+                  className="bg-[#0A0A0A] border-[#333333] text-white flex-1"
+                />
+                <Input
+                  placeholder="Einheit"
+                  value={manualMarker.unit}
+                  onChange={(e) => setManualMarker(prev => ({ ...prev, unit: e.target.value }))}
+                  className="bg-[#0A0A0A] border-[#333333] text-white w-24"
+                />
+              </div>
+              <Select 
+                value={manualMarker.category} 
+                onValueChange={(v) => setManualMarker(prev => ({ ...prev, category: v }))}
+              >
+                <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectItem value="vitamins">Vitamine</SelectItem>
+                  <SelectItem value="minerals">Mineralien</SelectItem>
+                  <SelectItem value="hormones">Hormone</SelectItem>
+                  <SelectItem value="lipids">Lipide</SelectItem>
+                  <SelectItem value="liver">Leber</SelectItem>
+                  <SelectItem value="kidney">Niere</SelectItem>
+                  <SelectItem value="thyroid">Schilddrüse</SelectItem>
+                  <SelectItem value="inflammation">Entzündung</SelectItem>
+                  <SelectItem value="other">Sonstige</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                onClick={handleAddManualMarker}
+                disabled={!manualMarker.marker_name || !manualMarker.value || addMarkerMutation.isPending}
+                className="w-full bg-[#B7323F] hover:bg-[#9A2835]"
+              >
+                {addMarkerMutation.isPending ? 'Wird hinzugefügt...' : 'Hinzufügen'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -200,6 +288,64 @@ export default function BloodMarkersSection() {
         />
       )}
 
+      {/* Manual Add Dialog */}
+      <Dialog open={showAddManual} onOpenChange={setShowAddManual}>
+        <DialogContent className="bg-[#111111] border-[#333333] text-white">
+          <DialogHeader>
+            <DialogTitle>Marker manuell hinzufügen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              placeholder="Marker Name (z.B. Vitamin D)"
+              value={manualMarker.marker_name}
+              onChange={(e) => setManualMarker(prev => ({ ...prev, marker_name: e.target.value }))}
+              className="bg-[#0A0A0A] border-[#333333] text-white"
+            />
+            <div className="flex gap-3">
+              <Input
+                type="number"
+                placeholder="Wert"
+                value={manualMarker.value}
+                onChange={(e) => setManualMarker(prev => ({ ...prev, value: e.target.value }))}
+                className="bg-[#0A0A0A] border-[#333333] text-white flex-1"
+              />
+              <Input
+                placeholder="Einheit"
+                value={manualMarker.unit}
+                onChange={(e) => setManualMarker(prev => ({ ...prev, unit: e.target.value }))}
+                className="bg-[#0A0A0A] border-[#333333] text-white w-24"
+              />
+            </div>
+            <Select 
+              value={manualMarker.category} 
+              onValueChange={(v) => setManualMarker(prev => ({ ...prev, category: v }))}
+            >
+              <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-[#111111] border-[#333333]">
+                <SelectItem value="vitamins">Vitamine</SelectItem>
+                <SelectItem value="minerals">Mineralien</SelectItem>
+                <SelectItem value="hormones">Hormone</SelectItem>
+                <SelectItem value="lipids">Lipide</SelectItem>
+                <SelectItem value="liver">Leber</SelectItem>
+                <SelectItem value="kidney">Niere</SelectItem>
+                <SelectItem value="thyroid">Schilddrüse</SelectItem>
+                <SelectItem value="inflammation">Entzündung</SelectItem>
+                <SelectItem value="other">Sonstige</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={handleAddManualMarker}
+              disabled={!manualMarker.marker_name || !manualMarker.value || addMarkerMutation.isPending}
+              className="w-full bg-[#B7323F] hover:bg-[#9A2835]"
+            >
+              {addMarkerMutation.isPending ? 'Wird hinzugefügt...' : 'Hinzufügen'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Retest Reminder */}
       {needsNewTest && (
         <div className="bg-gradient-to-r from-[#B7323F20] to-[#B7323F10] border border-[#B7323F40] rounded-2xl p-4 mb-6">
@@ -212,20 +358,12 @@ export default function BloodMarkersSection() {
               <p className="text-[#808080] text-sm">
                 Dein letzter Test war vor {daysSinceTest} Tagen. Für optimale Ergebnisse empfehlen wir alle 3 Monate einen Check.
               </p>
-              <div className="flex gap-2 mt-3">
-                <Button 
-                  size="sm" 
-                  className="bg-[#B7323F] hover:bg-[#9A2835] text-white"
-                  onClick={() => setShowUpload(true)}
-                >
+              <div className="flex flex-wrap gap-2 mt-3">
+                <Button size="sm" className="bg-[#B7323F] hover:bg-[#9A2835] text-white" onClick={() => setShowUpload(true)}>
                   Neues Ergebnis hochladen
                 </Button>
                 {canOrderBloodTest && (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    className="border-[#B7323F] text-[#B7323F] hover:bg-[#B7323F10]"
-                  >
+                  <Button size="sm" variant="outline" className="border-[#B7323F] text-[#B7323F] hover:bg-[#B7323F10]">
                     Test bestellen
                   </Button>
                 )}
@@ -235,47 +373,84 @@ export default function BloodMarkersSection() {
         </div>
       )}
 
-      {/* Upload Button */}
-      <button
-        onClick={() => setShowUpload(true)}
-        className="w-full bg-gradient-to-r from-[#B7323F] to-[#8B1F2F] rounded-2xl p-4 mb-6 flex items-center justify-between hover:opacity-90 transition-opacity"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+      {/* Action Buttons Row */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <button
+          onClick={() => setShowUpload(true)}
+          className="flex-1 min-w-[200px] bg-gradient-to-r from-[#B7323F] to-[#8B1F2F] rounded-xl p-4 flex items-center gap-3 hover:opacity-90 transition-opacity"
+        >
+          <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
             <Upload className="w-5 h-5 text-white" />
           </div>
           <div className="text-left">
             <p className="text-white font-semibold">{t('uploadResults')}</p>
             <p className="text-white/60 text-xs">PDF, PNG oder JPG</p>
           </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-white/60" />
-      </button>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="bg-green-500/10 rounded-xl p-3 text-center border border-green-500/20">
-          <p className="text-green-400 font-bold text-xl">
-            {sortedMarkers.filter(m => m.status === 'optimal').length}
-          </p>
-          <p className="text-green-400/70 text-xs">Optimal</p>
-        </div>
-        <div className="bg-yellow-500/10 rounded-xl p-3 text-center border border-yellow-500/20">
-          <p className="text-yellow-400 font-bold text-xl">
-            {sortedMarkers.filter(m => m.status === 'suboptimal').length}
-          </p>
-          <p className="text-yellow-400/70 text-xs">Suboptimal</p>
-        </div>
-        <div className="bg-red-500/10 rounded-xl p-3 text-center border border-red-500/20">
-          <p className="text-red-400 font-bold text-xl">
-            {sortedMarkers.filter(m => ['low', 'high', 'critical'].includes(m.status)).length}
-          </p>
-          <p className="text-red-400/70 text-xs">Achtung</p>
-        </div>
+        </button>
+        
+        <button
+          onClick={() => setShowAddManual(true)}
+          className="bg-[#111111] border border-[#333333] rounded-xl p-4 flex items-center gap-2 hover:bg-[#1A1A1A] transition-all"
+        >
+          <Plus className="w-5 h-5 text-[#808080]" />
+          <span className="text-[#808080] text-sm hidden md:block">Manuell hinzufügen</span>
+        </button>
       </div>
 
-      {/* Markers List */}
-      <div className="space-y-3 mb-8">
+      {/* Clickable Summary Stats */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <button
+          onClick={() => setStatusFilter(statusFilter === 'optimal' ? null : 'optimal')}
+          className={`rounded-xl p-3 text-center border transition-all ${
+            statusFilter === 'optimal' 
+              ? 'bg-green-500/20 border-green-500' 
+              : 'bg-green-500/10 border-green-500/20 hover:border-green-500/50'
+          }`}
+        >
+          <p className="text-green-400 font-bold text-xl">{optimalCount}</p>
+          <p className="text-green-400/70 text-xs">Optimal</p>
+        </button>
+        <button
+          onClick={() => setStatusFilter(statusFilter === 'suboptimal' ? null : 'suboptimal')}
+          className={`rounded-xl p-3 text-center border transition-all ${
+            statusFilter === 'suboptimal' 
+              ? 'bg-yellow-500/20 border-yellow-500' 
+              : 'bg-yellow-500/10 border-yellow-500/20 hover:border-yellow-500/50'
+          }`}
+        >
+          <p className="text-yellow-400 font-bold text-xl">{suboptimalCount}</p>
+          <p className="text-yellow-400/70 text-xs">Suboptimal</p>
+        </button>
+        <button
+          onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
+          className={`rounded-xl p-3 text-center border transition-all ${
+            statusFilter === 'critical' 
+              ? 'bg-red-500/20 border-red-500' 
+              : 'bg-red-500/10 border-red-500/20 hover:border-red-500/50'
+          }`}
+        >
+          <p className="text-red-400 font-bold text-xl">{criticalCount}</p>
+          <p className="text-red-400/70 text-xs">Achtung</p>
+        </button>
+      </div>
+
+      {/* Active Filter Indicator */}
+      {statusFilter && (
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[#808080] text-sm">
+            Zeigt: {statusFilter === 'optimal' ? 'Optimale' : statusFilter === 'suboptimal' ? 'Suboptimale' : 'Kritische'} Marker
+          </span>
+          <button 
+            onClick={() => setStatusFilter(null)}
+            className="text-[#B7323F] text-sm flex items-center gap-1 hover:opacity-80"
+          >
+            <X className="w-3 h-3" /> Alle anzeigen
+          </button>
+        </div>
+      )}
+
+      {/* Markers List - Desktop Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
         {sortedMarkers.map((marker) => {
           const reference = getReference(marker.marker_name);
           const previousValue = getPreviousValue(marker.marker_name);
@@ -296,9 +471,7 @@ export default function BloodMarkersSection() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-white font-semibold">{marker.marker_name}</h3>
-                    {reference && (
-                      <Info className="w-3.5 h-3.5 text-[#3B7C9E]" />
-                    )}
+                    {reference && <Info className="w-3.5 h-3.5 text-[#3B7C9E]" />}
                   </div>
                   <p className="text-[#666666] text-xs mt-0.5 capitalize">{marker.category?.replace('_', ' ')}</p>
                 </div>
@@ -311,7 +484,10 @@ export default function BloodMarkersSection() {
                     {trend === 'same' && <Minus className="w-4 h-4 text-[#666666]" />}
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor(marker.status)}`}>
-                    {marker.status}
+                    {marker.status === 'optimal' ? 'Optimal' : 
+                     marker.status === 'suboptimal' ? 'Suboptimal' : 
+                     marker.status === 'low' ? 'Niedrig' :
+                     marker.status === 'high' ? 'Hoch' : 'Kritisch'}
                   </span>
                 </div>
               </div>
@@ -340,31 +516,11 @@ export default function BloodMarkersSection() {
         })}
       </div>
 
-      {/* Recommended Additional Markers */}
-      {recommendedMarkers.length > 0 && (
-        <div className="mt-8">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertCircle className="w-5 h-5 text-[#3B7C9E]" />
-            <h3 className="text-white font-semibold">Empfohlene zusätzliche Marker</h3>
-          </div>
-          <p className="text-[#666666] text-sm mb-4">
-            Diese Werte empfehlen wir bei deinem nächsten Bluttest zu überprüfen:
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {recommendedMarkers.map((ref, idx) => (
-              <div key={idx} className="bg-[#111111] rounded-xl p-3 border border-[#1A1A1A]">
-                <p className="text-white text-sm font-medium">{ref.marker_name}</p>
-                <p className="text-[#666666] text-xs capitalize">{ref.category?.replace('_', ' ')}</p>
-              </div>
-            ))}
-          </div>
-          
-          {canOrderBloodTest && (
-            <Button className="w-full mt-4 bg-[#3B7C9E] hover:bg-[#2D5F7A] text-white">
-              <ShoppingBag className="w-4 h-4 mr-2" />
-              Komplettes Panel bestellen
-            </Button>
-          )}
+      {/* Empty filter result */}
+      {sortedMarkers.length === 0 && statusFilter && (
+        <div className="text-center py-8">
+          <p className="text-[#808080]">Keine {statusFilter === 'optimal' ? 'optimalen' : statusFilter === 'suboptimal' ? 'suboptimalen' : 'kritischen'} Marker gefunden</p>
+          <button onClick={() => setStatusFilter(null)} className="text-[#3B7C9E] mt-2 text-sm">Alle Marker anzeigen</button>
         </div>
       )}
     </div>
