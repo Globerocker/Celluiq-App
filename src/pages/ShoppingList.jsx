@@ -16,6 +16,15 @@ import {
 export default function ShoppingList() {
   const [generating, setGenerating] = useState(false);
   const queryClient = useQueryClient();
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  
+  React.useEffect(() => {
+    const handleThemeChange = () => setTheme(localStorage.getItem('theme') || 'dark');
+    window.addEventListener('themeChange', handleThemeChange);
+    return () => window.removeEventListener('themeChange', handleThemeChange);
+  }, []);
+  
+  const isDark = theme === 'dark';
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -124,34 +133,33 @@ export default function ShoppingList() {
   const checkedCount = shoppingItems.filter(i => i.checked).length;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-8">
+    <div className={`min-h-screen pb-8 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F8FAFC]'}`}>
       {/* Header */}
-      <div className="bg-[#111111] border-b border-[#1A1A1A] px-6 py-4">
+      <div className={`border-b px-6 py-4 ${isDark ? 'bg-[#111111] border-[#1A1A1A]' : 'bg-white border-[#E2E8F0]'}`}>
         <div className="flex items-center gap-4">
           <Link to={createPageUrl("Home")}>
-            <Button variant="ghost" size="icon" className="text-[#808080] hover:text-white">
+            <Button variant="ghost" size="icon" className={isDark ? 'text-[#808080] hover:text-white' : 'text-[#64748B] hover:text-[#0F172A]'}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-white">Shopping List</h1>
-            <p className="text-[#666666] text-sm">
-              {checkedCount}/{shoppingItems.length} items
+            <h1 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Einkaufsliste</h1>
+            <p className={`text-sm ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
+              {checkedCount}/{shoppingItems.length} Artikel
             </p>
           </div>
         </div>
       </div>
 
       <div className="p-6 max-w-2xl mx-auto">
-        {/* Generate Button */}
         {shoppingItems.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-20 h-20 rounded-full bg-[#1A1A1A] flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart className="w-10 h-10 text-[#666666]" />
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-[#1A1A1A]' : 'bg-[#F1F5F9]'}`}>
+              <ShoppingCart className={`w-10 h-10 ${isDark ? 'text-[#666666]' : 'text-[#94A3B8]'}`} />
             </div>
-            <h2 className="text-white font-semibold text-lg mb-2">No shopping list yet</h2>
-            <p className="text-[#666666] text-sm mb-6 max-w-xs mx-auto">
-              Generate a personalized shopping list based on your biomarkers
+            <h2 className={`font-semibold text-lg mb-2 ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>Noch keine Einkaufsliste</h2>
+            <p className={`text-sm mb-6 max-w-xs mx-auto ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
+              Generiere eine personalisierte Einkaufsliste basierend auf deinen Biomarkern
             </p>
             <Button 
               onClick={handleGenerate}
@@ -161,48 +169,46 @@ export default function ShoppingList() {
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
+                  Generiere...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Generate List
+                  Liste generieren
                 </>
               )}
             </Button>
           </div>
         ) : (
           <>
-            {/* Regenerate Button */}
             <Button 
               onClick={handleGenerate}
               disabled={generating}
               variant="outline"
-              className="w-full mb-6 bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]"
+              className={`w-full mb-6 ${isDark ? 'bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]' : 'bg-white border-[#E2E8F0] text-[#0F172A] hover:bg-[#F1F5F9]'}`}
             >
               {generating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Regenerating...
+                  Regeneriere...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Regenerate List
+                  Liste neu generieren
                 </>
               )}
             </Button>
 
-            {/* Shopping Items by Category */}
             <div className="space-y-6">
               {Object.entries(groupedItems).map(([category, items]) => (
                 <div key={category}>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-xl">{categoryIcons[category]}</span>
-                    <h3 className="text-white font-semibold capitalize">
+                    <h3 className={`font-semibold capitalize ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
                       {category.replace('_', ' ')}
                     </h3>
-                    <span className="text-[#666666] text-sm">
+                    <span className={`text-sm ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
                       ({items.filter(i => i.checked).length}/{items.length})
                     </span>
                   </div>
@@ -217,24 +223,24 @@ export default function ShoppingList() {
                         })}
                         className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
                           item.checked 
-                            ? 'bg-[#0A0A0A] border-[#1A1A1A] opacity-60' 
-                            : 'bg-[#111111] border-[#1A1A1A] hover:border-[#333333]'
+                            ? isDark ? 'bg-[#0A0A0A] border-[#1A1A1A] opacity-60' : 'bg-[#F8FAFC] border-[#E2E8F0] opacity-60'
+                            : isDark ? 'bg-[#111111] border-[#1A1A1A] hover:border-[#333333]' : 'bg-white border-[#E2E8F0] hover:border-[#CBD5E1] shadow-sm'
                         }`}
                       >
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                           item.checked 
                             ? 'bg-[#3B7C9E] border-[#3B7C9E]' 
-                            : 'border-[#333333]'
+                            : isDark ? 'border-[#333333]' : 'border-[#CBD5E1]'
                         }`}>
                           {item.checked && <Check className="w-4 h-4 text-white" />}
                         </div>
                         
                         <div className="flex-1">
-                          <p className={`font-medium ${item.checked ? 'line-through text-[#666666]' : 'text-white'}`}>
+                          <p className={`font-medium ${item.checked ? 'line-through' : ''} ${item.checked ? (isDark ? 'text-[#666666]' : 'text-[#94A3B8]') : (isDark ? 'text-white' : 'text-[#0F172A]')}`}>
                             {item.name}
                           </p>
                           {item.weekly_amount && (
-                            <p className="text-[#666666] text-xs mt-0.5">
+                            <p className={`text-xs mt-0.5 ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>
                               {item.weekly_amount}
                             </p>
                           )}

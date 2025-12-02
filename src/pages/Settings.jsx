@@ -250,97 +250,97 @@ export default function Settings() {
 
         {/* Edit Profile Dialog */}
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="bg-[#111111] border-[#333333] text-white max-w-md">
+          <DialogContent className={`max-w-md ${darkMode ? 'bg-[#111111] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}>
             <DialogHeader>
               <DialogTitle>{t('editProfile')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">{t('name')}</label>
+                <label className={`text-sm mb-1 block ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>{t('name')}</label>
                 <Input
                   value={editData.full_name || ''}
                   onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
-                  className="bg-[#0A0A0A] border-[#333333] text-white"
+                  className={darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}
                 />
               </div>
               
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">{t('gender')}</label>
+                <label className={`text-sm mb-1 block ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>{t('gender')}</label>
                 <Select value={editData.gender} onValueChange={(v) => setEditData(prev => ({ ...prev, gender: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                  <SelectTrigger className={darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}>
                     <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="male" className="text-white">{t('male')}</SelectItem>
-                    <SelectItem value="female" className="text-white">{t('female')}</SelectItem>
+                  <SelectContent className={darkMode ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
+                    <SelectItem value="male" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{t('male')}</SelectItem>
+                    <SelectItem value="female" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{t('female')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">{t('ageRange')}</label>
+                <label className={`text-sm mb-1 block ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>Altersgruppe</label>
                 <Select value={editData.age_range} onValueChange={(v) => setEditData(prev => ({ ...prev, age_range: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                  <SelectTrigger className={darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}>
                     <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="18-25" className="text-white">18-25</SelectItem>
-                    <SelectItem value="26-35" className="text-white">26-35</SelectItem>
-                    <SelectItem value="36-45" className="text-white">36-45</SelectItem>
-                    <SelectItem value="46-55" className="text-white">46-55</SelectItem>
-                    <SelectItem value="56+" className="text-white">56+</SelectItem>
+                  <SelectContent className={darkMode ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
+                    <SelectItem value="18-25" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>18 - 25</SelectItem>
+                    <SelectItem value="26-35" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>26 - 35</SelectItem>
+                    <SelectItem value="36-45" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>36 - 45</SelectItem>
+                    <SelectItem value="46-55" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>46 - 55</SelectItem>
+                    <SelectItem value="56+" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>56+</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">{t('activityLevel')}</label>
+                <label className={`text-sm mb-1 block ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>Aktivitätslevel</label>
                 <Select value={editData.activity_level} onValueChange={(v) => setEditData(prev => ({ ...prev, activity_level: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                  <SelectTrigger className={darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}>
                     <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectContent className={darkMode ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
                     {activityOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{t(opt.labelKey)}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{t(opt.labelKey)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">{t('dietLabel')}</label>
+                <label className={`text-sm mb-1 block ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>Ernährung</label>
                 <Select value={editData.diet} onValueChange={(v) => setEditData(prev => ({ ...prev, diet: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                  <SelectTrigger className={darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}>
                     <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectContent className={darkMode ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
                     {dietOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{t(opt.labelKey)}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{t(opt.labelKey)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">{t('goal')}</label>
+                <label className={`text-sm mb-1 block ${darkMode ? 'text-[#808080]' : 'text-[#64748B]'}`}>{t('goal')}</label>
                 <Select value={editData.goal} onValueChange={(v) => setEditData(prev => ({ ...prev, goal: v }))}>
-                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                  <SelectTrigger className={darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}>
                     <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111111] border-[#333333]">
+                  <SelectContent className={darkMode ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
                     {goalOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{t(opt.labelKey)}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{t(opt.labelKey)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button variant="outline" className="flex-1 border-[#333333] text-white hover:bg-[#1A1A1A]" onClick={() => setIsEditing(false)}>
+                <Button variant="outline" className={`flex-1 ${darkMode ? 'border-[#333333] text-white hover:bg-[#1A1A1A]' : 'border-[#E2E8F0] text-[#0F172A] hover:bg-[#F1F5F9]'}`} onClick={() => setIsEditing(false)}>
                   {t('cancel')}
                 </Button>
                 <Button 
-                  className="flex-1 bg-[#B7323F] hover:bg-[#9A2835]" 
+                  className="flex-1 bg-[#B7323F] hover:bg-[#9A2835] text-white" 
                   onClick={handleSaveProfile}
                   disabled={updateUserMutation.isPending}
                 >
@@ -387,20 +387,20 @@ export default function Settings() {
                     <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.gender ? t(user.gender) : '-'}</span>
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
-                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('ageRange')}</span>
-                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.age_range || '-'}</span>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>Altersgruppe</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.age_range ? user.age_range.replace('-', ' - ') : '-'}</span>
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                     <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('activityLevel')}</span>
                     <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) || user.activity_level : '-'}</span>
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
-                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('dietLabel')}</span>
-                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.diet ? t(dietOptions.find(o => o.value === user.diet)?.labelKey) : '-'}</span>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>Ernährung</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.diet ? (t(dietOptions.find(o => o.value === user.diet)?.labelKey) || user.diet) : '-'}</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('goal')}</span>
-                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.goal ? t(goalOptions.find(o => o.value === user.goal)?.labelKey) : '-'}</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.goal ? (t(goalOptions.find(o => o.value === user.goal)?.labelKey) || user.goal) : '-'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -470,13 +470,13 @@ export default function Settings() {
                     </div>
                   </div>
                   <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger className="w-32 bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectTrigger className={`w-32 ${darkMode ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#111111] border-[#333333]">
-                      <SelectItem value="de" className="text-white">Deutsch</SelectItem>
-                      <SelectItem value="en" className="text-white">English</SelectItem>
-                      <SelectItem value="es" className="text-white">Español</SelectItem>
+                    <SelectContent className={darkMode ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
+                      <SelectItem value="de" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>Deutsch</SelectItem>
+                      <SelectItem value="en" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>English</SelectItem>
+                      <SelectItem value="es" className={darkMode ? 'text-white' : 'text-[#0F172A]'}>Español</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
