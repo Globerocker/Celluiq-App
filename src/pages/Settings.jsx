@@ -145,30 +145,30 @@ export default function Settings() {
   const isPro = user?.subscription_tier === 'pro';
 
   const goalOptions = [
-    { value: 'performance', label: 'Peak Performance' },
-    { value: 'longevity', label: 'Longevity & Anti-Aging' },
-    { value: 'energy', label: 'Mehr Energie' },
-    { value: 'weight', label: 'Gewichtsmanagement' },
-    { value: 'sleep', label: 'Besserer Schlaf' },
-    { value: 'mental', label: 'Mentale Klarheit' },
-    { value: 'muscle', label: 'Muskelaufbau' },
-    { value: 'recovery', label: 'Schnellere Regeneration' }
+    { value: 'performance', labelKey: 'peakPerformance' },
+    { value: 'longevity', labelKey: 'longevity' },
+    { value: 'energy', labelKey: 'moreEnergy' },
+    { value: 'weight', labelKey: 'weightManagement' },
+    { value: 'sleep', labelKey: 'betterSleep' },
+    { value: 'mental', labelKey: 'mentalClarity' },
+    { value: 'muscle', labelKey: 'muscleGain' },
+    { value: 'recovery', labelKey: 'fasterRecovery' }
   ];
 
   const activityOptions = [
-    { value: 'sedentary', label: 'Wenig aktiv' },
-    { value: 'light', label: 'Leicht aktiv' },
-    { value: 'moderate', label: 'Moderat aktiv' },
-    { value: 'active', label: 'Sehr aktiv' },
-    { value: 'athlete', label: 'Athlet' }
+    { value: 'sedentary', labelKey: 'sedentary' },
+    { value: 'light', labelKey: 'lightActive' },
+    { value: 'moderate', labelKey: 'moderateActive' },
+    { value: 'active', labelKey: 'veryActive' },
+    { value: 'athlete', labelKey: 'athlete' }
   ];
 
   const dietOptions = [
-    { value: 'omnivore', label: 'Mischkost' },
-    { value: 'vegetarian', label: 'Vegetarisch' },
-    { value: 'vegan', label: 'Vegan' },
-    { value: 'keto', label: 'Keto' },
-    { value: 'paleo', label: 'Paleo' }
+    { value: 'omnivore', labelKey: 'omnivore' },
+    { value: 'vegetarian', labelKey: 'vegetarian' },
+    { value: 'vegan', labelKey: 'vegan' },
+    { value: 'keto', labelKey: 'keto' },
+    { value: 'paleo', labelKey: 'paleo' }
   ];
 
   const dateLocale = language === 'de' ? de : language === 'es' ? es : enUS;
@@ -244,7 +244,7 @@ export default function Settings() {
                 className="bg-[#1A1A1A] text-white hover:bg-[#222222]"
               >
                 <Pencil className="w-4 h-4 mr-2" />
-                {t('profile')} bearbeiten
+                {t('editProfile')}
               </Button>
             </div>
           </CardContent>
@@ -254,11 +254,11 @@ export default function Settings() {
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
           <DialogContent className="bg-[#111111] border-[#333333] text-white max-w-md">
             <DialogHeader>
-              <DialogTitle>{t('profile')} bearbeiten</DialogTitle>
+              <DialogTitle>{t('editProfile')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Name</label>
+                <label className="text-[#808080] text-sm mb-1 block">{t('name')}</label>
                 <Input
                   value={editData.full_name || ''}
                   onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
@@ -267,23 +267,23 @@ export default function Settings() {
               </div>
               
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Geschlecht</label>
+                <label className="text-[#808080] text-sm mb-1 block">{t('gender')}</label>
                 <Select value={editData.gender} onValueChange={(v) => setEditData(prev => ({ ...prev, gender: v }))}>
                   <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="male" className="text-white">Männlich</SelectItem>
-                    <SelectItem value="female" className="text-white">Weiblich</SelectItem>
+                    <SelectItem value="male" className="text-white">{t('male')}</SelectItem>
+                    <SelectItem value="female" className="text-white">{t('female')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Altersgruppe</label>
+                <label className="text-[#808080] text-sm mb-1 block">{t('ageRange')}</label>
                 <Select value={editData.age_range} onValueChange={(v) => setEditData(prev => ({ ...prev, age_range: v }))}>
                   <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     <SelectItem value="18-25" className="text-white">18-25</SelectItem>
@@ -296,42 +296,42 @@ export default function Settings() {
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Aktivitätslevel</label>
+                <label className="text-[#808080] text-sm mb-1 block">{t('activityLevel')}</label>
                 <Select value={editData.activity_level} onValueChange={(v) => setEditData(prev => ({ ...prev, activity_level: v }))}>
                   <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     {activityOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">{t(opt.labelKey)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Ernährung</label>
+                <label className="text-[#808080] text-sm mb-1 block">{t('dietLabel')}</label>
                 <Select value={editData.diet} onValueChange={(v) => setEditData(prev => ({ ...prev, diet: v }))}>
                   <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     {dietOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">{t(opt.labelKey)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <label className="text-[#808080] text-sm mb-1 block">Ziel</label>
+                <label className="text-[#808080] text-sm mb-1 block">{t('goal')}</label>
                 <Select value={editData.goal} onValueChange={(v) => setEditData(prev => ({ ...prev, goal: v }))}>
                   <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                    <SelectValue placeholder="Auswählen" />
+                    <SelectValue placeholder={t('select')} />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     {goalOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">{t(opt.labelKey)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -339,14 +339,14 @@ export default function Settings() {
 
               <div className="flex gap-3 pt-2">
                 <Button variant="outline" className="flex-1 border-[#333333] text-white hover:bg-[#1A1A1A]" onClick={() => setIsEditing(false)}>
-                  Abbrechen
+                  {t('cancel')}
                 </Button>
                 <Button 
                   className="flex-1 bg-[#B7323F] hover:bg-[#9A2835]" 
                   onClick={handleSaveProfile}
                   disabled={updateUserMutation.isPending}
                 >
-                  {updateUserMutation.isPending ? 'Speichern...' : 'Speichern'}
+                  {updateUserMutation.isPending ? t('saving') : t('save')}
                 </Button>
               </div>
             </div>
@@ -369,8 +369,8 @@ export default function Settings() {
                         <Sparkles className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <p className="text-white font-semibold">Upgrade auf Pro</p>
-                        <p className="text-[#808080] text-xs">Alle Features für 9€/Monat</p>
+                        <p className="text-white font-semibold">{t('upgradeToPro')}</p>
+                        <p className="text-[#808080] text-xs">{t('allFeaturesFor')}</p>
                       </div>
                     </div>
                     <Button className="bg-[#B7323F] hover:bg-[#9A2835] text-white text-sm">Upgrade</Button>
@@ -382,27 +382,27 @@ export default function Settings() {
             {/* About You Card */}
             <Card className="bg-[#111111] border-[#1A1A1A]">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Über dich</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">{t('aboutYou')}</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Geschlecht</span>
-                    <span className="text-white">{user?.gender === 'male' ? 'Männlich' : user?.gender === 'female' ? 'Weiblich' : '-'}</span>
+                    <span className="text-[#666666]">{t('gender')}</span>
+                    <span className="text-white">{user?.gender ? t(user.gender) : '-'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Altersgruppe</span>
+                    <span className="text-[#666666]">{t('ageRange')}</span>
                     <span className="text-white">{user?.age_range || '-'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Aktivität</span>
-                    <span className="text-white capitalize">{activityOptions.find(o => o.value === user?.activity_level)?.label || '-'}</span>
+                    <span className="text-[#666666]">{t('activityLevel')}</span>
+                    <span className="text-white">{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) : '-'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
-                    <span className="text-[#666666]">Ernährung</span>
-                    <span className="text-white">{dietOptions.find(o => o.value === user?.diet)?.label || '-'}</span>
+                    <span className="text-[#666666]">{t('dietLabel')}</span>
+                    <span className="text-white">{user?.diet ? t(dietOptions.find(o => o.value === user.diet)?.labelKey) : '-'}</span>
                   </div>
                   <div className="flex justify-between py-2">
-                    <span className="text-[#666666]">Ziel</span>
-                    <span className="text-white">{goalOptions.find(o => o.value === user?.goal)?.label || '-'}</span>
+                    <span className="text-[#666666]">{t('goal')}</span>
+                    <span className="text-white">{user?.goal ? t(goalOptions.find(o => o.value === user.goal)?.labelKey) : '-'}</span>
                   </div>
                 </div>
               </CardContent>
@@ -412,7 +412,7 @@ export default function Settings() {
             {testDates.length > 0 && (
               <Card className="bg-[#111111] border-[#1A1A1A]">
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Letzte Bluttests</h3>
+                  <h3 className="text-lg font-semibold text-white mb-4">{t('lastBloodTests')}</h3>
                   <div className="space-y-3">
                     {testDates.slice(0, 3).map((date, idx) => {
                       const markersOnDate = bloodMarkers.filter(m => m.test_date === date);
@@ -425,10 +425,10 @@ export default function Settings() {
                             </div>
                             <div>
                               <p className="text-white text-sm">{format(new Date(date), 'dd. MMM yyyy', { locale: dateLocale })}</p>
-                              <p className="text-[#666666] text-xs">{markersOnDate.length} Marker</p>
+                              <p className="text-[#666666] text-xs">{markersOnDate.length} {t('marker')}</p>
                             </div>
                           </div>
-                          <span className="text-green-400 text-sm">{optOnDate} optimal</span>
+                          <span className="text-green-400 text-sm">{optOnDate} {t('optimal')}</span>
                         </div>
                       );
                     })}
@@ -489,7 +489,7 @@ export default function Settings() {
                     <Moon className="w-5 h-5 text-[#808080]" />
                     <div>
                       <p className="text-white font-medium">{t('darkMode')}</p>
-                      <p className="text-xs text-[#666666]">{darkMode ? 'Aktiviert' : 'Deaktiviert'}</p>
+                      <p className="text-xs text-[#666666]">{darkMode ? t('enabled') : t('disabled')}</p>
                     </div>
                   </div>
                   <Switch checked={darkMode} onCheckedChange={toggleDarkMode} className="data-[state=checked]:bg-[#3B7C9E]" />
@@ -561,7 +561,7 @@ export default function Settings() {
                       <div className="w-12 h-12 rounded-full bg-[#B7323F20] flex items-center justify-center mx-auto mb-2">
                         <Lock className="w-6 h-6 text-[#B7323F]" />
                       </div>
-                      <p className="text-white font-medium text-sm">Mit Pro freischalten</p>
+                      <p className="text-white font-medium text-sm">{t('unlockWithPro')}</p>
                     </div>
                   </div>
                 )}
