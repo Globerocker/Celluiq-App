@@ -213,14 +213,14 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
                 <SelectContent className="bg-[#111111] border-[#333333]">
                   {/* Primary unit from reference */}
                   {selectedReference.unit && (
-                    <SelectItem value={selectedReference.unit}>{selectedReference.unit}</SelectItem>
+                    <SelectItem value={selectedReference.unit} className="text-white">{selectedReference.unit}</SelectItem>
                   )}
                   {/* Other common units if different */}
                   {availableUnits
                     .filter(u => u !== selectedReference.unit)
                     .slice(0, 10)
                     .map(unit => (
-                      <SelectItem key={unit} value={unit}>{unit}</SelectItem>
+                      <SelectItem key={unit} value={unit} className="text-white">{unit}</SelectItem>
                     ))
                   }
                 </SelectContent>

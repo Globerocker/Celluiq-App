@@ -268,8 +268,8 @@ export default function Settings() {
                     <SelectValue placeholder="Auswählen" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="male">Männlich</SelectItem>
-                    <SelectItem value="female">Weiblich</SelectItem>
+                    <SelectItem value="male" className="text-white">Männlich</SelectItem>
+                    <SelectItem value="female" className="text-white">Weiblich</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -281,11 +281,11 @@ export default function Settings() {
                     <SelectValue placeholder="Auswählen" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
-                    <SelectItem value="18-25">18-25</SelectItem>
-                    <SelectItem value="26-35">26-35</SelectItem>
-                    <SelectItem value="36-45">36-45</SelectItem>
-                    <SelectItem value="46-55">46-55</SelectItem>
-                    <SelectItem value="56+">56+</SelectItem>
+                    <SelectItem value="18-25" className="text-white">18-25</SelectItem>
+                    <SelectItem value="26-35" className="text-white">26-35</SelectItem>
+                    <SelectItem value="36-45" className="text-white">36-45</SelectItem>
+                    <SelectItem value="46-55" className="text-white">46-55</SelectItem>
+                    <SelectItem value="56+" className="text-white">56+</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -298,7 +298,7 @@ export default function Settings() {
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     {activityOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -312,7 +312,7 @@ export default function Settings() {
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     {dietOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -326,7 +326,7 @@ export default function Settings() {
                   </SelectTrigger>
                   <SelectContent className="bg-[#111111] border-[#333333]">
                     {goalOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                      <SelectItem key={opt.value} value={opt.value} className="text-white">{opt.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
