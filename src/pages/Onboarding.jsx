@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, User, Target, Activity, Moon, Apple, MapPin, Heart, Dumbbell } from "lucide-react";
+import { ChevronLeft, User, Target, Moon, Apple, MapPin, Heart, Dumbbell, Upload, FileText, Check, Loader2, ArrowRight } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 const questions = [
@@ -116,6 +116,13 @@ const questions = [
       { value: "paleo", label: "Paleo" },
       { value: "mediterranean", label: "Mediterran" }
     ]
+  },
+  {
+    id: "blood_upload",
+    icon: Upload,
+    question: "Hast du bereits ein Blutbild?",
+    subtitle: "Lade es jetzt hoch für personalisierte Empfehlungen",
+    type: "file_upload"
   }
 ];
 
@@ -123,6 +130,11 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [inputValue, setInputValue] = useState("");
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const fileInputRef = useRef(null);
+  const queryClient = useQueryClient();
 
   const updateUserMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
@@ -130,6 +142,102 @@ export default function Onboarding() {
       window.location.href = createPageUrl("Home");
     }
   });
+
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    
+    setUploadedFile(file);
+    setIsUploading(true);
+    
+    try {
+      // Upload file
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      // Get blood marker references for analysis
+      const references = await base44.entities.BloodMarkerReference.list();
+      
+      // Extract data from PDF/image
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            test_date: { type: "string", description: "Date of the blood test in YYYY-MM-DD format" },
+            markers: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  marker_name: { type: "string", description: "Name of blood marker" },
+                  value: { type: "number", description: "Numeric value" },
+                  unit: { type: "string", description: "Unit of measurement" }
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      if (result.status === "success" && result.output?.markers) {
+        const testDate = result.output.test_date || new Date().toISOString().split('T')[0];
+        const gender = answers.gender || 'both';
+        
+        // Process and save markers
+        const markersToCreate = result.output.markers
+          .filter(m => m.marker_name && m.value !== undefined)
+          .map(marker => {
+            const ref = references.find(r => 
+              (r.marker_name?.toLowerCase() === marker.marker_name?.toLowerCase() ||
+               r.short_name?.toLowerCase() === marker.marker_name?.toLowerCase()) &&
+              (r.gender === 'both' || r.gender === gender)
+            );
+            
+            let status = 'optimal';
+            const optMin = ref?.celluiq_range_min;
+            const optMax = ref?.celluiq_range_max;
+            
+            if (optMin !== undefined && optMax !== undefined) {
+              if (marker.value < optMin * 0.8 || marker.value > optMax * 1.2) {
+                status = marker.value < optMin ? 'low' : 'high';
+              } else if (marker.value < optMin || marker.value > optMax) {
+                status = 'suboptimal';
+              }
+            }
+            
+            return {
+              test_date: testDate,
+              marker_name: marker.marker_name,
+              value: marker.value,
+              unit: marker.unit || ref?.unit || '',
+              optimal_min: optMin,
+              optimal_max: optMax,
+              status,
+              category: ref?.category || 'other'
+            };
+          });
+        
+        if (markersToCreate.length > 0) {
+          await base44.entities.BloodMarker.bulkCreate(markersToCreate);
+          await base44.entities.BloodTestFile.create({
+            file_url,
+            file_name: file.name,
+            upload_date: new Date().toISOString().split('T')[0],
+            test_date: testDate,
+            markers_extracted: markersToCreate.length,
+            status: 'processed'
+          });
+          
+          queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
+        }
+      }
+      
+      setUploadSuccess(true);
+    } catch (error) {
+      console.error('Upload error:', error);
+    }
+    
+    setIsUploading(false);
+  };
 
   const handleSelect = (value) => {
     const currentQuestion = questions[step];
@@ -265,7 +373,73 @@ export default function Onboarding() {
               </p>
             </div>
 
-            {currentQuestion.type === "input" ? (
+            {currentQuestion.type === "file_upload" ? (
+              <div className="space-y-4">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) => handleFileUpload(e.target.files?.[0])}
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  className="hidden"
+                />
+                
+                {!uploadedFile ? (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full p-8 rounded-2xl border-2 border-dashed border-[#333333] bg-[#111111] hover:border-[#B7323F] hover:bg-[#B7323F10] transition-all group"
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="w-16 h-16 rounded-full bg-[#B7323F20] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Upload className="w-8 h-8 text-[#B7323F]" />
+                      </div>
+                      <p className="text-white font-semibold mb-2">Blutbild hochladen</p>
+                      <p className="text-[#666666] text-sm">PDF, PNG oder JPG</p>
+                    </div>
+                  </button>
+                ) : (
+                  <div className="p-6 rounded-2xl bg-[#111111] border border-[#1A1A1A]">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        uploadSuccess ? 'bg-green-500/20' : isUploading ? 'bg-[#3B7C9E20]' : 'bg-[#1A1A1A]'
+                      }`}>
+                        {isUploading ? (
+                          <Loader2 className="w-6 h-6 text-[#3B7C9E] animate-spin" />
+                        ) : uploadSuccess ? (
+                          <Check className="w-6 h-6 text-green-500" />
+                        ) : (
+                          <FileText className="w-6 h-6 text-[#808080]" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white font-medium truncate">{uploadedFile.name}</p>
+                        <p className="text-[#666666] text-sm">
+                          {isUploading ? 'Wird analysiert...' : uploadSuccess ? 'Erfolgreich analysiert!' : 'Bereit'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleNext}
+                    variant="outline"
+                    className="flex-1 bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]"
+                  >
+                    Überspringen
+                  </Button>
+                  {uploadSuccess && (
+                    <Button
+                      onClick={handleNext}
+                      className="flex-1 bg-[#B7323F] hover:bg-[#9A2835] text-white"
+                    >
+                      Weiter
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : currentQuestion.type === "input" ? (
               <div className="space-y-4">
                 <Input
                   value={inputValue || currentAnswer || ""}
