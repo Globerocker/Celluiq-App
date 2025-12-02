@@ -391,8 +391,8 @@ export default function Settings() {
                     <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.age_range ? user.age_range.replace('-', ' - ') : '-'}</span>
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
-                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>{t('activityLevel')}</span>
-                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.activity_level ? t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) || user.activity_level : '-'}</span>
+                    <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>Aktivitätslevel</span>
+                    <span className={darkMode ? 'text-white' : 'text-[#0F172A]'}>{user?.activity_level ? (t(activityOptions.find(o => o.value === user.activity_level)?.labelKey) || user.activity_level) : '-'}</span>
                   </div>
                   <div className={`flex justify-between py-2 border-b ${darkMode ? 'border-[#1A1A1A]' : 'border-[#E2E8F0]'}`}>
                     <span className={darkMode ? 'text-[#666666]' : 'text-[#64748B]'}>Ernährung</span>

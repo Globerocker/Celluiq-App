@@ -151,8 +151,8 @@ export default function SupplementStackSection() {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="text-white font-semibold">{t('basedOnBloodwork')}</h3>
-              <p className="text-[#808080] text-xs">{suboptimalMarkers.length} {t('markersNeedAttention')}</p>
+              <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('basedOnBloodwork')}</h3>
+              <p className={`text-xs ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{suboptimalMarkers.length} {t('markersNeedAttention')}</p>
             </div>
           </div>
           
@@ -161,15 +161,15 @@ export default function SupplementStackSection() {
               <button 
                 key={index} 
                 onClick={() => setSelectedSupplement(supp)}
-                className="flex items-center justify-between p-3 bg-[#0A0A0A80] rounded-xl hover:bg-[#0A0A0A] transition-colors text-left w-full"
+                className={`flex items-center justify-between p-3 rounded-xl transition-colors text-left w-full ${isDark ? 'bg-[#0A0A0A80] hover:bg-[#0A0A0A]' : 'bg-white/80 hover:bg-white shadow-sm'}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-[#1A1A1A]' : 'bg-[#F1F5F9]'}`}>
                     <Pill className="w-4 h-4 text-[#3B7C9E]" />
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium">{supp.name}</p>
-                    <p className="text-[#666666] text-xs">{supp.dosage || t('checkDosage')}</p>
+                    <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{supp.name}</p>
+                    <p className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{supp.dosage || t('checkDosage')}</p>
                   </div>
                 </div>
                 <span className="text-[#3B7C9E] text-xs bg-[#3B7C9E20] px-2 py-1 rounded-full whitespace-nowrap">
@@ -179,11 +179,6 @@ export default function SupplementStackSection() {
             ))}
           </div>
 
-          <Button className="w-full mt-4 bg-[#3B7C9E] hover:bg-[#2D5F7A] text-white">
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            {t('orderBundle')}
-            <ChevronRight className="w-4 h-4 ml-auto" />
-          </Button>
         </div>
       )}
 
@@ -194,8 +189,8 @@ export default function SupplementStackSection() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-white text-sm font-semibold">{t('comingSoon')}</p>
-            <p className="text-[#808080] text-xs">{t('comingSoonDesc')}</p>
+            <p className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('comingSoon')}</p>
+            <p className={`text-xs ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{t('comingSoonDesc')}</p>
           </div>
         </div>
       </div>
@@ -214,7 +209,11 @@ export default function SupplementStackSection() {
         
         <div className="space-y-3">
           {morningStack.length > 0 ? morningStack.map((med, index) => (
-            <div key={index} className={`flex items-center justify-between p-3 rounded-xl ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F1F5F9]'}`}>
+            <button 
+              key={index} 
+              onClick={() => setSelectedSupplement({ name: med.name, dosage: med.dosage, forMarker: med.purpose || 'Allgemein', status: 'optimal' })}
+              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors text-left ${isDark ? 'bg-[#0A0A0A] hover:bg-[#1A1A1A]' : 'bg-[#F1F5F9] hover:bg-[#E2E8F0]'}`}
+            >
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isDark ? 'bg-[#1A1A1A]' : 'bg-white'}`}>
                   <Pill className="w-4 h-4 text-[#F59E0B]" />
@@ -224,7 +223,7 @@ export default function SupplementStackSection() {
                   <p className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{med.dosage}</p>
                 </div>
               </div>
-            </div>
+            </button>
           )) : (
             <p className={`text-sm text-center py-4 ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{t('noSupplementsYet')}</p>
           )}
