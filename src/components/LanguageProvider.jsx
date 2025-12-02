@@ -90,6 +90,25 @@ export const translations = {
     backToSettings: "Back to Settings",
     viewProfile: "View Profile",
     save: "Save",
+    
+    // Notifications
+    bloodTestReminder: "Blood Test Reminder",
+    bloodTestReminderDesc: "Reminder every 3 months for new test",
+    supplementReminder: "Supplement Reminder",
+    supplementReminderDesc: "Daily intake reminder",
+    weeklyReport: "Weekly Report",
+    weeklyReportDesc: "Summary of your progress",
+    newRecommendations: "New Recommendations",
+    newRecommendationsDesc: "Notification for new tips",
+    shoppingReminder: "Shopping Reminder",
+    shoppingReminderDesc: "Weekly shopping list",
+    eveningRoutine: "Evening Routine",
+    eveningRoutineDesc: "Reminder for evening supplements",
+    quietHours: "Quiet Hours",
+    quietHoursDesc: "No notifications during this time",
+    from: "From",
+    to: "To",
+    manageNotifications: "Manage your notifications",
   },
   de: {
     // Navigation & Header
@@ -178,6 +197,25 @@ export const translations = {
     backToSettings: "Zurück zu Einstellungen",
     viewProfile: "Profil anzeigen",
     save: "Speichern",
+    
+    // Notifications
+    bloodTestReminder: "Bluttest-Erinnerung",
+    bloodTestReminderDesc: "Erinnerung alle 3 Monate für neuen Test",
+    supplementReminder: "Supplement-Erinnerung",
+    supplementReminderDesc: "Tägliche Einnahme-Erinnerung",
+    weeklyReport: "Wöchentlicher Bericht",
+    weeklyReportDesc: "Zusammenfassung deiner Fortschritte",
+    newRecommendations: "Neue Empfehlungen",
+    newRecommendationsDesc: "Benachrichtigung bei neuen Tipps",
+    shoppingReminder: "Einkaufs-Erinnerung",
+    shoppingReminderDesc: "Wöchentliche Einkaufsliste",
+    eveningRoutine: "Abend-Routine",
+    eveningRoutineDesc: "Erinnerung für Abend-Supplements",
+    quietHours: "Ruhezeiten",
+    quietHoursDesc: "Keine Benachrichtigungen während dieser Zeit",
+    from: "Von",
+    to: "Bis",
+    manageNotifications: "Verwalte deine Benachrichtigungen",
   },
   es: {
     // Navigation & Header
@@ -266,6 +304,25 @@ export const translations = {
     backToSettings: "Volver a Configuración",
     viewProfile: "Ver Perfil",
     save: "Guardar",
+    
+    // Notifications
+    bloodTestReminder: "Recordatorio de Análisis",
+    bloodTestReminderDesc: "Recordatorio cada 3 meses para nuevo análisis",
+    supplementReminder: "Recordatorio de Suplementos",
+    supplementReminderDesc: "Recordatorio diario de ingesta",
+    weeklyReport: "Informe Semanal",
+    weeklyReportDesc: "Resumen de tu progreso",
+    newRecommendations: "Nuevas Recomendaciones",
+    newRecommendationsDesc: "Notificación de nuevos consejos",
+    shoppingReminder: "Recordatorio de Compras",
+    shoppingReminderDesc: "Lista de compras semanal",
+    eveningRoutine: "Rutina Nocturna",
+    eveningRoutineDesc: "Recordatorio de suplementos nocturnos",
+    quietHours: "Horas de Silencio",
+    quietHoursDesc: "Sin notificaciones durante este tiempo",
+    from: "Desde",
+    to: "Hasta",
+    manageNotifications: "Gestiona tus notificaciones",
   }
 };
 
