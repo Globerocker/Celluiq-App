@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useLanguage } from "../components/LanguageProvider";
 import ProUpgradeModal from "../components/ProUpgradeModal";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { de, enUS, es } from "date-fns/locale";
 import { 
@@ -21,6 +20,7 @@ import {
   Activity,
   Sparkles,
   ChevronLeft,
+  ChevronRight,
   Camera,
   Droplet,
   TrendingUp,
@@ -29,6 +29,8 @@ import {
   Check,
   X
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Settings() {
   const { language, setLanguage, t } = useLanguage();
@@ -40,10 +42,9 @@ export default function Settings() {
   const [editData, setEditData] = useState({});
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
-  
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading: userLoading } = useQuery({
+  const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
@@ -51,6 +52,14 @@ export default function Settings() {
   const { data: bloodMarkers = [] } = useQuery({
     queryKey: ['bloodMarkers'],
     queryFn: () => base44.entities.BloodMarker.list('-test_date'),
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: (data) => base44.auth.updateMe(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      setIsEditing(false);
+    }
   });
 
   // Calculate stats
@@ -65,23 +74,15 @@ export default function Settings() {
   const healthScore = markerCount > 0 ? Math.round((optimalCount / markerCount) * 100) : 0;
   const testDates = [...new Set(bloodMarkers.map(m => m.test_date))];
 
-  const stats = [
-    { label: "Bluttests", value: testDates.length, icon: Droplet },
-    { label: "Health Score", value: `${healthScore}%`, icon: TrendingUp },
-    { label: "Marker", value: markerCount, icon: Activity },
-    { label: "Optimal", value: optimalCount, icon: Award }
-  ];
-
-  // Update user mutation
-  const updateUserMutation = useMutation({
-    mutationFn: (data) => base44.auth.updateMe(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      setIsEditing(false);
+  useEffect(() => {
+    const isDark = localStorage.getItem('theme') !== 'light';
+    setDarkMode(isDark);
+    if (!isDark) {
+      document.documentElement.classList.add('light-mode');
+      document.body.classList.add('light-mode');
     }
-  });
+  }, []);
 
-  // Initialize edit data when user loads
   useEffect(() => {
     if (user && !isEditing) {
       setEditData({
@@ -94,16 +95,6 @@ export default function Settings() {
       });
     }
   }, [user, isEditing]);
-
-  // Apply theme on mount
-  useEffect(() => {
-    const isDark = localStorage.getItem('theme') !== 'light';
-    setDarkMode(isDark);
-    if (!isDark) {
-      document.documentElement.classList.add('light-mode');
-      document.body.classList.add('light-mode');
-    }
-  }, []);
 
   const toggleDarkMode = (checked) => {
     setDarkMode(checked);
@@ -138,9 +129,8 @@ export default function Settings() {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     } catch (error) {
       console.error('Upload failed:', error);
-    } finally {
-      setUploading(false);
     }
+    setUploading(false);
   };
 
   const handleSaveProfile = () => {
@@ -160,23 +150,28 @@ export default function Settings() {
     { value: 'recovery', label: 'Schnellere Regeneration' }
   ];
 
+  const activityOptions = [
+    { value: 'sedentary', label: 'Wenig aktiv' },
+    { value: 'light', label: 'Leicht aktiv' },
+    { value: 'moderate', label: 'Moderat aktiv' },
+    { value: 'active', label: 'Sehr aktiv' },
+    { value: 'athlete', label: 'Athlet' }
+  ];
+
+  const dietOptions = [
+    { value: 'omnivore', label: 'Mischkost' },
+    { value: 'vegetarian', label: 'Vegetarisch' },
+    { value: 'vegan', label: 'Vegan' },
+    { value: 'keto', label: 'Keto' },
+    { value: 'paleo', label: 'Paleo' }
+  ];
+
   const dateLocale = language === 'de' ? de : language === 'es' ? es : enUS;
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] p-6">
-      <ProUpgradeModal 
-        isOpen={showProModal} 
-        onClose={() => setShowProModal(false)} 
-        feature="health integrations"
-      />
-      
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handlePhotoUpload}
-        className="hidden"
-      />
+      <ProUpgradeModal isOpen={showProModal} onClose={() => setShowProModal(false)} feature="health integrations" />
+      <input type="file" ref={fileInputRef} onChange={handlePhotoUpload} accept="image/*" className="hidden" />
       
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Back Button */}
@@ -186,240 +181,279 @@ export default function Settings() {
             {t('backToHome')}
           </Button>
         </Link>
-        
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">{t('profile')} & {t('settings')}</h1>
-          <p className="text-[#808080]">{t('manageAccount')}</p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Profile Card with Photo */}
-          <div className="md:col-span-1 space-y-6">
-            <Card className="bg-[#111111] border-[#1A1A1A]">
-              <CardContent className="p-6 text-center">
-                {/* Profile Photo */}
-                <div className="relative w-24 h-24 mx-auto mb-4">
+        {/* Profile Header Card */}
+        <Card className="bg-gradient-to-br from-[#111111] to-[#1A1A1A] border-[#1A1A1A] overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              {/* Profile Photo */}
+              <div className="relative group">
+                <div className="w-28 h-28 rounded-full overflow-hidden bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center">
                   {user?.profile_photo ? (
-                    <img 
-                      src={user.profile_photo} 
-                      alt="Profile"
-                      className="w-24 h-24 rounded-full object-cover"
-                    />
+                    <img src={user.profile_photo} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center">
-                      <User className="w-12 h-12 text-white" />
-                    </div>
+                    <User className="w-14 h-14 text-white" />
                   )}
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                    className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-[#3B7C9E] flex items-center justify-center hover:bg-[#2D5F7A] transition-colors"
-                  >
-                    {uploading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Camera className="w-4 h-4 text-white" />
-                    )}
-                  </button>
                 </div>
-                
-                <h2 className="text-xl font-semibold text-white mb-1">
-                  {user?.full_name || 'User'}
-                </h2>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#3B7C9E] flex items-center justify-center border-4 border-[#111111] hover:bg-[#2D5F7A] transition-colors"
+                >
+                  {uploading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4 text-white" />
+                  )}
+                </button>
+              </div>
+
+              {/* User Info */}
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-2xl font-bold text-white mb-1">{user?.full_name || 'User'}</h1>
                 <p className="text-[#808080] text-sm mb-4">{user?.email}</p>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-2">
-                  {stats.map((stat, index) => {
-                    const Icon = stat.icon;
-                    return (
-                      <div key={index} className="bg-[#0A0A0A] rounded-xl p-3">
-                        <Icon className="w-4 h-4 text-[#3B7C9E] mx-auto mb-1" />
-                        <p className="text-lg font-bold text-white">{stat.value}</p>
-                        <span className="text-[10px] text-[#666666]">{stat.label}</span>
-                      </div>
-                    );
-                  })}
+                
+                {/* Stats Row */}
+                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                    <Droplet className="w-4 h-4 text-[#3B7C9E]" />
+                    <span className="text-white font-semibold">{testDates.length}</span>
+                    <span className="text-[#666666] text-sm">Tests</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                    <TrendingUp className="w-4 h-4 text-green-500" />
+                    <span className="text-white font-semibold">{healthScore}%</span>
+                    <span className="text-[#666666] text-sm">Score</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-[#0A0A0A] px-4 py-2 rounded-xl">
+                    <Award className="w-4 h-4 text-yellow-500" />
+                    <span className="text-white font-semibold">{optimalCount}</span>
+                    <span className="text-[#666666] text-sm">Optimal</span>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Pro Upgrade */}
+              {/* Edit Button */}
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="bg-[#1A1A1A] text-white hover:bg-[#222222]"
+              >
+                <Pencil className="w-4 h-4 mr-2" />
+                {t('profile')} bearbeiten
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Edit Profile Dialog */}
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className="bg-[#111111] border-[#333333] text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle>{t('profile')} bearbeiten</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div>
+                <label className="text-[#808080] text-sm mb-1 block">Name</label>
+                <Input
+                  value={editData.full_name || ''}
+                  onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
+                  className="bg-[#0A0A0A] border-[#333333] text-white"
+                />
+              </div>
+              
+              <div>
+                <label className="text-[#808080] text-sm mb-1 block">Geschlecht</label>
+                <Select value={editData.gender} onValueChange={(v) => setEditData(prev => ({ ...prev, gender: v }))}>
+                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectValue placeholder="Auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111111] border-[#333333]">
+                    <SelectItem value="male">Männlich</SelectItem>
+                    <SelectItem value="female">Weiblich</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-[#808080] text-sm mb-1 block">Altersgruppe</label>
+                <Select value={editData.age_range} onValueChange={(v) => setEditData(prev => ({ ...prev, age_range: v }))}>
+                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectValue placeholder="Auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111111] border-[#333333]">
+                    <SelectItem value="18-25">18-25</SelectItem>
+                    <SelectItem value="26-35">26-35</SelectItem>
+                    <SelectItem value="36-45">36-45</SelectItem>
+                    <SelectItem value="46-55">46-55</SelectItem>
+                    <SelectItem value="56+">56+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-[#808080] text-sm mb-1 block">Aktivitätslevel</label>
+                <Select value={editData.activity_level} onValueChange={(v) => setEditData(prev => ({ ...prev, activity_level: v }))}>
+                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectValue placeholder="Auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111111] border-[#333333]">
+                    {activityOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-[#808080] text-sm mb-1 block">Ernährung</label>
+                <Select value={editData.diet} onValueChange={(v) => setEditData(prev => ({ ...prev, diet: v }))}>
+                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectValue placeholder="Auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111111] border-[#333333]">
+                    {dietOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-[#808080] text-sm mb-1 block">Ziel</label>
+                <Select value={editData.goal} onValueChange={(v) => setEditData(prev => ({ ...prev, goal: v }))}>
+                  <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
+                    <SelectValue placeholder="Auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111111] border-[#333333]">
+                    {goalOptions.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1 border-[#333333] text-white hover:bg-[#1A1A1A]" onClick={() => setIsEditing(false)}>
+                  Abbrechen
+                </Button>
+                <Button 
+                  className="flex-1 bg-[#B7323F] hover:bg-[#9A2835]" 
+                  onClick={handleSaveProfile}
+                  disabled={updateUserMutation.isPending}
+                >
+                  {updateUserMutation.isPending ? 'Speichern...' : 'Speichern'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div className="space-y-6">
+            {/* Pro Banner */}
             {!isPro && (
               <Card 
                 className="bg-gradient-to-r from-[#B7323F20] to-[#3B7C9E20] border-[#B7323F30] cursor-pointer hover:border-[#B7323F] transition-all"
                 onClick={() => setShowProModal(true)}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#B7323F] flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-white" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#B7323F] flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-white font-semibold">Upgrade auf Pro</p>
+                        <p className="text-[#808080] text-xs">Alle Features für 9€/Monat</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-white font-semibold">Upgrade auf Pro</p>
-                      <p className="text-[#808080] text-xs">9€/Monat</p>
-                    </div>
+                    <Button className="bg-[#B7323F] hover:bg-[#9A2835] text-white text-sm">Upgrade</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* About You Card */}
+            <Card className="bg-[#111111] border-[#1A1A1A]">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Über dich</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
+                    <span className="text-[#666666]">Geschlecht</span>
+                    <span className="text-white">{user?.gender === 'male' ? 'Männlich' : user?.gender === 'female' ? 'Weiblich' : '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
+                    <span className="text-[#666666]">Altersgruppe</span>
+                    <span className="text-white">{user?.age_range || '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
+                    <span className="text-[#666666]">Aktivität</span>
+                    <span className="text-white capitalize">{activityOptions.find(o => o.value === user?.activity_level)?.label || '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-[#1A1A1A]">
+                    <span className="text-[#666666]">Ernährung</span>
+                    <span className="text-white">{dietOptions.find(o => o.value === user?.diet)?.label || '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-2">
+                    <span className="text-[#666666]">Ziel</span>
+                    <span className="text-white">{goalOptions.find(o => o.value === user?.goal)?.label || '-'}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Tests */}
+            {testDates.length > 0 && (
+              <Card className="bg-[#111111] border-[#1A1A1A]">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Letzte Bluttests</h3>
+                  <div className="space-y-3">
+                    {testDates.slice(0, 3).map((date, idx) => {
+                      const markersOnDate = bloodMarkers.filter(m => m.test_date === date);
+                      const optOnDate = markersOnDate.filter(m => m.status === 'optimal').length;
+                      return (
+                        <div key={idx} className="flex items-center justify-between py-2 border-b border-[#1A1A1A] last:border-0">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-[#3B7C9E20] flex items-center justify-center">
+                              <Droplet className="w-4 h-4 text-[#3B7C9E]" />
+                            </div>
+                            <div>
+                              <p className="text-white text-sm">{format(new Date(date), 'dd. MMM yyyy', { locale: dateLocale })}</p>
+                              <p className="text-[#666666] text-xs">{markersOnDate.length} Marker</p>
+                            </div>
+                          </div>
+                          <span className="text-green-400 text-sm">{optOnDate} optimal</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
             )}
           </div>
 
-          {/* Profile Details & Settings */}
-          <div className="md:col-span-2 space-y-6">
-            {/* Editable Profile Info */}
+          {/* Right Column - Settings */}
+          <div className="space-y-6">
+            {/* Subscription */}
             <Card className="bg-[#111111] border-[#1A1A1A]">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">{t('about')}</h3>
-                  {!isEditing ? (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setIsEditing(true)}
-                      className="text-[#3B7C9E] hover:text-[#3B7C9E]"
-                    >
-                      <Pencil className="w-4 h-4 mr-1" />
-                      Bearbeiten
-                    </Button>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => setIsEditing(false)}
-                        className="text-[#808080]"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm"
-                        onClick={handleSaveProfile}
-                        disabled={updateUserMutation.isPending}
-                        className="bg-[#3B7C9E] hover:bg-[#2D5F7A] text-white"
-                      >
-                        <Check className="w-4 h-4 mr-1" />
-                        {t('save')}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {isEditing ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-[#808080] text-xs block mb-1">Name</label>
-                      <Input
-                        value={editData.full_name}
-                        onChange={(e) => setEditData(prev => ({ ...prev, full_name: e.target.value }))}
-                        className="bg-[#0A0A0A] border-[#333333] text-white"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-[#808080] text-xs block mb-1">Geschlecht</label>
-                        <Select value={editData.gender} onValueChange={(v) => setEditData(prev => ({ ...prev, gender: v }))}>
-                          <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                            <SelectValue placeholder="Auswählen" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#111111] border-[#333333]">
-                            <SelectItem value="male">Männlich</SelectItem>
-                            <SelectItem value="female">Weiblich</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-[#808080] text-xs block mb-1">Alter</label>
-                        <Select value={editData.age_range} onValueChange={(v) => setEditData(prev => ({ ...prev, age_range: v }))}>
-                          <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                            <SelectValue placeholder="Auswählen" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#111111] border-[#333333]">
-                            <SelectItem value="18-24">18-24</SelectItem>
-                            <SelectItem value="25-34">25-34</SelectItem>
-                            <SelectItem value="35-44">35-44</SelectItem>
-                            <SelectItem value="45-54">45-54</SelectItem>
-                            <SelectItem value="55+">55+</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-[#808080] text-xs block mb-1">Aktivität</label>
-                        <Select value={editData.activity_level} onValueChange={(v) => setEditData(prev => ({ ...prev, activity_level: v }))}>
-                          <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                            <SelectValue placeholder="Auswählen" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#111111] border-[#333333]">
-                            <SelectItem value="sedentary">Wenig aktiv</SelectItem>
-                            <SelectItem value="light">Leicht aktiv</SelectItem>
-                            <SelectItem value="moderate">Moderat aktiv</SelectItem>
-                            <SelectItem value="active">Sehr aktiv</SelectItem>
-                            <SelectItem value="athlete">Athlet</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-[#808080] text-xs block mb-1">Ernährung</label>
-                        <Select value={editData.diet} onValueChange={(v) => setEditData(prev => ({ ...prev, diet: v }))}>
-                          <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                            <SelectValue placeholder="Auswählen" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-[#111111] border-[#333333]">
-                            <SelectItem value="omnivore">Omnivor</SelectItem>
-                            <SelectItem value="vegetarian">Vegetarisch</SelectItem>
-                            <SelectItem value="vegan">Vegan</SelectItem>
-                            <SelectItem value="keto">Keto</SelectItem>
-                            <SelectItem value="paleo">Paleo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-[#808080] text-xs block mb-1">{t('goal')}</label>
-                      <Select value={editData.goal} onValueChange={(v) => setEditData(prev => ({ ...prev, goal: v }))}>
-                        <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                          <SelectValue placeholder="Ziel auswählen" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#111111] border-[#333333]">
-                          {goalOptions.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
-                      <span className="text-[#666666]">Geschlecht</span>
-                      <span className="text-white font-medium">{user?.gender === 'male' ? 'Männlich' : user?.gender === 'female' ? 'Weiblich' : '-'}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
-                      <span className="text-[#666666]">{t('age')}</span>
-                      <span className="text-white font-medium">{user?.age_range || '-'}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
-                      <span className="text-[#666666]">Aktivität</span>
-                      <span className="text-white font-medium capitalize">{user?.activity_level?.replace('_', ' ') || '-'}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-[#1A1A1A]">
-                      <span className="text-[#666666]">Ernährung</span>
-                      <span className="text-white font-medium capitalize">{user?.diet || '-'}</span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 col-span-2">
-                      <span className="text-[#666666]">{t('goal')}</span>
-                      <span className="text-white font-medium">{goalOptions.find(g => g.value === user?.goal)?.label || '-'}</span>
-                    </div>
-                  </div>
-                )}
+                <h3 className="text-lg font-semibold text-white mb-4">{t('subscription')}</h3>
+                <p className="text-sm text-[#808080] mb-4">{t('manageSubscriptionDesc')}</p>
+                <Link to={createPageUrl("Subscription")}>
+                  <Button className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
+                    {t('manageSubscription')}
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
-            {/* App Settings */}
+            {/* Preferences */}
             <Card className="bg-[#111111] border-[#1A1A1A]">
               <CardContent className="p-6 space-y-4">
                 <h3 className="text-lg font-semibold text-white mb-4">{t('preferences')}</h3>
                 
+                {/* Language */}
                 <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
                   <div className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-[#808080]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -443,21 +477,19 @@ export default function Settings() {
                   </select>
                 </div>
 
+                {/* Dark Mode */}
                 <div className="flex items-center justify-between py-3 border-b border-[#1A1A1A]">
                   <div className="flex items-center gap-3">
                     <Moon className="w-5 h-5 text-[#808080]" />
                     <div>
                       <p className="text-white font-medium">{t('darkMode')}</p>
-                      <p className="text-xs text-[#666666]">{darkMode ? t('currentlyEnabled') : 'Deaktiviert'}</p>
+                      <p className="text-xs text-[#666666]">{darkMode ? 'Aktiviert' : 'Deaktiviert'}</p>
                     </div>
                   </div>
-                  <Switch 
-                    checked={darkMode} 
-                    onCheckedChange={toggleDarkMode}
-                    className="data-[state=checked]:bg-[#3B7C9E]"
-                  />
+                  <Switch checked={darkMode} onCheckedChange={toggleDarkMode} className="data-[state=checked]:bg-[#3B7C9E]" />
                 </div>
 
+                {/* Notifications */}
                 <Link to={createPageUrl("Notifications")} className="flex items-center justify-between py-3 border-b border-[#1A1A1A] hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
                   <div className="flex items-center gap-3">
                     <Bell className="w-5 h-5 text-[#808080]" />
@@ -466,26 +498,11 @@ export default function Settings() {
                       <p className="text-xs text-[#666666]">{t('getHealthReminders')}</p>
                     </div>
                   </div>
-                  <ChevronLeft className="w-4 h-4 text-[#666666] rotate-180" />
+                  <ChevronRight className="w-4 h-4 text-[#666666]" />
                 </Link>
 
-                <Link to={createPageUrl("Subscription")} className="flex items-center justify-between py-3 border-b border-[#1A1A1A] hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-[#808080]" />
-                    <div>
-                      <p className="text-white font-medium">{t('subscription')}</p>
-                      <p className="text-xs text-[#666666]">{t('manageSubscriptionDesc')}</p>
-                    </div>
-                  </div>
-                  <ChevronLeft className="w-4 h-4 text-[#666666] rotate-180" />
-                </Link>
-
-                <a 
-                  href="https://celluiq.com/privacy" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between py-3 hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors"
-                >
+                {/* Privacy */}
+                <a href="https://celluiq.com/privacy" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between py-3 hover:bg-[#1A1A1A] -mx-2 px-2 rounded-lg transition-colors">
                   <div className="flex items-center gap-3">
                     <Lock className="w-5 h-5 text-[#808080]" />
                     <div>
@@ -493,51 +510,65 @@ export default function Settings() {
                       <p className="text-xs text-[#666666]">{t('manageYourData')}</p>
                     </div>
                   </div>
-                  <ChevronLeft className="w-4 h-4 text-[#666666] rotate-180" />
+                  <ChevronRight className="w-4 h-4 text-[#666666]" />
                 </a>
               </CardContent>
             </Card>
 
-            {/* Recent Blood Tests */}
-            {testDates.length > 0 && (
-              <Card className="bg-[#111111] border-[#1A1A1A]">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">{t('bloodTests')}</h3>
-                  <div className="space-y-3">
-                    {testDates.slice(0, 3).map((date, idx) => {
-                      const markersOnDate = bloodMarkers.filter(m => m.test_date === date);
-                      const optOnDate = markersOnDate.filter(m => m.status === 'optimal').length;
-                      
-                      return (
-                        <div key={idx} className="flex items-center justify-between py-3 border-b border-[#1A1A1A] last:border-0">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#3B7C9E20] flex items-center justify-center">
-                              <Droplet className="w-5 h-5 text-[#3B7C9E]" />
-                            </div>
-                            <div>
-                              <p className="text-white font-medium">{format(new Date(date), 'dd. MMMM yyyy', { locale: dateLocale })}</p>
-                              <p className="text-[#666666] text-xs">{markersOnDate.length} Marker</p>
-                            </div>
-                          </div>
-                          <span className="text-green-400 text-sm font-medium">{optOnDate} optimal</span>
-                        </div>
-                      );
-                    })}
+            {/* Connected Devices - Pro Feature */}
+            <Card className={`bg-[#111111] border-[#1A1A1A] ${!isPro ? 'relative overflow-hidden' : ''}`}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                    <h3 className="text-lg font-semibold text-white">{t('connectedDevices')}</h3>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Logout */}
-            <Button 
-              onClick={handleLogout}
-              className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              {t('logout')}
-            </Button>
+                  {!isPro && <span className="text-xs bg-[#B7323F20] text-[#B7323F] px-2 py-1 rounded-full font-medium">PRO</span>}
+                </div>
+                <p className="text-sm text-[#666666] mb-4">{t('syncFitnessData')}</p>
+                
+                {isPro ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] h-auto py-3 flex-col gap-2">
+                      <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                        <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                      </div>
+                      <span className="text-xs">Apple Health</span>
+                    </Button>
+                    <Button className="bg-[#1A1A1A] text-white hover:bg-[#222222] h-auto py-3 flex-col gap-2">
+                      <div className="w-10 h-10 rounded-full bg-[#0A0A0A] flex items-center justify-center">
+                        <Activity className="w-5 h-5 text-[#3B7C9E]" />
+                      </div>
+                      <span className="text-xs">Garmin</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <div onClick={() => setShowProModal(true)} className="grid grid-cols-2 gap-3 blur-sm opacity-50 cursor-pointer">
+                    <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+                    <div className="bg-[#1A1A1A] h-20 rounded-xl" />
+                  </div>
+                )}
+                
+                {!isPro && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#0A0A0A]/60 cursor-pointer" onClick={() => setShowProModal(true)}>
+                    <div className="text-center">
+                      <div className="w-12 h-12 rounded-full bg-[#B7323F20] flex items-center justify-center mx-auto mb-2">
+                        <Lock className="w-6 h-6 text-[#B7323F]" />
+                      </div>
+                      <p className="text-white font-medium text-sm">Mit Pro freischalten</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
+
+        {/* Logout Button */}
+        <Button onClick={handleLogout} className="w-full bg-[#B7323F] text-white hover:bg-[#9A2835]">
+          <LogOut className="w-4 h-4 mr-2" />
+          {t('logout')}
+        </Button>
       </div>
     </div>
   );

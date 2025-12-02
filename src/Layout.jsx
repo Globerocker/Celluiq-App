@@ -1,39 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User } from "lucide-react";
+import { Settings, User } from "lucide-react";
 import { LanguageProvider } from "./components/LanguageProvider";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-
-function ProfileButton() {
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  return (
-    <Link 
-      to={createPageUrl("Settings")}
-      className="p-1.5 rounded-xl hover:bg-[#1A1A1A] transition-all hover:scale-105"
-    >
-      {user?.profile_photo ? (
-        <img 
-          src={user.profile_photo} 
-          alt="Profile"
-          className="w-8 h-8 rounded-full object-cover"
-        />
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center">
-          <User className="w-4 h-4 text-white" />
-        </div>
-      )}
-    </Link>
-  );
-}
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const [user, setUser] = useState(null);
+
+  // Load user for profile photo
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
   // Apply theme on mount and watch for changes
   useEffect(() => {
@@ -89,9 +68,18 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <span className="font-bold text-xl tracking-wider" style={{ color: 'var(--text-primary, #FFFFFF)' }}>CELLUIQ</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <ProfileButton />
-          </div>
+          <Link 
+            to={createPageUrl("Settings")}
+            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[#1A1A1A] transition-all"
+          >
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center">
+              {user?.profile_photo ? (
+                <img src={user.profile_photo} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-4 h-4 text-white" />
+              )}
+            </div>
+          </Link>
         </div>
       </header>
 
