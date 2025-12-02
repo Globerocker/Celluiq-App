@@ -12,6 +12,23 @@ import RoutineSection from "../components/home/RoutineSection";
 export default function Home() {
   const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState(0);
+  const [theme, setTheme] = useState('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    
+    const handleThemeChange = () => {
+      setTheme(localStorage.getItem('theme') || 'dark');
+    };
+    window.addEventListener('themeChange', handleThemeChange);
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'theme') handleThemeChange();
+    });
+    return () => {
+      window.removeEventListener('themeChange', handleThemeChange);
+    };
+  }, []);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -29,6 +46,8 @@ export default function Home() {
       window.location.href = createPageUrl("Onboarding");
     }
   }, [user]);
+  
+  const isDark = theme === 'dark';
 
   const calculateHealthScore = () => {
     if (bloodMarkers.length === 0) return 0;
@@ -58,16 +77,16 @@ export default function Home() {
   const ActiveComponent = sections[activeSection].component;
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className={`min-h-screen pb-24 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F8FAFC]'}`}>
       {/* Header with Health Score */}
-      <div className="px-6 pt-10 pb-8 border-b relative overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+      <div className={`px-6 pt-10 pb-8 border-b relative overflow-hidden ${isDark ? 'bg-[#111111] border-[#222222]' : 'bg-white border-[#E2E8F0]'}`}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <p className="text-xs uppercase tracking-[0.2em] mb-4 font-medium" style={{ color: 'var(--text-secondary)' }}>
+          <p className={`text-xs uppercase tracking-[0.2em] mb-4 font-medium ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
             {t('yourCelluiqScore')}
           </p>
           <div className="relative inline-block mb-4">
-            <div className="text-7xl md:text-8xl font-bold mb-2 tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            <div className={`text-7xl md:text-8xl font-bold mb-2 tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
               {healthScore}
             </div>
             {bloodMarkers.length > 0 && (
@@ -79,7 +98,7 @@ export default function Home() {
           <div className="flex items-center justify-center gap-2 text-sm">
             <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
           </div>
-          <p className="text-sm mt-4 max-w-md mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          <p className={`text-sm mt-4 max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
             {bloodMarkers.length > 0 ? t('outstandingProgress') : t('uploadFirstBlood')}
           </p>
         </div>
@@ -90,8 +109,8 @@ export default function Home() {
         <ActiveComponent />
       </div>
 
-      {/* Bottom Tab Navigation - Fixed */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t safe-area-bottom" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
+      {/* Bottom Tab Navigation - Fixed, SOLID background */}
+      <div className={`fixed bottom-0 left-0 right-0 z-50 border-t safe-area-bottom ${isDark ? 'bg-[#111111] border-[#222222]' : 'bg-white border-[#E2E8F0]'}`}>
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-center gap-2">
             {sections.map((section, index) => (
@@ -101,9 +120,8 @@ export default function Home() {
                 className={`px-4 md:px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
                   activeSection === index 
                     ? 'bg-[#B7323F] text-white' 
-                    : ''
+                    : isDark ? 'bg-[#1A1A1A] text-[#808080]' : 'bg-[#F1F5F9] text-[#64748B]'
                 }`}
-                style={activeSection !== index ? { backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' } : {}}
               >
                 {section.title}
               </button>
