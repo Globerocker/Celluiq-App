@@ -1,13 +1,17 @@
 import React from "react";
 import { X, Pill, Apple, Activity, AlertTriangle, BookOpen, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS, es } from "date-fns/locale";
+import { useLanguage } from "../LanguageProvider";
 
 export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
+  const { t, language } = useLanguage();
+  
   if (!marker) return null;
 
   const isLow = marker.status === 'low' || marker.value < (marker.optimal_min || 0);
   const isHigh = marker.status === 'high' || marker.status === 'critical';
+  const dateLocale = language === 'de' ? de : language === 'es' ? es : enUS;
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -21,11 +25,11 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'optimal': return 'Optimal';
-      case 'suboptimal': return 'Suboptimal';
-      case 'high': return 'Erhöht';
-      case 'low': return 'Niedrig';
-      case 'critical': return 'Kritisch';
+      case 'optimal': return t('optimal');
+      case 'suboptimal': return t('suboptimal');
+      case 'high': return language === 'de' ? 'Erhöht' : 'High';
+      case 'low': return language === 'de' ? 'Niedrig' : 'Low';
+      case 'critical': return language === 'de' ? 'Kritisch' : 'Critical';
       default: return status;
     }
   };
@@ -34,12 +38,13 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative bg-[#111111] rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[90vh] overflow-y-auto border border-[#1A1A1A]">
+      <div className="relative rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[90vh] overflow-y-auto border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
         {/* Header */}
-        <div className="sticky top-0 bg-[#111111] p-6 border-b border-[#1A1A1A]">
+        <div className="sticky top-0 p-6 border-b" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 text-[#666666] hover:text-white transition-colors"
+            className="absolute top-4 right-4 transition-colors"
+            style={{ color: 'var(--text-tertiary)' }}
           >
             <X className="w-5 h-5" />
           </button>
@@ -49,13 +54,13 @@ export default function BloodMarkerDetailModal({ marker, reference, onClose }) {
               <span className="text-white font-bold text-sm">{marker.value}</span>
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-white">{marker.marker_name}</h2>
-              <p className="text-[#808080] text-sm">{marker.unit} • {marker.category?.replace('_', ' ')}</p>
+              <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{marker.marker_name}</h2>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{marker.unit} • {marker.category?.replace('_', ' ')}</p>
               {marker.test_date && (
                 <div className="flex items-center gap-1 mt-1">
-                  <Calendar className="w-3 h-3 text-[#666666]" />
-                  <span className="text-[#666666] text-xs">
-                    Stand: {format(new Date(marker.test_date), 'dd. MMM yyyy', { locale: de })}
+                  <Calendar className="w-3 h-3" style={{ color: 'var(--text-tertiary)' }} />
+                  <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    {t('asOf')}: {format(new Date(marker.test_date), 'dd. MMM yyyy', { locale: dateLocale })}
                   </span>
                 </div>
               )}

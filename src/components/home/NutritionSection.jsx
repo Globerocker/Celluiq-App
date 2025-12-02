@@ -92,18 +92,18 @@ export default function NutritionSection() {
   };
 
   const categoryLabels = {
-    protein: 'Protein',
-    vegetables: 'Gemüse',
-    fruits: 'Obst',
-    grains: 'Getreide',
-    dairy: 'Milchprodukte',
-    fats: 'Gesunde Fette',
-    nuts_seeds: 'Nüsse & Samen',
-    legumes: 'Hülsenfrüchte',
-    seafood: 'Meeresfrüchte',
-    herbs_spices: 'Kräuter & Gewürze',
-    beverages: 'Getränke',
-    other: 'Sonstige'
+    protein: t('protein'),
+    vegetables: t('vegetables'),
+    fruits: t('fruits'),
+    grains: t('grains'),
+    dairy: t('dairy'),
+    fats: t('healthyFats'),
+    nuts_seeds: t('nutsSeeds'),
+    legumes: t('legumes'),
+    seafood: t('seafood'),
+    herbs_spices: t('herbsSpices'),
+    beverages: t('beverages'),
+    other: t('other')
   };
 
   if (isLoading) {
@@ -124,12 +124,12 @@ export default function NutritionSection() {
     return (
       <div className="p-6">
         <div className="text-center py-12">
-          <div className="w-20 h-20 rounded-full bg-[#1A1A1A] flex items-center justify-center mx-auto mb-6">
-            <Utensils className="w-10 h-10 text-[#666666]" />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+            <Utensils className="w-10 h-10" style={{ color: 'var(--text-tertiary)' }} />
           </div>
-          <h2 className="text-xl font-bold text-white mb-3">Noch keine Empfehlungen</h2>
-          <p className="text-[#808080] max-w-sm mx-auto">
-            Lade dein Blutbild hoch, um personalisierte Ernährungsempfehlungen zu erhalten.
+          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{t('noRecommendationsYet')}</h2>
+          <p className="max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
+            {t('uploadBloodworkSupplements')}
           </p>
         </div>
       </div>
@@ -144,10 +144,9 @@ export default function NutritionSection() {
           <div className="flex items-start gap-4">
             <Sparkles className="w-6 h-6 text-[#3B7C9E] shrink-0" />
             <div>
-              <h3 className="text-white font-semibold mb-2">Ernährungsempfehlungen</h3>
-              <p className="text-[#808080] text-sm">
-                Basierend auf deinen {suboptimalMarkers.length} suboptimalen Markern können wir dir 
-                personalisierte Ernährungsempfehlungen geben. Die Datenbank wird gerade aufgebaut.
+              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('nutritionRecommendation')}</h3>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                {t('basedOnBiomarkers')}
               </p>
             </div>
           </div>
@@ -156,7 +155,7 @@ export default function NutritionSection() {
         <Link to={createPageUrl("ShoppingList")}>
           <Button className="w-full mt-6 bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 rounded-xl">
             <ShoppingCart className="w-5 h-5 mr-2" />
-            Einkaufsliste generieren
+            {t('generateShoppingList')}
             <ChevronRight className="w-5 h-5 ml-auto" />
           </Button>
         </Link>
@@ -165,7 +164,7 @@ export default function NutritionSection() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {selectedFood && (
         <FoodDetailModal food={selectedFood} onClose={() => setSelectedFood(null)} />
       )}
@@ -173,8 +172,8 @@ export default function NutritionSection() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-white font-bold text-lg">{t('nutrition')}</h2>
-          <p className="text-[#666666] text-sm">{t('basedOnBiomarkers')}</p>
+          <h2 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{t('nutrition')}</h2>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{t('basedOnBiomarkers')}</p>
         </div>
       </div>
 
@@ -184,9 +183,9 @@ export default function NutritionSection() {
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-[#3B7C9E] shrink-0 mt-0.5" />
             <div>
-              <p className="text-white text-sm font-medium mb-1">Personalisiert für dich</p>
-              <p className="text-[#808080] text-xs">
-                Basierend auf {suboptimalMarkers.length} Markern die Aufmerksamkeit brauchen
+              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('personalizedForYou')}</p>
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                {suboptimalMarkers.length} {t('markersNeedAttention')}
               </p>
             </div>
           </div>
@@ -199,7 +198,7 @@ export default function NutritionSection() {
           <div key={category}>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">{categoryIcons[category]}</span>
-              <h3 className="text-white font-semibold">{categoryLabels[category]}</h3>
+              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{categoryLabels[category]}</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -207,12 +206,13 @@ export default function NutritionSection() {
                 <button 
                   key={food.id}
                   onClick={() => setSelectedFood(food)}
-                  className="bg-[#111111] rounded-xl p-4 border border-[#1A1A1A] hover:border-[#333333] transition-colors text-left w-full"
+                  className="rounded-xl p-4 border transition-colors text-left w-full"
+                  style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="text-white font-medium">{food.food_name}</h4>
-                      <p className="text-[#666666] text-xs mt-1 line-clamp-2">{food.primary_benefits}</p>
+                      <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>{food.food_name}</h4>
+                      <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--text-tertiary)' }}>{food.primary_benefits}</p>
                       
                       {food.influenced_markers && (
                         <p className="text-[#3B7C9E] text-xs mt-2 line-clamp-1">
@@ -222,7 +222,7 @@ export default function NutritionSection() {
                     </div>
                     
                     <div className="text-right ml-4">
-                      <div className="text-[#808080] text-xs">
+                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                         <div className="flex items-center gap-1 justify-end">
                           <Clock className="w-3 h-3" />
                           {food.daily_dosage || '-'}
@@ -241,7 +241,7 @@ export default function NutritionSection() {
       <Link to={createPageUrl("ShoppingList")}>
         <Button className="w-full mt-6 bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 rounded-xl">
           <ShoppingCart className="w-5 h-5 mr-2" />
-          Einkaufsliste generieren
+          {t('generateShoppingList')}
           <ChevronRight className="w-5 h-5 ml-auto" />
         </Button>
       </Link>
