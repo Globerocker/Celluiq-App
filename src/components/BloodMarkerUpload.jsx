@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { X, Upload, FileText, Check, AlertCircle, Sparkles, Dna, FlaskConical, Brain } from 'lucide-react';
+import { X, Upload, FileText, Check, AlertCircle, Sparkles, Dna, FlaskConical, Brain, Cloud } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { convertToReferenceUnit } from './utils/unitConversion';
 
 const loadingSteps = [
   { id: 1, icon: Upload, text: "Datei wird hochgeladen...", subtext: "Sichere Übertragung" },
-  { id: 2, icon: Dna, text: "Biomarker werden erkannt...", subtext: "KI-gestützte Analyse" },
-  { id: 3, icon: FlaskConical, text: "Werte werden extrahiert...", subtext: "Präzise Datenerfassung" },
-  { id: 4, icon: Brain, text: "Empfehlungen werden erstellt...", subtext: "Personalisierte Auswertung" },
+  { id: 2, icon: Cloud, text: "Backup in Google Drive...", subtext: "Sichere Speicherung" },
+  { id: 3, icon: Dna, text: "Biomarker werden erkannt...", subtext: "KI-gestützte Analyse" },
+  { id: 4, icon: FlaskConical, text: "Werte werden konvertiert...", subtext: "Einheiten-Normalisierung" },
+  { id: 5, icon: Brain, text: "Empfehlungen werden erstellt...", subtext: "Personalisierte Auswertung" },
 ];
 
 export default function BloodMarkerUpload({ isOpen, onClose }) {
@@ -136,12 +138,24 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
         
         const processedMarkers = markers.map(m => {
           const reference = findMatchingReference(m.marker_name, userGender);
-          const status = determineStatus(m.value, reference);
+          
+          // Convert value to reference unit if needed
+          let finalValue = m.value;
+          let finalUnit = m.unit || reference?.unit || '';
+          
+          if (reference?.unit && m.unit && reference.unit !== m.unit) {
+            finalValue = convertToReferenceUnit(m.value, m.marker_name, m.unit, reference.unit);
+            finalUnit = reference.unit;
+          }
+          
+          const status = determineStatus(finalValue, reference);
           
           return {
             marker_name: m.marker_name,
-            value: m.value,
-            unit: m.unit || reference?.unit || '',
+            value: finalValue,
+            original_value: m.value,
+            original_unit: m.unit,
+            unit: finalUnit,
             optimal_min: reference?.celluiq_range_min ?? reference?.clinical_range_min ?? m.reference_min,
             optimal_max: reference?.celluiq_range_max ?? reference?.clinical_range_max ?? m.reference_max,
             test_date: today,
