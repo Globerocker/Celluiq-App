@@ -466,15 +466,16 @@ export default function Settings() {
                       </p>
                     </div>
                   </div>
-                  <select 
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="bg-[#0A0A0A] text-white text-sm px-3 py-1.5 rounded-lg border border-[#333333] focus:border-[#3B7C9E] focus:outline-none"
-                  >
-                    <option value="de">Deutsch</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                  </select>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger className="w-32 bg-[#0A0A0A] border-[#333333] text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#111111] border-[#333333]">
+                      <SelectItem value="de" className="text-white">Deutsch</SelectItem>
+                      <SelectItem value="en" className="text-white">English</SelectItem>
+                      <SelectItem value="es" className="text-white">Español</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Dark Mode */}

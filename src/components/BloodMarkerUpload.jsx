@@ -109,12 +109,13 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
       // Files are stored with user email and date in the URL path
       const userGender = user?.gender || 'both';
       
-      // Extract data
+      // Extract data including test date
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: {
           type: "object",
           properties: {
+            test_date: { type: "string", description: "Date of the blood test in format YYYY-MM-DD. Look for Entnahmedatum, Datum, Date, Befunddatum, Probenentnahme, etc." },
             markers: {
               type: "array",
               items: {
@@ -138,6 +139,8 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
       if (result.status === "success" && result.output?.markers) {
         const markers = result.output.markers;
         const today = new Date().toISOString().split('T')[0];
+        // Use extracted test date or fallback to today
+        const testDate = result.output.test_date || today;
         
         const processedMarkers = markers.map(m => {
           const reference = findMatchingReference(m.marker_name, userGender);
@@ -161,7 +164,7 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
             unit: finalUnit,
             optimal_min: reference?.celluiq_range_min ?? reference?.clinical_range_min ?? m.reference_min,
             optimal_max: reference?.celluiq_range_max ?? reference?.clinical_range_max ?? m.reference_max,
-            test_date: today,
+            test_date: testDate,
             status,
             category: reference?.category || 'other'
           };
@@ -176,13 +179,13 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
           file_url,
           file_name: file.name,
           upload_date: today,
-          test_date: today,
+          test_date: testDate,
           markers_extracted: processedMarkers.length,
           status: 'processed'
         });
         
         // Update user's last test date
-        await base44.auth.updateMe({ last_blood_test: today });
+        await base44.auth.updateMe({ last_blood_test: testDate });
         
         queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
         setSuccess(true);

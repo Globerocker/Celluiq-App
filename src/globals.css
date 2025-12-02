@@ -42,70 +42,133 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dynamic color classes */
-.bg-\[\#0A0A0A\] {
-  background-color: var(--bg-primary) !important;
-}
-
-.bg-\[\#111111\] {
-  background-color: var(--bg-secondary) !important;
-}
-
-.bg-\[\#1A1A1A\] {
-  background-color: var(--bg-tertiary) !important;
-}
-
-.text-white {
-  color: var(--text-primary) !important;
-}
-
-.text-\[\#808080\] {
-  color: var(--text-secondary) !important;
-}
-
-.text-\[\#666666\] {
-  color: var(--text-tertiary) !important;
-}
-
-.border-\[\#1A1A1A\] {
-  border-color: var(--border-color) !important;
-}
-
-.border-\[\#333333\] {
-  border-color: var(--border-hover) !important;
-}
-
-/* Light mode specific overrides */
+/* Dynamic background colors */
 .light-mode .bg-\[\#0A0A0A\] {
-  background-color: var(--bg-primary) !important;
+  background-color: #F8F9FA !important;
 }
 
 .light-mode .bg-\[\#111111\] {
-  background-color: var(--bg-secondary) !important;
+  background-color: #FFFFFF !important;
 }
 
 .light-mode .bg-\[\#1A1A1A\] {
-  background-color: var(--bg-tertiary) !important;
+  background-color: #F1F3F4 !important;
 }
 
-.light-mode .bg-black\/80 {
-  background-color: rgba(0, 0, 0, 0.6) !important;
+.light-mode .bg-\[\#222222\] {
+  background-color: #E8EAED !important;
 }
 
+/* Dynamic text colors */
+.light-mode .text-white {
+  color: #1A1A1A !important;
+}
+
+.light-mode .text-\[\#808080\] {
+  color: #5F6368 !important;
+}
+
+.light-mode .text-\[\#666666\] {
+  color: #80868B !important;
+}
+
+/* Dynamic border colors */
+.light-mode .border-\[\#1A1A1A\] {
+  border-color: #E8EAED !important;
+}
+
+.light-mode .border-\[\#333333\] {
+  border-color: #DADCE0 !important;
+}
+
+/* Hover states in light mode */
 .light-mode .hover\:bg-\[\#222222\]:hover {
-  background-color: var(--bg-tertiary) !important;
+  background-color: #E8EAED !important;
 }
 
 .light-mode .hover\:bg-\[\#1A1A1A\]:hover {
-  background-color: var(--bg-tertiary) !important;
+  background-color: #F1F3F4 !important;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+.light-mode .hover\:text-white:hover {
+  color: #1A1A1A !important;
 }
 
-/* Custom scrollbar */
+/* Cards in light mode */
+.light-mode [class*="CardContent"],
+.light-mode .card {
+  background-color: #FFFFFF !important;
+}
+
+/* Modal/Dialog backgrounds */
+.light-mode .bg-black\/80 {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Select/Dropdown styling for dark mode */
+select option {
+  background-color: #111111;
+  color: #FFFFFF;
+}
+
+.light-mode select option {
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+}
+
+/* SelectContent from shadcn */
+[data-radix-popper-content-wrapper] [role="listbox"],
+[data-radix-popper-content-wrapper] [role="option"] {
+  color: white;
+}
+
+.light-mode [data-radix-popper-content-wrapper] [role="listbox"],
+.light-mode [data-radix-popper-content-wrapper] [role="option"] {
+  color: #1A1A1A;
+  background-color: #FFFFFF;
+}
+
+/* Input styling */
+.light-mode input,
+.light-mode textarea {
+  background-color: #F8F9FA !important;
+  border-color: #E8EAED !important;
+  color: #1A1A1A !important;
+}
+
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: #80868B !important;
+}
+
+/* Button variants in light mode */
+.light-mode .bg-\[\#B7323F\] {
+  background-color: #B7323F !important;
+}
+
+.light-mode .bg-\[\#3B7C9E\] {
+  background-color: #3B7C9E !important;
+}
+
+/* Gradient backgrounds in light mode */
+.light-mode .from-\[\#111111\] {
+  --tw-gradient-from: #FFFFFF !important;
+}
+
+.light-mode .to-\[\#1A1A1A\] {
+  --tw-gradient-to: #F8F9FA !important;
+}
+
+/* Switch component */
+.light-mode [role="switch"] {
+  background-color: #E8EAED;
+}
+
+.light-mode [role="switch"][data-state="checked"] {
+  background-color: #3B7C9E;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -122,6 +185,20 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+/* Light mode scrollbar */
+.light-mode ::-webkit-scrollbar-track {
+  background: #F1F3F4;
+}
+
+.light-mode ::-webkit-scrollbar-thumb {
+  background: #DADCE0;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
 /* Animations */
@@ -147,4 +224,33 @@ html {
 
 .light-mode .glass {
   background: rgba(255, 255, 255, 0.8);
+}
+
+/* Status badges stay consistent */
+.bg-green-500\/10,
+.bg-green-500\/20,
+.bg-yellow-500\/10,
+.bg-yellow-500\/20,
+.bg-red-500\/10,
+.bg-red-500\/20,
+.bg-blue-500\/10,
+.bg-blue-500\/20 {
+  /* Keep status colors consistent in both modes */
+}
+
+/* Dialog/Modal in light mode */
+.light-mode [role="dialog"] {
+  background-color: #FFFFFF !important;
+  border-color: #E8EAED !important;
+}
+
+.light-mode [role="dialog"] h2,
+.light-mode [role="dialog"] h3,
+.light-mode [role="dialog"] p {
+  color: #1A1A1A;
+}
+
+.light-mode [role="dialog"] .text-\[\#808080\],
+.light-mode [role="dialog"] .text-\[\#666666\] {
+  color: #5F6368 !important;
 }
