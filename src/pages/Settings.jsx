@@ -112,9 +112,9 @@ export default function Settings() {
     } else {
       html.classList.add('light-mode');
       body.classList.add('light-mode');
-      html.style.backgroundColor = '#F5F5F7';
-      body.style.backgroundColor = '#F5F5F7';
-      body.style.color = '#1D1D1F';
+      html.style.backgroundColor = '#F8FAFC';
+      body.style.backgroundColor = '#F8FAFC';
+      body.style.color = '#0F172A';
     }
     window.dispatchEvent(new Event('themeChange'));
   };

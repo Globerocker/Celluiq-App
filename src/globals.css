@@ -13,23 +13,31 @@
   --border-color: #222222;
   --border-hover: #333333;
   --accent-red: #B7323F;
-  --accent-blue: #3B7C9E;
+  --accent-blue: #3A6DFF;
+  --accent-blue-hover: #1F3FB8;
+  --accent-green: #22C55E;
+  --accent-orange: #F97316;
+  --accent-cyan: #06B6D4;
   --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
 .light-mode {
-  --bg-primary: #F5F5F7 !important;
+  --bg-primary: #F8FAFC !important;
   --bg-secondary: #FFFFFF !important;
-  --bg-tertiary: #EBEBEB !important;
+  --bg-tertiary: #F2F7FF !important;
   --bg-card: #FFFFFF !important;
-  --text-primary: #1D1D1F !important;
-  --text-secondary: #6E6E73 !important;
-  --text-tertiary: #86868B !important;
-  --border-color: #D2D2D7 !important;
-  --border-hover: #C7C7CC !important;
+  --text-primary: #0F172A !important;
+  --text-secondary: #475569 !important;
+  --text-tertiary: #94A3B8 !important;
+  --border-color: #E2E8F0 !important;
+  --border-hover: #CBD5E1 !important;
   --accent-red: #B7323F !important;
-  --accent-blue: #3B7C9E !important;
-  --shadow-color: rgba(0, 0, 0, 0.1) !important;
+  --accent-blue: #3A6DFF !important;
+  --accent-blue-hover: #1F3FB8 !important;
+  --accent-green: #22C55E !important;
+  --accent-orange: #F97316 !important;
+  --accent-cyan: #06B6D4 !important;
+  --shadow-color: rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Safe area for bottom navigation */
@@ -47,9 +55,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dynamic background colors */
+
+
+/* ========================================
+   CELLUIQ LIGHT MODE - Style Guide
+   ======================================== */
+
+/* Light mode - force all backgrounds */
+.light-mode,
+.light-mode body,
+.light-mode #root {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+/* Background overrides */
 .light-mode .bg-\[\#0A0A0A\] {
-  background-color: #F8F9FA !important;
+  background-color: #F8FAFC !important;
 }
 
 .light-mode .bg-\[\#111111\] {
@@ -57,68 +79,84 @@ body {
 }
 
 .light-mode .bg-\[\#1A1A1A\] {
-  background-color: #F1F3F4 !important;
+  background-color: #F2F7FF !important;
 }
 
 .light-mode .bg-\[\#222222\] {
-  background-color: #E8EAED !important;
+  background-color: #F1F5F9 !important;
 }
 
-/* Light mode - force all backgrounds */
-.light-mode,
-.light-mode body,
-.light-mode #root {
-  background-color: #F5F5F7 !important;
-  color: #1D1D1F !important;
-}
-
-/* Light mode specific overrides */
-.light-mode .bg-\[\#0A0A0A\],
-.light-mode .bg-\[\#111111\],
-.light-mode .bg-\[\#1A1A1A\] {
-  background-color: #FFFFFF !important;
-}
-
-.light-mode .bg-\[\#222222\] {
-  background-color: #EBEBEB !important;
-}
-
-/* Text colors in light mode */
+/* Text colors */
 .light-mode .text-white {
-  color: #1D1D1F !important;
+  color: #0F172A !important;
 }
 
 .light-mode .text-\[\#808080\],
 .light-mode .text-\[\#A0A0A0\] {
-  color: #6E6E73 !important;
+  color: #475569 !important;
 }
 
 .light-mode .text-\[\#666666\],
 .light-mode .text-\[\#707070\] {
-  color: #86868B !important;
+  color: #94A3B8 !important;
 }
 
 /* Border colors */
 .light-mode .border-\[\#1A1A1A\],
-.light-mode .border-\[\#222222\],
-.light-mode .border-\[\#333333\] {
-  border-color: #D2D2D7 !important;
+.light-mode .border-\[\#222222\] {
+  border-color: #E2E8F0 !important;
 }
 
-/* Keep white text on accent buttons */
-.light-mode .bg-\[\#B7323F\],
+.light-mode .border-\[\#333333\] {
+  border-color: #CBD5E1 !important;
+}
+
+/* Primary Blue Button */
 .light-mode .bg-\[\#3B7C9E\],
-.light-mode button.bg-\[\#B7323F\],
 .light-mode button.bg-\[\#3B7C9E\] {
+  background-color: #3A6DFF !important;
+  color: #FFFFFF !important;
+}
+
+.light-mode .bg-\[\#3B7C9E\]:hover,
+.light-mode button.bg-\[\#3B7C9E\]:hover {
+  background-color: #1F3FB8 !important;
+}
+
+.light-mode .text-\[\#3B7C9E\] {
+  color: #3A6DFF !important;
+}
+
+.light-mode .bg-\[\#3B7C9E20\],
+.light-mode .bg-\[\#3B7C9E10\] {
+  background-color: rgba(58, 109, 255, 0.1) !important;
+}
+
+.light-mode .border-\[\#3B7C9E30\],
+.light-mode .border-\[\#3B7C9E40\] {
+  border-color: rgba(58, 109, 255, 0.2) !important;
+}
+
+/* Red/Accent Button */
+.light-mode .bg-\[\#B7323F\],
+.light-mode button.bg-\[\#B7323F\] {
+  background-color: #B7323F !important;
   color: #FFFFFF !important;
 }
 
 .light-mode .bg-\[\#B7323F\] *,
-.light-mode .bg-\[\#3B7C9E\] * {
+.light-mode .bg-\[\#3B7C9E\] *,
+.light-mode .bg-\[\#3A6DFF\] * {
   color: #FFFFFF !important;
 }
 
 /* Gradient backgrounds keep white text */
+.light-mode .bg-gradient-to-r.from-\[\#B7323F\],
+.light-mode .bg-gradient-to-br.from-\[\#B7323F\],
+.light-mode [class*="from-\[\#B7323F\]"][class*="to-"] {
+  color: #FFFFFF !important;
+}
+
 .light-mode .bg-gradient-to-r.from-\[\#B7323F\] *,
 .light-mode .bg-gradient-to-br.from-\[\#B7323F\] *,
 .light-mode [class*="from-\[\#B7323F\]"][class*="to-"] * {
@@ -346,11 +384,12 @@ html {
   background-color: #E8EAED !important;
 }
 
-/* Cards and containers */
-.light-mode [class*="rounded-xl"],
-.light-mode [class*="rounded-2xl"] {
-  background-color: #FFFFFF;
-  border-color: #D2D2D7;
+/* Cards - Apple-like styling */
+.light-mode .bg-\[\#111111\].rounded-xl,
+.light-mode .bg-\[\#111111\].rounded-2xl {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Input fields */
@@ -358,43 +397,76 @@ html {
 .light-mode textarea,
 .light-mode select {
   background-color: #FFFFFF !important;
-  border-color: #D2D2D7 !important;
-  color: #1D1D1F !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
 }
 
 .light-mode input::placeholder,
 .light-mode textarea::placeholder {
-  color: #86868B !important;
+  color: #94A3B8 !important;
+}
+
+.light-mode input:focus,
+.light-mode textarea:focus,
+.light-mode select:focus {
+  border-color: #3A6DFF !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(58, 109, 255, 0.1) !important;
 }
 
 /* Modals and dialogs */
-.light-mode [role="dialog"],
-.light-mode .fixed.inset-0 > div:not(.bg-black) {
+.light-mode [role="dialog"] {
   background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Status colors stay the same */
+/* Status colors - Health indicators */
 .light-mode .text-green-400,
 .light-mode .text-green-500 {
   color: #22C55E !important;
 }
 
-.light-mode .text-yellow-400,
-.light-mode .text-yellow-500 {
-  color: #EAB308 !important;
+.light-mode .bg-green-500\/10,
+.light-mode .bg-green-500\/20 {
+  background-color: rgba(34, 197, 94, 0.1) !important;
 }
 
+/* Warning colors */
+.light-mode .text-yellow-400,
+.light-mode .text-yellow-500 {
+  color: #F97316 !important;
+}
+
+.light-mode .bg-yellow-500\/10,
+.light-mode .bg-yellow-500\/20 {
+  background-color: rgba(249, 115, 22, 0.1) !important;
+}
+
+/* Error/Critical colors */
 .light-mode .text-red-400,
 .light-mode .text-red-500 {
   color: #EF4444 !important;
 }
 
-.light-mode .text-\[\#3B7C9E\] {
-  color: #3B7C9E !important;
+.light-mode .bg-red-500\/10,
+.light-mode .bg-red-500\/20 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
 }
 
-.light-mode .text-\[\#B7323F\] {
-  color: #B7323F !important;
+/* Blue accent text */
+.light-mode .text-\[\#3B7C9E\] {
+  color: #3A6DFF !important;
+}
+
+/* Hover states */
+.light-mode .hover\:bg-\[\#1A1A1A\]:hover,
+.light-mode .hover\:bg-\[\#222222\]:hover {
+  background-color: #F1F5F9 !important;
+}
+
+.light-mode button:hover {
+  transition: all 0.2s ease;
 }
 
 /* Stats boxes */
@@ -426,17 +498,57 @@ html {
 
 /* SelectItem text color */
 .light-mode [role="option"] {
-  color: #1A1A1A !important;
+  color: #0F172A !important;
 }
 
 .light-mode [role="option"]:hover {
-  background-color: #F1F3F4 !important;
+  background-color: #F2F7FF !important;
 }
 
 /* Dropdown content */
 .light-mode [data-radix-popper-content-wrapper] > div {
   background-color: #FFFFFF !important;
-  border-color: #E8EAED !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Secondary/Outline buttons */
+.light-mode button.border-\[\#333333\] {
+  border-color: #CBD5E1 !important;
+  color: #0F172A !important;
+}
+
+.light-mode button.border-\[\#333333\]:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* Switch component */
+.light-mode [role="switch"] {
+  background-color: #CBD5E1 !important;
+}
+
+.light-mode [role="switch"][data-state="checked"] {
+  background-color: #3A6DFF !important;
+}
+
+/* Tab navigation in light mode */
+.light-mode button.bg-\[\#B7323F\] {
+  background-color: #3A6DFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Gradient overlays for light mode */
+.light-mode .bg-gradient-to-r.from-\[\#B7323F20\] {
+  background: linear-gradient(to right, rgba(58, 109, 255, 0.08), rgba(6, 182, 212, 0.08)) !important;
+}
+
+.light-mode .bg-gradient-to-br.from-\[\#3B7C9E20\] {
+  background: linear-gradient(to bottom right, rgba(58, 109, 255, 0.08), rgba(58, 109, 255, 0.04)) !important;
+}
+
+/* Section backgrounds */
+.light-mode .bg-\[\#0A0A0A80\] {
+  background-color: #F8FAFC !important;
 }
 
 /* Keep profile gradient */
