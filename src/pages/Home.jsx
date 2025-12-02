@@ -7,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import BloodMarkersSection from "../components/home/BloodMarkersSection";
 import SupplementStackSection from "../components/home/SupplementStackSection";
 import NutritionSection from "../components/home/NutritionSection";
+import RoutineSection from "../components/home/RoutineSection";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -50,7 +51,8 @@ export default function Home() {
   const sections = [
     { id: 0, title: t('markers'), component: BloodMarkersSection },
     { id: 1, title: t('stack'), component: SupplementStackSection },
-    { id: 2, title: t('nutrition'), component: NutritionSection }
+    { id: 2, title: t('nutrition'), component: NutritionSection },
+    { id: 3, title: t('routine'), component: RoutineSection }
   ];
 
   const ActiveComponent = sections[activeSection].component;
