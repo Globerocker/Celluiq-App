@@ -1,214 +1,218 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ShoppingCart, TrendingUp, Lock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Clock, Users, ChevronRight, Sparkles } from "lucide-react";
 import { useLanguage } from "../LanguageProvider";
-import ProUpgradeModal from '../ProUpgradeModal';
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function NutritionSection() {
   const { t } = useLanguage();
   const [showAffordable, setShowAffordable] = useState(false);
-  const [showProModal, setShowProModal] = useState(false);
-  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
-  const isPro = user?.subscription_tier === 'pro';
-
-  const { data: shoppingItems, isLoading } = useQuery({
-    queryKey: ['shoppingItems'],
-    queryFn: () => base44.entities.ShoppingItem.list('priority'),
-    initialData: [],
+  const { data: foodReferences = [], isLoading } = useQuery({
+    queryKey: ['foodReferences'],
+    queryFn: () => base44.entities.FoodReference.list(),
   });
 
-  const updateItemMutation = useMutation({
-    mutationFn: ({ id, checked }) => base44.entities.ShoppingItem.update(id, { checked }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shoppingItems'] });
-    },
+  const { data: bloodMarkers = [] } = useQuery({
+    queryKey: ['bloodMarkers'],
+    queryFn: () => base44.entities.BloodMarker.list('-test_date'),
   });
 
-  const filteredItems = showAffordable 
-    ? shoppingItems.filter(item => item.price_range === 'budget')
-    : shoppingItems;
+  // Get user's suboptimal markers to recommend relevant foods
+  const suboptimalMarkers = bloodMarkers.filter(m => 
+    m.status === 'suboptimal' || m.status === 'low' || m.status === 'high'
+  );
 
-  const displayItems = filteredItems.slice(0, 8);
-  const estimatedCost = displayItems.reduce((acc, item) => {
-    const prices = { budget: 8, moderate: 15, premium: 24 };
-    return acc + (prices[item.price_range] || 10);
-  }, 0);
+  // Filter foods based on user's markers and gender
+  const getRecommendedFoods = () => {
+    let foods = [...foodReferences];
+    
+    // Filter by gender if user has set it
+    if (user?.gender) {
+      foods = foods.filter(f => f.gender === 'both' || f.gender === user.gender);
+    }
 
-  const macros = [
-    { label: 'Calories', value: '2400 kcal' },
-    { label: t('protein'), value: '180g' },
-    { label: t('carbs'), value: '240g' },
-    { label: t('fats'), value: '80g' }
-  ];
+    // Prioritize foods that influence user's suboptimal markers
+    if (suboptimalMarkers.length > 0) {
+      const markerNames = suboptimalMarkers.map(m => m.marker_name.toLowerCase());
+      
+      foods = foods.sort((a, b) => {
+        const aInfluences = markerNames.some(m => 
+          (a.influenced_markers || '').toLowerCase().includes(m)
+        );
+        const bInfluences = markerNames.some(m => 
+          (b.influenced_markers || '').toLowerCase().includes(m)
+        );
+        if (aInfluences && !bInfluences) return -1;
+        if (!aInfluences && bInfluences) return 1;
+        return 0;
+      });
+    }
+
+    return foods.slice(0, 12);
+  };
+
+  const recommendedFoods = getRecommendedFoods();
+
+  // Group by category
+  const foodsByCategory = recommendedFoods.reduce((acc, food) => {
+    const cat = food.category || 'other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(food);
+    return acc;
+  }, {});
+
+  const categoryIcons = {
+    protein: '🥩',
+    vegetables: '🥬',
+    fruits: '🍎',
+    grains: '🌾',
+    dairy: '🥛',
+    fats: '🥑',
+    nuts_seeds: '🥜',
+    legumes: '🫘',
+    seafood: '🐟',
+    herbs_spices: '🌿',
+    beverages: '🍵',
+    other: '🍽️'
+  };
+
+  const categoryLabels = {
+    protein: 'Protein',
+    vegetables: 'Vegetables',
+    fruits: 'Fruits',
+    grains: 'Grains',
+    dairy: 'Dairy',
+    fats: 'Healthy Fats',
+    nuts_seeds: 'Nuts & Seeds',
+    legumes: 'Legumes',
+    seafood: 'Seafood',
+    herbs_spices: 'Herbs & Spices',
+    beverages: 'Beverages',
+    other: 'Other'
+  };
 
   if (isLoading) {
     return (
       <div className="p-6 space-y-4">
-        <div className="h-64 bg-white rounded-2xl animate-pulse" />
-      </div>
-    );
-  }
-
-  const isDark = !document.documentElement.classList.contains('light-mode');
-
-  // Show locked state for free users
-  if (!isPro) {
-    return (
-      <div className="p-6 space-y-6">
-        <ProUpgradeModal 
-          isOpen={showProModal} 
-          onClose={() => setShowProModal(false)} 
-          feature="personalized nutrition"
-        />
-        
-        <div 
-          onClick={() => setShowProModal(true)}
-          className="relative rounded-2xl p-6 bg-[#111111] border border-[#1A1A1A] cursor-pointer hover:border-[#B7323F] transition-all group overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent z-10" />
-          
-          {/* Blurred preview */}
-          <div className="blur-sm opacity-50">
-            <div className="rounded-2xl p-5 bg-[#0A0A0A] mb-4">
-              <div className="grid grid-cols-4 gap-3">
-                {macros.map((macro, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-xl font-bold text-white">{macro.value}</div>
-                    <div className="text-xs mt-1 text-[#666666]">{macro.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="h-14 bg-[#0A0A0A] rounded-xl" />
-              <div className="h-14 bg-[#0A0A0A] rounded-xl" />
-              <div className="h-14 bg-[#0A0A0A] rounded-xl" />
-            </div>
+        {[1, 2, 3].map(i => (
+          <div key={i} className="bg-[#111111] rounded-2xl p-4 animate-pulse">
+            <div className="h-6 bg-[#1A1A1A] rounded w-1/3 mb-2" />
+            <div className="h-4 bg-[#1A1A1A] rounded w-1/2" />
           </div>
-          
-          {/* Lock overlay */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-            <div className="w-16 h-16 rounded-full bg-[#B7323F20] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Lock className="w-8 h-8 text-[#B7323F]" />
-            </div>
-            <h3 className="text-white font-semibold text-lg mb-1">Personalized Nutrition</h3>
-            <p className="text-[#808080] text-sm text-center mb-2">Get recommendations based on your blood markers</p>
-            <span className="text-[#B7323F] text-sm font-medium uppercase tracking-wider">PRO • $9/mo</span>
-          </div>
-        </div>
+        ))}
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Weekly Target */}
-      <div className={`rounded-2xl p-5 shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
-        <div className="flex items-center justify-between mb-4">
-          <span className={`text-xs uppercase tracking-wider ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>Daily Nutrition Target</span>
-          <TrendingUp className="w-4 h-4 text-[#3B7C9E]" />
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-white font-bold text-lg">{t('nutrition')}</h2>
+          <p className="text-[#666666] text-sm">{t('basedOnBiomarkers')}</p>
         </div>
-        
-        <div className="grid grid-cols-4 gap-3">
-          {macros.map((macro, index) => (
-            <div key={index} className="text-center">
-              <div className={`text-xl font-bold ${isDark ? 'text-white' : 'text-[#111315]'}`}>{macro.value}</div>
-              <div className={`text-xs mt-1 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>{macro.label}</div>
-            </div>
-          ))}
+        <div className="flex items-center gap-2">
+          <span className="text-[#808080] text-xs">{t('showAffordable')}</span>
+          <Switch 
+            checked={showAffordable} 
+            onCheckedChange={setShowAffordable}
+            className="data-[state=checked]:bg-[#3B7C9E]"
+          />
         </div>
       </div>
 
-      {/* Groceries Section */}
-      <div className={`rounded-2xl p-5 shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-[#111315]'}`}>Recommended Groceries</h3>
-            <p className={`text-xs mt-1 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>Good for your blood markers</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>Cheap alternatives</span>
-            <Switch 
-              checked={showAffordable} 
-              onCheckedChange={setShowAffordable}
-              className="data-[state=checked]:bg-[#3B7C9E]"
-            />
+      {/* Personalized Note */}
+      {suboptimalMarkers.length > 0 && (
+        <div className="bg-gradient-to-r from-[#3B7C9E20] to-[#3B7C9E10] border border-[#3B7C9E30] rounded-2xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-[#3B7C9E] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-white text-sm font-medium mb-1">Personalized for you</p>
+              <p className="text-[#808080] text-xs">
+                Based on {suboptimalMarkers.length} markers that need attention
+              </p>
+            </div>
           </div>
         </div>
-        <div className="space-y-2">
-          {displayItems.map((item, index) => {
-            const prices = { budget: 8, moderate: 15, premium: 24 };
-            const price = prices[item.price_range] || 10;
+      )}
+
+      {/* Food Categories */}
+      <div className="space-y-6">
+        {Object.entries(foodsByCategory).map(([category, foods]) => (
+          <div key={category}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">{categoryIcons[category]}</span>
+              <h3 className="text-white font-semibold">{categoryLabels[category]}</h3>
+            </div>
             
-            return (
-              <div 
-                key={index} 
-                onClick={() => updateItemMutation.mutate({ id: item.id, checked: !item.checked })}
-                className={`rounded-xl p-3 border transition-all cursor-pointer ${
-                  isDark 
-                    ? `bg-[#0A0A0A] border-[#1A1A1A] hover:border-[#3B7C9E] ${item.checked ? 'opacity-60' : ''}` 
-                    : `bg-[#F6F7F5] border-[#E8E9E7] hover:border-[#3B7C9E] ${item.checked ? 'opacity-50' : ''}`
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                      item.checked 
-                        ? 'bg-[#3B7C9E] border-[#3B7C9E]' 
-                        : isDark ? 'border-[#333333]' : 'border-[#E8E9E7]'
-                    }`}>
-                      {item.checked && (
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
+            <div className="space-y-2">
+              {foods.slice(0, 4).map((food) => (
+                <div 
+                  key={food.id}
+                  className="bg-[#111111] rounded-xl p-4 border border-[#1A1A1A]"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium">{food.food_name}</h4>
+                      <p className="text-[#666666] text-xs mt-1">{food.primary_benefits}</p>
+                      
+                      {food.influenced_markers && (
+                        <p className="text-[#3B7C9E] text-xs mt-2">
+                          {food.influenced_markers}
+                        </p>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <h4 className={`text-sm font-semibold transition-all ${
-                        item.checked ? 'line-through opacity-60' : ''
-                      } ${isDark ? 'text-white' : 'text-[#111315]'}`}>{item.name}</h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`}>
-                          {item.weekly_amount || 'N/A'}
-                        </span>
-                        {item.benefits && item.benefits.length > 0 && (
-                          <>
-                            <span className={`text-xs ${isDark ? 'text-[#333333]' : 'text-[#E8E9E7]'}`}>•</span>
-                            <span className="text-xs text-[#3B7C9E]">{item.benefits[0]}</span>
-                          </>
+                    
+                    <div className="text-right ml-4">
+                      <div className="text-[#808080] text-xs">
+                        <div className="flex items-center gap-1 justify-end">
+                          <Clock className="w-3 h-3" />
+                          {food.daily_dosage}
+                        </div>
+                        {food.best_time && food.best_time !== 'anytime' && (
+                          <p className="text-[#666666] mt-1 capitalize">{food.best_time.replace('_', ' ')}</p>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="text-right ml-3">
-                    <div className={`text-base font-bold transition-all ${
-                      item.checked ? 'line-through opacity-60' : ''
-                    } ${isDark ? 'text-white' : 'text-[#111315]'}`}>${price}</div>
-                  </div>
+                  
+                  {food.combinations && (
+                    <div className="mt-3 pt-3 border-t border-[#1A1A1A]">
+                      <p className="text-[#666666] text-xs">
+                        <span className="text-[#808080]">Best with:</span> {food.combinations}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {food.warnings && food.warnings !== 'None' && (
+                    <p className="text-yellow-500/80 text-xs mt-2">⚠️ {food.warnings}</p>
+                  )}
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className={`rounded-2xl p-4 flex items-center justify-between shadow-sm ${isDark ? 'bg-[#111111] border border-[#1A1A1A]' : 'bg-white'}`}>
-        <div className="flex items-center gap-3">
-          <ShoppingCart className={`w-5 h-5 ${isDark ? 'text-[#666666]' : 'text-[#64676A]'}`} />
-          <span className={`text-sm ${isDark ? 'text-[#808080]' : 'text-[#64676A]'}`}>Total: ${estimatedCost}/week</span>
-        </div>
-        <button className="px-5 py-2 bg-[#B7323F] text-white rounded-xl font-medium hover:bg-[#9A2835] transition-all text-sm">
-          Order Now
-        </button>
-      </div>
+      {/* Shopping List CTA */}
+      <Link to={createPageUrl("ShoppingList")}>
+        <Button className="w-full mt-6 bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 rounded-xl">
+          <ShoppingCart className="w-5 h-5 mr-2" />
+          Generate Shopping List
+          <ChevronRight className="w-5 h-5 ml-auto" />
+        </Button>
+      </Link>
     </div>
   );
 }

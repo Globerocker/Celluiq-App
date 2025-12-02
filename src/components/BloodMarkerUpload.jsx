@@ -1,20 +1,68 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { X, Upload, FileText, Loader2, Check } from 'lucide-react';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { X, Upload, FileText, Loader2, Check, AlertCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export default function BloodMarkerUpload({ isOpen, onClose }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [extractedMarkers, setExtractedMarkers] = useState([]);
   const queryClient = useQueryClient();
+
+  // Fetch reference data for matching
+  const { data: markerReferences = [] } = useQuery({
+    queryKey: ['markerReferences'],
+    queryFn: () => base44.entities.BloodMarkerReference.list(),
+  });
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
     }
+  };
+
+  const findMatchingReference = (markerName, gender = 'both') => {
+    const normalizedName = markerName.toLowerCase().trim();
+    
+    return markerReferences.find(ref => {
+      const refName = (ref.marker_name || '').toLowerCase();
+      const refShort = (ref.short_name || '').toLowerCase();
+      const matchesGender = ref.gender === 'both' || ref.gender === gender;
+      
+      return matchesGender && (
+        refName.includes(normalizedName) || 
+        normalizedName.includes(refName) ||
+        refShort === normalizedName ||
+        normalizedName.includes(refShort)
+      );
+    });
+  };
+
+  const determineStatus = (value, reference) => {
+    if (!reference) return 'other';
+    
+    const celluiqMin = reference.celluiq_range_min;
+    const celluiqMax = reference.celluiq_range_max;
+    const clinicalMin = reference.clinical_range_min;
+    const clinicalMax = reference.clinical_range_max;
+    
+    // Use CELLUIQ ranges if available, otherwise clinical
+    const min = celluiqMin ?? clinicalMin;
+    const max = celluiqMax ?? clinicalMax;
+    
+    if (min == null || max == null) return 'suboptimal';
+    
+    if (value >= min && value <= max) return 'optimal';
+    
+    const range = max - min;
+    const deviation = value < min ? min - value : value - max;
+    
+    if (deviation > range * 0.5) return 'critical';
+    if (deviation > range * 0.2) return 'high';
+    return 'suboptimal';
   };
 
   const handleUpload = async () => {
@@ -26,50 +74,58 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
       // Upload the file
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
+      // Get user gender for gender-specific references
+      const user = await base44.auth.me();
+      const userGender = user?.gender || 'both';
+      
       // Extract data from the uploaded file
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              marker_name: { type: "string" },
-              value: { type: "number" },
-              unit: { type: "string" },
-              optimal_min: { type: "number" },
-              optimal_max: { type: "number" }
+          type: "object",
+          properties: {
+            markers: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  marker_name: { type: "string", description: "Name of the blood marker" },
+                  value: { type: "number", description: "Measured value" },
+                  unit: { type: "string", description: "Unit of measurement" },
+                  reference_min: { type: "number", description: "Reference range minimum" },
+                  reference_max: { type: "number", description: "Reference range maximum" }
+                }
+              }
             }
           }
         }
       });
 
-      if (result.status === "success" && result.output) {
-        const markers = Array.isArray(result.output) ? result.output : [result.output];
+      if (result.status === "success" && result.output?.markers) {
+        const markers = result.output.markers;
         const today = new Date().toISOString().split('T')[0];
         
-        // Determine status for each marker
-        const markersWithStatus = markers.map(m => {
-          let status = 'optimal';
-          if (m.optimal_min && m.optimal_max) {
-            if (m.value < m.optimal_min || m.value > m.optimal_max) {
-              const diff = m.value < m.optimal_min 
-                ? m.optimal_min - m.value 
-                : m.value - m.optimal_max;
-              const range = m.optimal_max - m.optimal_min;
-              status = diff > range * 0.3 ? 'critical' : 'suboptimal';
-            }
-          }
+        // Match with reference data and determine status
+        const processedMarkers = markers.map(m => {
+          const reference = findMatchingReference(m.marker_name, userGender);
+          const status = determineStatus(m.value, reference);
+          
           return {
-            ...m,
+            marker_name: m.marker_name,
+            value: m.value,
+            unit: m.unit || reference?.unit || '',
+            optimal_min: reference?.celluiq_range_min ?? reference?.clinical_range_min ?? m.reference_min,
+            optimal_max: reference?.celluiq_range_max ?? reference?.clinical_range_max ?? m.reference_max,
             test_date: today,
             status,
-            category: 'other'
+            category: reference?.category || 'other'
           };
         });
 
+        setExtractedMarkers(processedMarkers);
+        
         // Bulk create the markers
-        await base44.entities.BloodMarker.bulkCreate(markersWithStatus);
+        await base44.entities.BloodMarker.bulkCreate(processedMarkers);
         
         queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
         setSuccess(true);
@@ -78,7 +134,8 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
           onClose();
           setFile(null);
           setSuccess(false);
-        }, 2000);
+          setExtractedMarkers([]);
+        }, 3000);
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -94,7 +151,7 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative bg-[#111111] rounded-3xl p-6 max-w-sm w-full border border-[#1A1A1A] shadow-2xl">
+      <div className="relative bg-[#111111] rounded-3xl p-6 max-w-md w-full border border-[#1A1A1A] shadow-2xl max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-[#666666] hover:text-white transition-colors"
@@ -105,17 +162,37 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
         <div className="text-center mb-6">
           <h2 className="text-xl font-bold text-white mb-2">Upload Blood Results</h2>
           <p className="text-[#808080] text-sm">
-            Upload your lab results (PDF or image) and we'll extract your biomarkers
+            Upload your lab results and we'll match them with our database
           </p>
         </div>
 
         {success ? (
-          <div className="text-center py-8">
+          <div className="text-center py-6">
             <div className="w-16 h-16 rounded-full bg-[#3B7C9E20] flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-[#3B7C9E]" />
             </div>
-            <p className="text-white font-semibold">Successfully uploaded!</p>
-            <p className="text-[#666666] text-sm mt-2">Your markers have been added</p>
+            <p className="text-white font-semibold mb-2">Successfully uploaded!</p>
+            <p className="text-[#666666] text-sm mb-4">{extractedMarkers.length} markers extracted</p>
+            
+            <div className="space-y-2 text-left max-h-40 overflow-y-auto">
+              {extractedMarkers.slice(0, 5).map((marker, idx) => (
+                <div key={idx} className="flex items-center justify-between bg-[#0A0A0A] rounded-lg p-3">
+                  <span className="text-white text-sm">{marker.marker_name}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+                    marker.status === 'optimal' ? 'bg-green-500/20 text-green-400' :
+                    marker.status === 'suboptimal' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-red-500/20 text-red-400'
+                  }`}>
+                    {marker.status}
+                  </span>
+                </div>
+              ))}
+              {extractedMarkers.length > 5 && (
+                <p className="text-[#666666] text-xs text-center">
+                  +{extractedMarkers.length - 5} more markers
+                </p>
+              )}
+            </div>
           </div>
         ) : (
           <>
@@ -149,6 +226,16 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
               />
             </label>
 
+            <div className="mt-4 p-3 rounded-xl bg-[#3B7C9E10] border border-[#3B7C9E30]">
+              <div className="flex gap-2">
+                <AlertCircle className="w-4 h-4 text-[#3B7C9E] shrink-0 mt-0.5" />
+                <p className="text-[#808080] text-xs">
+                  Your results will be matched with our database of {markerReferences.length} biomarkers 
+                  for personalized recommendations.
+                </p>
+              </div>
+            </div>
+
             <Button 
               className="w-full mt-6 bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 rounded-xl font-semibold disabled:opacity-50"
               disabled={!file || uploading}
@@ -157,7 +244,7 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
               {uploading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
+                  Analyzing...
                 </>
               ) : (
                 'Analyze Results'

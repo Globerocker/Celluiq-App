@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "../components/LanguageProvider";
+import { createPageUrl } from "@/utils";
 
 import BloodMarkersSection from "../components/home/BloodMarkersSection";
 import SupplementStackSection from "../components/home/SupplementStackSection";
@@ -11,11 +12,23 @@ export default function Home() {
   const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState(0);
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: bloodMarkers } = useQuery({
     queryKey: ['bloodMarkers'],
     queryFn: () => base44.entities.BloodMarker.list('-test_date'),
     initialData: [],
   });
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (user && !user.onboarding_completed) {
+      window.location.href = createPageUrl("Onboarding");
+    }
+  }, [user]);
 
   const calculateHealthScore = () => {
     if (bloodMarkers.length === 0) return 0;
