@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Upload, TrendingUp, TrendingDown, Minus, ChevronRight, Info, ShoppingBag, Calendar, Plus, Sparkles, X } from "lucide-react";
 import { useLanguage } from "../LanguageProvider";
 import BloodMarkerUpload from "../BloodMarkerUpload";
 import BloodMarkerDetailModal from "../bloodmarkers/BloodMarkerDetailModal";
+import ManualMarkerDialog from "../bloodmarkers/ManualMarkerDialog";
+import RecommendedMarkersSection from "../bloodmarkers/RecommendedMarkersSection";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function BloodMarkersSection() {
   const { t } = useLanguage();
@@ -16,9 +15,6 @@ export default function BloodMarkersSection() {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [statusFilter, setStatusFilter] = useState(null); // null = all, 'optimal', 'suboptimal', 'critical'
   const [showAddManual, setShowAddManual] = useState(false);
-  const [manualMarker, setManualMarker] = useState({ marker_name: '', value: '', unit: '', category: 'other' });
-  
-  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -33,15 +29,6 @@ export default function BloodMarkersSection() {
   const { data: markerReferences = [] } = useQuery({
     queryKey: ['markerReferences'],
     queryFn: () => base44.entities.BloodMarkerReference.list(),
-  });
-
-  const addMarkerMutation = useMutation({
-    mutationFn: (data) => base44.entities.BloodMarker.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
-      setShowAddManual(false);
-      setManualMarker({ marker_name: '', value: '', unit: '', category: 'other' });
-    }
   });
 
   // Get latest value for each marker
@@ -124,33 +111,6 @@ export default function BloodMarkersSection() {
 
   const canOrderBloodTest = user?.postal_code;
 
-  const handleAddManualMarker = () => {
-    if (!manualMarker.marker_name || !manualMarker.value) return;
-    
-    const reference = getReference(manualMarker.marker_name);
-    const value = parseFloat(manualMarker.value);
-    
-    let status = 'suboptimal';
-    if (reference) {
-      const min = reference.celluiq_range_min ?? reference.clinical_range_min;
-      const max = reference.celluiq_range_max ?? reference.clinical_range_max;
-      if (min && max) {
-        if (value >= min && value <= max) status = 'optimal';
-        else if (value < min) status = 'low';
-        else if (value > max) status = 'high';
-      }
-    }
-
-    addMarkerMutation.mutate({
-      ...manualMarker,
-      value,
-      test_date: new Date().toISOString().split('T')[0],
-      status,
-      optimal_min: reference?.celluiq_range_min,
-      optimal_max: reference?.celluiq_range_max
-    });
-  };
-
   if (isLoading) {
     return (
       <div className="p-6 space-y-4">
@@ -222,62 +182,10 @@ export default function BloodMarkersSection() {
         </div>
 
         {/* Manual Add Dialog */}
-        <Dialog open={showAddManual} onOpenChange={setShowAddManual}>
-          <DialogContent className="bg-[#111111] border-[#333333] text-white">
-            <DialogHeader>
-              <DialogTitle>Marker manuell hinzufügen</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <Input
-                placeholder="Marker Name (z.B. Vitamin D)"
-                value={manualMarker.marker_name}
-                onChange={(e) => setManualMarker(prev => ({ ...prev, marker_name: e.target.value }))}
-                className="bg-[#0A0A0A] border-[#333333] text-white"
-              />
-              <div className="flex gap-3">
-                <Input
-                  type="number"
-                  placeholder="Wert"
-                  value={manualMarker.value}
-                  onChange={(e) => setManualMarker(prev => ({ ...prev, value: e.target.value }))}
-                  className="bg-[#0A0A0A] border-[#333333] text-white flex-1"
-                />
-                <Input
-                  placeholder="Einheit"
-                  value={manualMarker.unit}
-                  onChange={(e) => setManualMarker(prev => ({ ...prev, unit: e.target.value }))}
-                  className="bg-[#0A0A0A] border-[#333333] text-white w-24"
-                />
-              </div>
-              <Select 
-                value={manualMarker.category} 
-                onValueChange={(v) => setManualMarker(prev => ({ ...prev, category: v }))}
-              >
-                <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#111111] border-[#333333]">
-                  <SelectItem value="vitamins">Vitamine</SelectItem>
-                  <SelectItem value="minerals">Mineralien</SelectItem>
-                  <SelectItem value="hormones">Hormone</SelectItem>
-                  <SelectItem value="lipids">Lipide</SelectItem>
-                  <SelectItem value="liver">Leber</SelectItem>
-                  <SelectItem value="kidney">Niere</SelectItem>
-                  <SelectItem value="thyroid">Schilddrüse</SelectItem>
-                  <SelectItem value="inflammation">Entzündung</SelectItem>
-                  <SelectItem value="other">Sonstige</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                onClick={handleAddManualMarker}
-                disabled={!manualMarker.marker_name || !manualMarker.value || addMarkerMutation.isPending}
-                className="w-full bg-[#B7323F] hover:bg-[#9A2835]"
-              >
-                {addMarkerMutation.isPending ? 'Wird hinzugefügt...' : 'Hinzufügen'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <ManualMarkerDialog 
+          isOpen={showAddManual} 
+          onClose={() => setShowAddManual(false)} 
+        />
       </div>
     );
   }
@@ -295,62 +203,10 @@ export default function BloodMarkersSection() {
       )}
 
       {/* Manual Add Dialog */}
-      <Dialog open={showAddManual} onOpenChange={setShowAddManual}>
-        <DialogContent className="bg-[#111111] border-[#333333] text-white">
-          <DialogHeader>
-            <DialogTitle>Marker manuell hinzufügen</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <Input
-              placeholder="Marker Name (z.B. Vitamin D)"
-              value={manualMarker.marker_name}
-              onChange={(e) => setManualMarker(prev => ({ ...prev, marker_name: e.target.value }))}
-              className="bg-[#0A0A0A] border-[#333333] text-white"
-            />
-            <div className="flex gap-3">
-              <Input
-                type="number"
-                placeholder="Wert"
-                value={manualMarker.value}
-                onChange={(e) => setManualMarker(prev => ({ ...prev, value: e.target.value }))}
-                className="bg-[#0A0A0A] border-[#333333] text-white flex-1"
-              />
-              <Input
-                placeholder="Einheit"
-                value={manualMarker.unit}
-                onChange={(e) => setManualMarker(prev => ({ ...prev, unit: e.target.value }))}
-                className="bg-[#0A0A0A] border-[#333333] text-white w-24"
-              />
-            </div>
-            <Select 
-              value={manualMarker.category} 
-              onValueChange={(v) => setManualMarker(prev => ({ ...prev, category: v }))}
-            >
-              <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-[#111111] border-[#333333]">
-                <SelectItem value="vitamins">Vitamine</SelectItem>
-                <SelectItem value="minerals">Mineralien</SelectItem>
-                <SelectItem value="hormones">Hormone</SelectItem>
-                <SelectItem value="lipids">Lipide</SelectItem>
-                <SelectItem value="liver">Leber</SelectItem>
-                <SelectItem value="kidney">Niere</SelectItem>
-                <SelectItem value="thyroid">Schilddrüse</SelectItem>
-                <SelectItem value="inflammation">Entzündung</SelectItem>
-                <SelectItem value="other">Sonstige</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button 
-              onClick={handleAddManualMarker}
-              disabled={!manualMarker.marker_name || !manualMarker.value || addMarkerMutation.isPending}
-              className="w-full bg-[#B7323F] hover:bg-[#9A2835]"
-            >
-              {addMarkerMutation.isPending ? 'Wird hinzugefügt...' : 'Hinzufügen'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ManualMarkerDialog 
+        isOpen={showAddManual} 
+        onClose={() => setShowAddManual(false)} 
+      />
 
       {/* Retest Reminder */}
       {needsNewTest && (
@@ -542,6 +398,9 @@ export default function BloodMarkersSection() {
           <button onClick={() => setStatusFilter(null)} className="text-[#3B7C9E] mt-2 text-sm">Alle Marker anzeigen</button>
         </div>
       )}
+
+      {/* Recommended Markers Section */}
+      <RecommendedMarkersSection onAddMarker={() => setShowAddManual(true)} />
     </div>
   );
 }
