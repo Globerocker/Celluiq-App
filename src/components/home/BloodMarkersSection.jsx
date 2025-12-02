@@ -254,10 +254,11 @@ export default function BloodMarkersSection() {
         
         <button
           onClick={() => setShowAddManual(true)}
-          className="bg-[#111111] border border-[#333333] rounded-xl p-4 flex items-center gap-2 hover:bg-[#1A1A1A] transition-all"
+          className="rounded-xl p-4 flex items-center gap-2 transition-all border"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
         >
-          <Plus className="w-5 h-5 text-[#808080]" />
-          <span className="text-[#808080] text-sm hidden md:block">Manuell hinzufügen</span>
+          <Plus className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+          <span className="text-sm hidden md:block" style={{ color: 'var(--text-secondary)' }}>{t('addManually')}</span>
         </button>
       </div>
 
@@ -308,7 +309,7 @@ export default function BloodMarkersSection() {
             onClick={() => setStatusFilter(null)}
             className="text-[#B7323F] text-sm flex items-center gap-1 hover:opacity-80"
           >
-            <X className="w-3 h-3" /> Alle anzeigen
+            <X className="w-3 h-3" /> {t('showAll')}
           </button>
         </div>
       )}
@@ -403,8 +404,8 @@ export default function BloodMarkersSection() {
       {/* Empty filter result */}
       {sortedMarkers.length === 0 && statusFilter && (
         <div className="text-center py-8">
-          <p className="text-[#808080]">Keine {statusFilter === 'optimal' ? 'optimalen' : statusFilter === 'suboptimal' ? 'suboptimalen' : 'kritischen'} Marker gefunden</p>
-          <button onClick={() => setStatusFilter(null)} className="text-[#3B7C9E] mt-2 text-sm">Alle Marker anzeigen</button>
+          <p style={{ color: 'var(--text-secondary)' }}>{t('noMarkersFound')}</p>
+          <button onClick={() => setStatusFilter(null)} className="text-[#3B7C9E] mt-2 text-sm">{t('showAll')}</button>
         </div>
       )}
 

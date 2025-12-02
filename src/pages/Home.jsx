@@ -80,7 +80,7 @@ export default function Home() {
             <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
           </div>
           <p className="text-sm mt-4 max-w-md mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            {bloodMarkers.length > 0 ? t('outstandingProgress') : 'Lade dein erstes Blutbild hoch um zu starten'}
+            {bloodMarkers.length > 0 ? t('outstandingProgress') : t('uploadFirstBlood')}
           </p>
         </div>
       </div>
