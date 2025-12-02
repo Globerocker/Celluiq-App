@@ -178,13 +178,12 @@ export default function Onboarding() {
         }
       });
       
-      if (result.status === "success" && result.output?.markers) {
+      if (result.status === "success" && result.output?.markers && result.output.markers.length > 0) {
         const testDate = result.output.test_date || new Date().toISOString().split('T')[0];
         const gender = answers.gender || 'both';
         
-        // Process and save markers
         const markersToCreate = result.output.markers
-          .filter(m => m.marker_name && m.value !== undefined)
+          .filter(m => m.marker_name && m.value !== undefined && m.value !== null)
           .map(marker => {
             const ref = references.find(r => 
               (r.marker_name?.toLowerCase() === marker.marker_name?.toLowerCase() ||
@@ -228,12 +227,16 @@ export default function Onboarding() {
           });
           
           queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
+          setUploadSuccess(true);
+        } else {
+          alert('Keine gültigen Biomarker im Dokument gefunden.');
         }
+      } else {
+        alert('Keine Biomarker erkannt. Bitte ein gültiges Blutbild hochladen.');
       }
-      
-      setUploadSuccess(true);
     } catch (error) {
       console.error('Upload error:', error);
+      alert('Fehler: ' + (error.message || 'Upload fehlgeschlagen'));
     }
     
     setIsUploading(false);

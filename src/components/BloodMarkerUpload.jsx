@@ -136,16 +136,21 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
       // Wait for animation to complete
       await progressPromise;
 
-      if (result.status === "success" && result.output?.markers) {
-        const markers = result.output.markers;
+      if (result.status === "success" && result.output?.markers && result.output.markers.length > 0) {
+        const markers = result.output.markers.filter(m => m.marker_name && m.value !== undefined && m.value !== null);
+        
+        if (markers.length === 0) {
+          alert('Keine Biomarker im Dokument erkannt. Bitte ein gültiges Blutbild hochladen.');
+          setUploading(false);
+          return;
+        }
+        
         const today = new Date().toISOString().split('T')[0];
-        // Use extracted test date or fallback to today
         const testDate = result.output.test_date || today;
         
         const processedMarkers = markers.map(m => {
           const reference = findMatchingReference(m.marker_name, userGender);
           
-          // Convert value to reference unit if needed
           let finalValue = m.value;
           let finalUnit = m.unit || reference?.unit || '';
           
@@ -174,7 +179,6 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
         
         await base44.entities.BloodMarker.bulkCreate(processedMarkers);
         
-        // Save file reference for database/backup purposes
         await base44.entities.BloodTestFile.create({
           file_url,
           file_name: file.name,
@@ -184,7 +188,6 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
           status: 'processed'
         });
         
-        // Update user's last test date
         await base44.auth.updateMe({ last_blood_test: testDate });
         
         queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
@@ -197,10 +200,12 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
           setExtractedMarkers([]);
           setCurrentStep(0);
         }, 3000);
+      } else {
+        alert('Keine Biomarker erkannt. Bitte stelle sicher, dass das Dokument ein gültiges Blutbild ist.');
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Fehler beim Verarbeiten. Bitte erneut versuchen.');
+      alert('Fehler bei der Verarbeitung: ' + (error.message || 'Bitte erneut versuchen.'));
     } finally {
       setUploading(false);
     }

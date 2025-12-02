@@ -30,7 +30,7 @@ export default function Home() {
     };
   }, []);
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
@@ -42,10 +42,10 @@ export default function Home() {
 
   // Redirect to onboarding if not completed
   useEffect(() => {
-    if (user && !user.onboarding_completed) {
+    if (!userLoading && user && user.onboarding_completed !== true) {
       window.location.href = createPageUrl("Onboarding");
     }
-  }, [user]);
+  }, [user, userLoading]);
   
   const isDark = theme === 'dark';
 

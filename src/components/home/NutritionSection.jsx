@@ -189,20 +189,7 @@ export default function NutritionSection() {
         </div>
       </div>
 
-      {/* Personalized Note */}
-      {userMarkerCount > 0 && (
-        <div className="bg-gradient-to-r from-[#3B7C9E20] to-[#3B7C9E10] border border-[#3B7C9E30] rounded-2xl p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <Sparkles className="w-5 h-5 text-[#3B7C9E] shrink-0 mt-0.5" />
-            <div>
-              <p className={`text-sm font-medium mb-1 ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('personalizedForYou')}</p>
-              <p className={`text-xs ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
-                {userMarkerCount} Marker analysiert
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Food Categories */}
       <div className="space-y-6">
