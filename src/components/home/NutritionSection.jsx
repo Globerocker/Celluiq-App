@@ -91,22 +91,19 @@ export default function NutritionSection() {
     other: '🍽️'
   };
 
-  const getCategoryLabel = (cat) => {
-    const labels = {
-      protein: t('proteinCat'),
-      vegetables: t('vegetablesCat'),
-      fruits: t('fruitsCat'),
-      grains: t('grainsCat'),
-      dairy: t('dairyCat'),
-      fats: t('fatsCat'),
-      nuts_seeds: t('nutsSeeds'),
-      legumes: t('legumesCat'),
-      seafood: t('seafoodCat'),
-      herbs_spices: t('herbsSpices'),
-      beverages: t('beveragesCat'),
-      other: t('otherCat')
-    };
-    return labels[cat] || cat;
+  const categoryLabelKeys = {
+    protein: 'proteinCat',
+    vegetables: 'vegetablesCat',
+    fruits: 'fruitsCat',
+    grains: 'grainsCat',
+    dairy: 'dairyCat',
+    fats: 'fatsCat',
+    nuts_seeds: 'nutsSeeds',
+    legumes: 'legumesCat',
+    seafood: 'seafoodCat',
+    herbs_spices: 'herbsSpices',
+    beverages: 'beveragesCat',
+    other: 'otherCat'
   };
 
   if (isLoading) {
@@ -125,14 +122,14 @@ export default function NutritionSection() {
   // Empty state - no blood markers
   if (Object.keys(latestMarkers).length === 0) {
     return (
-      <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="p-6">
         <div className="text-center py-12">
-          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-            <Utensils className="w-10 h-10" style={{ color: 'var(--text-tertiary)' }} />
+          <div className="w-20 h-20 rounded-full bg-[#1A1A1A] flex items-center justify-center mx-auto mb-6">
+            <Utensils className="w-10 h-10 text-[#666666]" />
           </div>
-          <h2 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{t('noRecommendationsYet')}</h2>
-          <p className="max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            {t('uploadBloodForNutrition')}
+          <h2 className="text-xl font-bold text-white mb-3">{t('noRecommendationsNutrition')}</h2>
+          <p className="text-[#808080] max-w-sm mx-auto">
+            {t('uploadForNutrition')}
           </p>
         </div>
       </div>
@@ -142,13 +139,13 @@ export default function NutritionSection() {
   // No food references in database
   if (foodReferences.length === 0) {
     return (
-      <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="p-6">
         <div className="bg-gradient-to-r from-[#3B7C9E20] to-[#3B7C9E10] border border-[#3B7C9E30] rounded-2xl p-6">
           <div className="flex items-start gap-4">
             <Sparkles className="w-6 h-6 text-[#3B7C9E] shrink-0" />
             <div>
-              <h3 className="font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('nutritionRecommendations')}</h3>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <h3 className="text-white font-semibold mb-2">{t('nutritionRecommendations')}</h3>
+              <p className="text-[#808080] text-sm">
                 {t('databaseBeingBuilt')}
               </p>
             </div>
@@ -167,7 +164,7 @@ export default function NutritionSection() {
   }
 
   return (
-    <div className="p-6" style={{ backgroundColor: 'var(--bg-primary)' }}>
+    <div className="p-6">
       {selectedFood && (
         <FoodDetailModal food={selectedFood} onClose={() => setSelectedFood(null)} />
       )}
@@ -175,8 +172,8 @@ export default function NutritionSection() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{t('nutrition')}</h2>
-          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>{t('basedOnBiomarkers')}</p>
+          <h2 className="text-white font-bold text-lg">{t('nutrition')}</h2>
+          <p className="text-[#666666] text-sm">{t('basedOnBiomarkers')}</p>
         </div>
       </div>
 
@@ -186,9 +183,9 @@ export default function NutritionSection() {
           <div className="flex items-start gap-3">
             <Sparkles className="w-5 h-5 text-[#3B7C9E] shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('personalizedForYou')}</p>
-              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                {suboptimalMarkers.length} {t('markersNeedAttention')}
+              <p className="text-white text-sm font-medium mb-1">{t('personalizedForYou')}</p>
+              <p className="text-[#808080] text-xs">
+                {suboptimalMarkers.length} {t('markersNeedingAttention')}
               </p>
             </div>
           </div>
@@ -201,7 +198,7 @@ export default function NutritionSection() {
           <div key={category}>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">{categoryIcons[category]}</span>
-              <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>{getCategoryLabel(category)}</h3>
+              <h3 className="text-white font-semibold">{t(categoryLabelKeys[category])}</h3>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -209,13 +206,12 @@ export default function NutritionSection() {
                 <button 
                   key={food.id}
                   onClick={() => setSelectedFood(food)}
-                  className="rounded-xl p-4 border transition-colors text-left w-full"
-                  style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}
+                  className="bg-[#111111] rounded-xl p-4 border border-[#1A1A1A] hover:border-[#333333] transition-colors text-left w-full"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="font-medium" style={{ color: 'var(--text-primary)' }}>{food.food_name}</h4>
-                      <p className="text-xs mt-1 line-clamp-2" style={{ color: 'var(--text-tertiary)' }}>{food.primary_benefits}</p>
+                      <h4 className="text-white font-medium">{food.food_name}</h4>
+                      <p className="text-[#666666] text-xs mt-1 line-clamp-2">{food.primary_benefits}</p>
                       
                       {food.influenced_markers && (
                         <p className="text-[#3B7C9E] text-xs mt-2 line-clamp-1">
@@ -225,7 +221,7 @@ export default function NutritionSection() {
                     </div>
                     
                     <div className="text-right ml-4">
-                      <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      <div className="text-[#808080] text-xs">
                         <div className="flex items-center gap-1 justify-end">
                           <Clock className="w-3 h-3" />
                           {food.daily_dosage || '-'}
