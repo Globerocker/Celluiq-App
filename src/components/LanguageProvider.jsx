@@ -270,12 +270,17 @@ export const translations = {
 };
 
 export const LanguageProvider = ({ children }) => {
-  const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('language') || 'en';
+  const [language, setLanguageState] = useState(() => {
+    return localStorage.getItem('language') || 'de';
   });
 
+  const setLanguage = (lang) => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+    document.documentElement.lang = lang;
+  };
+
   useEffect(() => {
-    localStorage.setItem('language', language);
     document.documentElement.lang = language;
   }, [language]);
 
