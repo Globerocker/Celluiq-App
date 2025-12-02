@@ -77,9 +77,9 @@ export default function Home() {
   const ActiveComponent = sections[activeSection].component;
 
   return (
-    <div className={`min-h-screen pb-24 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F8FAFC]'}`}>
+    <div className={`min-h-screen ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F8FAFC]'}`}>
       {/* Header with Health Score */}
-      <div className={`px-6 pt-10 pb-8 border-b relative overflow-hidden ${isDark ? 'bg-[#111111] border-[#222222]' : 'bg-white border-[#E2E8F0]'}`}>
+      <div className={`px-6 pt-10 pb-6 relative overflow-hidden ${isDark ? 'bg-[#111111]' : 'bg-white'}`}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_#3B7C9E10,transparent_50%)]" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <p className={`text-xs uppercase tracking-[0.2em] mb-4 font-medium ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
@@ -104,13 +104,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Content Area - Desktop optimized */}
-      <div className="max-w-4xl mx-auto">
-        <ActiveComponent />
-      </div>
-
-      {/* Bottom Tab Navigation - Fixed, SOLID background */}
-      <div className={`fixed bottom-0 left-0 right-0 z-50 border-t safe-area-bottom ${isDark ? 'bg-[#111111] border-[#222222]' : 'bg-white border-[#E2E8F0]'}`}>
+      {/* Tab Navigation - Below Score, Sticky on Scroll */}
+      <div className={`sticky top-[57px] z-40 border-y ${isDark ? 'bg-[#111111] border-[#222222]' : 'bg-white border-[#E2E8F0]'}`}>
         <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-center gap-2">
             {sections.map((section, index) => (
@@ -128,6 +123,11 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="max-w-4xl mx-auto pb-8">
+        <ActiveComponent />
       </div>
     </div>
   );
