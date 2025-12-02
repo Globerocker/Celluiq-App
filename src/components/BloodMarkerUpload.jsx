@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { X, Upload, FileText, Check, AlertCircle, Dna, Search, FlaskConical, Sparkles } from 'lucide-react';
+import { X, Upload, FileText, Check, AlertCircle, Sparkles, Dna, FlaskConical, Brain } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 const loadingSteps = [
-  { icon: Upload, text: "Datei wird hochgeladen...", duration: 2000 },
-  { icon: Search, text: "Dokument wird analysiert...", duration: 3000 },
-  { icon: Dna, text: "Biomarker werden extrahiert...", duration: 4000 },
-  { icon: FlaskConical, text: "Werte werden mit Datenbank abgeglichen...", duration: 3000 },
-  { icon: Sparkles, text: "Empfehlungen werden generiert...", duration: 2000 }
+  { id: 1, icon: Upload, text: "Datei wird hochgeladen...", subtext: "Sichere Übertragung" },
+  { id: 2, icon: Dna, text: "Biomarker werden erkannt...", subtext: "KI-gestützte Analyse" },
+  { id: 3, icon: FlaskConical, text: "Werte werden extrahiert...", subtext: "Präzise Datenerfassung" },
+  { id: 4, icon: Brain, text: "Empfehlungen werden erstellt...", subtext: "Personalisierte Auswertung" },
 ];
 
 export default function BloodMarkerUpload({ isOpen, onClose }) {
@@ -53,8 +52,13 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
   const determineStatus = (value, reference) => {
     if (!reference) return 'suboptimal';
     
-    const min = reference.celluiq_range_min ?? reference.clinical_range_min;
-    const max = reference.celluiq_range_max ?? reference.clinical_range_max;
+    const celluiqMin = reference.celluiq_range_min;
+    const celluiqMax = reference.celluiq_range_max;
+    const clinicalMin = reference.clinical_range_min;
+    const clinicalMax = reference.clinical_range_max;
+    
+    const min = celluiqMin ?? clinicalMin;
+    const max = celluiqMax ?? clinicalMax;
     
     if (min == null || max == null) return 'suboptimal';
     
@@ -69,11 +73,18 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
     return 'suboptimal';
   };
 
-  const simulateLoadingSteps = async () => {
-    for (let i = 0; i < loadingSteps.length; i++) {
-      setCurrentStep(i);
-      await new Promise(resolve => setTimeout(resolve, loadingSteps[i].duration));
-    }
+  const simulateProgress = () => {
+    return new Promise((resolve) => {
+      let step = 0;
+      const interval = setInterval(() => {
+        step++;
+        setCurrentStep(step);
+        if (step >= loadingSteps.length) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 1200);
+    });
   };
 
   const handleUpload = async () => {
@@ -82,15 +93,18 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
     setUploading(true);
     setCurrentStep(0);
     
-    // Start loading animation
-    const loadingPromise = simulateLoadingSteps();
-    
     try {
+      // Start progress animation
+      const progressPromise = simulateProgress();
+      
+      // Upload the file
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
+      // Get user gender
       const user = await base44.auth.me();
       const userGender = user?.gender || 'both';
       
+      // Extract data
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: {
@@ -113,8 +127,8 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
         }
       });
 
-      // Wait for loading animation to complete
-      await loadingPromise;
+      // Wait for animation to complete
+      await progressPromise;
 
       if (result.status === "success" && result.output?.markers) {
         const markers = result.output.markers;
@@ -140,7 +154,7 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
         
         await base44.entities.BloodMarker.bulkCreate(processedMarkers);
         
-        // Update last test date on user
+        // Update user's last test date
         await base44.auth.updateMe({ last_blood_test: today });
         
         queryClient.invalidateQueries({ queryKey: ['bloodMarkers'] });
@@ -152,19 +166,17 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
           setSuccess(false);
           setExtractedMarkers([]);
           setCurrentStep(0);
-        }, 4000);
+        }, 3000);
       }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Fehler beim Verarbeiten. Bitte versuche es erneut.');
+      alert('Fehler beim Verarbeiten. Bitte erneut versuchen.');
     } finally {
       setUploading(false);
     }
   };
 
   if (!isOpen) return null;
-
-  const CurrentStepIcon = loadingSteps[currentStep]?.icon || Upload;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -173,12 +185,12 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative bg-[var(--bg-secondary)] rounded-3xl p-6 max-w-md w-full border border-[var(--border-color)] shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="relative bg-[#111111] rounded-3xl p-6 max-w-md w-full border border-[#1A1A1A] shadow-2xl max-h-[90vh] overflow-y-auto"
       >
         {!uploading && !success && (
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+            className="absolute top-4 right-4 text-[#666666] hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -191,146 +203,123 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="py-12"
+              className="py-8"
             >
-              {/* Animated DNA Helix */}
-              <div className="relative w-24 h-24 mx-auto mb-8">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0"
-                >
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#B7323F]" />
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#3B7C9E]" />
-                </motion.div>
-                <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-0"
-                >
-                  <div className="absolute top-1/2 left-0 -translate-y-1/2 w-4 h-4 rounded-full bg-[#3B7C9E]" />
-                  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-4 h-4 rounded-full bg-[#B7323F]" />
-                </motion.div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <CurrentStepIcon className="w-8 h-8 text-[#B7323F]" />
+              <div className="text-center mb-8">
+                <div className="relative w-20 h-20 mx-auto mb-6">
+                  <div className="absolute inset-0 rounded-full border-4 border-[#1A1A1A]" />
+                  <div 
+                    className="absolute inset-0 rounded-full border-4 border-t-[#B7323F] animate-spin"
+                    style={{ animationDuration: '1s' }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Sparkles className="w-8 h-8 text-[#B7323F]" />
+                  </div>
                 </div>
+                <h2 className="text-xl font-bold text-white mb-2">Analyse läuft</h2>
+                <p className="text-[#666666] text-sm">Bitte warten Sie einen Moment</p>
               </div>
 
-              {/* Progress Steps */}
-              <div className="space-y-3 mb-6">
-                {loadingSteps.map((step, idx) => {
-                  const StepIcon = step.icon;
-                  const isActive = idx === currentStep;
-                  const isComplete = idx < currentStep;
+              <div className="space-y-3">
+                {loadingSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  const isActive = index === currentStep - 1;
+                  const isComplete = index < currentStep - 1;
                   
                   return (
                     <motion.div
-                      key={idx}
+                      key={step.id}
                       initial={{ opacity: 0.3 }}
                       animate={{ 
-                        opacity: isActive ? 1 : isComplete ? 0.6 : 0.3,
+                        opacity: isComplete || isActive ? 1 : 0.3,
                         scale: isActive ? 1.02 : 1
                       }}
-                      className={`flex items-center gap-3 p-3 rounded-xl transition-all ${
-                        isActive ? 'bg-[#B7323F20]' : ''
+                      className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
+                        isActive ? 'bg-[#B7323F20] border border-[#B7323F40]' : 
+                        isComplete ? 'bg-[#3B7C9E20] border border-[#3B7C9E40]' : 
+                        'bg-[#0A0A0A] border border-transparent'
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        isComplete ? 'bg-green-500/20' : isActive ? 'bg-[#B7323F]' : 'bg-[var(--bg-tertiary)]'
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        isComplete ? 'bg-[#3B7C9E]' : 
+                        isActive ? 'bg-[#B7323F]' : 
+                        'bg-[#1A1A1A]'
                       }`}>
                         {isComplete ? (
-                          <Check className="w-4 h-4 text-green-400" />
+                          <Check className="w-5 h-5 text-white" />
                         ) : (
-                          <StepIcon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[var(--text-tertiary)]'}`} />
+                          <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#666666]'}`} />
                         )}
                       </div>
-                      <span className={`text-sm ${isActive ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-secondary)]'}`}>
-                        {step.text}
-                      </span>
+                      <div>
+                        <p className={`font-medium ${isActive || isComplete ? 'text-white' : 'text-[#666666]'}`}>
+                          {step.text}
+                        </p>
+                        <p className="text-[#666666] text-xs">{step.subtext}</p>
+                      </div>
                     </motion.div>
                   );
                 })}
               </div>
-
-              <p className="text-center text-[var(--text-tertiary)] text-xs">
-                Dies kann einen Moment dauern...
-              </p>
             </motion.div>
           ) : success ? (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="py-6"
+              className="text-center py-6"
             >
-              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring" }}
-                >
-                  <Check className="w-10 h-10 text-green-400" />
-                </motion.div>
-              </div>
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2 }}
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-[#3B7C9E] to-[#2D5F7A] flex items-center justify-center mx-auto mb-4"
+              >
+                <Check className="w-10 h-10 text-white" />
+              </motion.div>
+              <h2 className="text-xl font-bold text-white mb-2">Erfolgreich analysiert!</h2>
+              <p className="text-[#808080] text-sm mb-6">{extractedMarkers.length} Biomarker erkannt</p>
               
-              <h2 className="text-xl font-bold text-[var(--text-primary)] text-center mb-2">
-                Analyse abgeschlossen!
-              </h2>
-              <p className="text-[var(--text-secondary)] text-center text-sm mb-6">
-                {extractedMarkers.length} Biomarker erkannt
-              </p>
-              
-              {/* Results Summary */}
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <div className="bg-green-500/10 rounded-xl p-3 text-center">
-                  <p className="text-2xl font-bold text-green-400">
+                  <p className="text-green-400 font-bold text-xl">
                     {extractedMarkers.filter(m => m.status === 'optimal').length}
                   </p>
-                  <p className="text-xs text-green-400/80">Optimal</p>
+                  <p className="text-green-400/70 text-xs">Optimal</p>
                 </div>
                 <div className="bg-yellow-500/10 rounded-xl p-3 text-center">
-                  <p className="text-2xl font-bold text-yellow-400">
+                  <p className="text-yellow-400 font-bold text-xl">
                     {extractedMarkers.filter(m => m.status === 'suboptimal').length}
                   </p>
-                  <p className="text-xs text-yellow-400/80">Suboptimal</p>
+                  <p className="text-yellow-400/70 text-xs">Suboptimal</p>
                 </div>
                 <div className="bg-red-500/10 rounded-xl p-3 text-center">
-                  <p className="text-2xl font-bold text-red-400">
+                  <p className="text-red-400 font-bold text-xl">
                     {extractedMarkers.filter(m => ['low', 'high', 'critical'].includes(m.status)).length}
                   </p>
-                  <p className="text-xs text-red-400/80">Achtung</p>
+                  <p className="text-red-400/70 text-xs">Achtung</p>
                 </div>
               </div>
-
-              {/* Marker List */}
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {extractedMarkers.slice(0, 8).map((marker, idx) => (
-                  <motion.div 
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex items-center justify-between bg-[var(--bg-primary)] rounded-lg p-3"
-                  >
-                    <div>
-                      <span className="text-[var(--text-primary)] text-sm font-medium">{marker.marker_name}</span>
-                      <span className="text-[var(--text-tertiary)] text-xs ml-2">{marker.value} {marker.unit}</span>
+              
+              <div className="space-y-2 text-left max-h-40 overflow-y-auto">
+                {extractedMarkers.slice(0, 5).map((marker, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-[#0A0A0A] rounded-lg p-3">
+                    <span className="text-white text-sm">{marker.marker_name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#808080] text-sm">{marker.value} {marker.unit}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        marker.status === 'optimal' ? 'bg-green-500/20 text-green-400' :
+                        marker.status === 'suboptimal' ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>
+                        {marker.status}
+                      </span>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      marker.status === 'optimal' ? 'bg-green-500/20 text-green-400' :
-                      marker.status === 'suboptimal' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-red-500/20 text-red-400'
-                    }`}>
-                      {marker.status === 'optimal' ? 'Optimal' : 
-                       marker.status === 'suboptimal' ? 'Suboptimal' : 
-                       marker.status === 'low' ? 'Niedrig' :
-                       marker.status === 'high' ? 'Hoch' : 'Kritisch'}
-                    </span>
-                  </motion.div>
+                  </div>
                 ))}
-                {extractedMarkers.length > 8 && (
-                  <p className="text-[var(--text-tertiary)] text-xs text-center py-2">
-                    +{extractedMarkers.length - 8} weitere Marker
+                {extractedMarkers.length > 5 && (
+                  <p className="text-[#666666] text-xs text-center py-2">
+                    +{extractedMarkers.length - 5} weitere Marker
                   </p>
                 )}
               </div>
@@ -343,31 +332,34 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
               exit={{ opacity: 0 }}
             >
               <div className="text-center mb-6">
-                <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Blutbild hochladen</h2>
-                <p className="text-[var(--text-secondary)] text-sm">
-                  Lade deine Laborergebnisse hoch für personalisierte Empfehlungen
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">Blutbild hochladen</h2>
+                <p className="text-[#808080] text-sm">
+                  Lade dein Laborergebnis hoch und erhalte personalisierte Empfehlungen
                 </p>
               </div>
 
               <label className="block">
                 <div className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
-                  file ? 'border-[#3B7C9E] bg-[#3B7C9E10]' : 'border-[var(--border-color)] hover:border-[var(--text-tertiary)]'
+                  file ? 'border-[#3B7C9E] bg-[#3B7C9E10]' : 'border-[#333333] hover:border-[#666666]'
                 }`}>
                   {file ? (
                     <div className="flex items-center justify-center gap-3">
                       <FileText className="w-8 h-8 text-[#3B7C9E]" />
                       <div className="text-left">
-                        <p className="text-[var(--text-primary)] text-sm font-medium">{file.name}</p>
-                        <p className="text-[var(--text-tertiary)] text-xs">{(file.size / 1024).toFixed(1)} KB</p>
+                        <p className="text-white text-sm font-medium">{file.name}</p>
+                        <p className="text-[#666666] text-xs">{(file.size / 1024).toFixed(1)} KB</p>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <Upload className="w-10 h-10 text-[var(--text-tertiary)] mx-auto mb-3" />
-                      <p className="text-[var(--text-secondary)] text-sm">
+                      <Upload className="w-10 h-10 text-[#666666] mx-auto mb-3" />
+                      <p className="text-[#808080] text-sm">
                         Datei hier ablegen oder <span className="text-[#3B7C9E]">durchsuchen</span>
                       </p>
-                      <p className="text-[var(--text-tertiary)] text-xs mt-2">PDF, PNG, JPG bis 10MB</p>
+                      <p className="text-[#666666] text-xs mt-2">PDF, PNG, JPG bis 10MB</p>
                     </>
                   )}
                 </div>
@@ -382,8 +374,8 @@ export default function BloodMarkerUpload({ isOpen, onClose }) {
               <div className="mt-4 p-3 rounded-xl bg-[#3B7C9E10] border border-[#3B7C9E30]">
                 <div className="flex gap-2">
                   <AlertCircle className="w-4 h-4 text-[#3B7C9E] shrink-0 mt-0.5" />
-                  <p className="text-[var(--text-secondary)] text-xs">
-                    Deine Ergebnisse werden mit unserer Datenbank von {markerReferences.length} Biomarkern 
+                  <p className="text-[#808080] text-xs">
+                    Deine Daten werden mit unserer Datenbank von {markerReferences.length} Biomarkern 
                     abgeglichen für personalisierte Empfehlungen.
                   </p>
                 </div>

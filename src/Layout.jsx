@@ -7,15 +7,13 @@ import { LanguageProvider } from "./components/LanguageProvider";
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
 
-  // Apply theme on app load
+  // Apply theme on mount
   useEffect(() => {
-    const isDark = localStorage.getItem('theme') !== 'light';
-    if (!isDark) {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'light') {
       document.documentElement.classList.add('light-mode');
-      document.body.classList.add('light-mode');
     } else {
       document.documentElement.classList.remove('light-mode');
-      document.body.classList.remove('light-mode');
     }
   }, []);
 
