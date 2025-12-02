@@ -152,7 +152,7 @@ export default function SupplementStackSection() {
             </div>
             <div>
               <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{t('basedOnBloodwork')}</h3>
-              <p className={`text-xs ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{suboptimalMarkers.length} {t('markersNeedAttention')}</p>
+              <p className={`text-xs ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{Object.keys(latestMarkers).length} Marker analysiert</p>
             </div>
           </div>
           
