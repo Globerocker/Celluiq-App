@@ -41,13 +41,21 @@ export default function Settings() {
   const toggleDarkMode = (checked) => {
     setDarkMode(checked);
     localStorage.setItem('theme', checked ? 'dark' : 'light');
+    
     if (checked) {
       document.documentElement.classList.remove('light-mode');
       document.body.classList.remove('light-mode');
+      document.body.style.backgroundColor = '#0A0A0A';
+      document.body.style.color = '#FFFFFF';
     } else {
       document.documentElement.classList.add('light-mode');
       document.body.classList.add('light-mode');
+      document.body.style.backgroundColor = '#F8F9FA';
+      document.body.style.color = '#1A1A1A';
     }
+    
+    // Dispatch custom event for layout to catch
+    window.dispatchEvent(new Event('themeChange'));
   };
 
   const { data: user } = useQuery({
