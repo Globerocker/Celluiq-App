@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles, ChevronRight, AlertCircle, Plus } from 'lucide-react';
+import { Sparkles, ChevronRight, AlertCircle, Plus, Download, FileText, Copy, Check } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "../LanguageProvider";
 
 // Priority markers - top 50 essential markers for health optimization
 const PRIORITY_MARKERS = {
@@ -59,6 +60,9 @@ const RELATED_MARKERS = {
 };
 
 export default function RecommendedMarkersSection({ onAddMarker }) {
+  const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -151,6 +155,54 @@ export default function RecommendedMarkersSection({ onAddMarker }) {
     }).slice(0, 10);
   }, [suboptimalMarkers, currentMarkerNames, markerReferences, user?.gender]);
 
+  // Generate downloadable/copyable list
+  const generateMarkerList = () => {
+    const lines = [
+      'CELLUIQ - Empfohlene Blutmarker',
+      '================================',
+      '',
+      `Erstellt am: ${new Date().toLocaleDateString('de-DE')}`,
+      '',
+    ];
+
+    if (highPriorityMarkers.length > 0) {
+      lines.push('PRIORITÄT - Erweiterte Diagnostik:');
+      lines.push('---------------------------------');
+      highPriorityMarkers.forEach(m => {
+        lines.push(`• ${m.marker_name} (${m.category?.replace('_', ' ')})`);
+        lines.push(`  Grund: ${m.reason}`);
+      });
+      lines.push('');
+    }
+
+    if (normalPriorityMarkers.length > 0) {
+      lines.push('BASIS - Fehlende Standardmarker:');
+      lines.push('--------------------------------');
+      normalPriorityMarkers.forEach(m => {
+        lines.push(`• ${m.marker_name} (${m.category?.replace('_', ' ')})`);
+      });
+    }
+
+    return lines.join('\n');
+  };
+
+  const copyMarkerList = async () => {
+    await navigator.clipboard.writeText(generateMarkerList());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadMarkerList = () => {
+    const content = generateMarkerList();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `celluiq-marker-liste-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (recommendedMarkers.length === 0) {
     return null;
   }
@@ -231,6 +283,36 @@ export default function RecommendedMarkersSection({ onAddMarker }) {
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           )}
+        </div>
+      )}
+
+      {/* Download/Copy List for Doctor */}
+      {recommendedMarkers.length > 0 && (
+        <div className="bg-[#111111] rounded-2xl p-4 border border-[#1A1A1A]">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="w-5 h-5 text-[#808080]" />
+            <h3 className="text-white font-semibold">{t('markersToTest')}</h3>
+          </div>
+          <p className="text-[#808080] text-sm mb-4">
+            Liste für deinen Arzt oder das Labor herunterladen
+          </p>
+          <div className="flex gap-2">
+            <Button 
+              onClick={copyMarkerList}
+              variant="outline" 
+              className="flex-1 border-[#333333] text-white hover:bg-[#1A1A1A]"
+            >
+              {copied ? <Check className="w-4 h-4 mr-2 text-green-500" /> : <Copy className="w-4 h-4 mr-2" />}
+              {copied ? 'Kopiert!' : 'Kopieren'}
+            </Button>
+            <Button 
+              onClick={downloadMarkerList}
+              className="flex-1 bg-[#3B7C9E] hover:bg-[#2D5F7A] text-white"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {t('downloadMarkerList')}
+            </Button>
+          </div>
         </div>
       )}
     </div>
