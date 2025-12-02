@@ -103,9 +103,11 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
     });
   };
 
+  const isDark = (typeof localStorage !== 'undefined' && localStorage.getItem('theme') !== 'light');
+  
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-[#111111] border-[#333333] text-white max-w-md">
+      <DialogContent className={`max-w-md ${isDark ? 'bg-[#111111] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}>
         <DialogHeader>
           <DialogTitle>Marker manuell hinzufügen</DialogTitle>
         </DialogHeader>
@@ -114,7 +116,7 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
           {/* Marker Search */}
           <div className="relative">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666666]" />
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-[#666666]' : 'text-[#94A3B8]'}`} />
               <Input
                 placeholder="Marker suchen (z.B. Vitamin D, Eisen, TSH...)"
                 value={searchQuery}
@@ -124,7 +126,7 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
                     setSelectedReference(null);
                   }
                 }}
-                className="bg-[#0A0A0A] border-[#333333] text-white pl-10 pr-10"
+                className={`pl-10 pr-10 ${isDark ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}
               />
               {selectedReference && (
                 <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
@@ -133,19 +135,19 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
             
             {/* Search Results Dropdown */}
             {searchResults.length > 0 && !selectedReference && (
-              <div className="absolute z-50 w-full mt-1 bg-[#1A1A1A] border border-[#333333] rounded-lg shadow-lg max-h-64 overflow-y-auto">
+              <div className={`absolute z-50 w-full mt-1 border rounded-lg shadow-lg max-h-64 overflow-y-auto ${isDark ? 'bg-[#1A1A1A] border-[#333333]' : 'bg-white border-[#E2E8F0]'}`}>
                 {searchResults.map((ref) => (
                   <button
                     key={ref.id}
                     onClick={() => handleSelectMarker(ref)}
-                    className="w-full px-4 py-3 text-left hover:bg-[#222222] transition-colors border-b border-[#333333] last:border-b-0"
+                    className={`w-full px-4 py-3 text-left transition-colors border-b last:border-b-0 ${isDark ? 'hover:bg-[#222222] border-[#333333]' : 'hover:bg-[#F1F5F9] border-[#E2E8F0]'}`}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-medium">{ref.marker_name}</p>
-                        <p className="text-[#666666] text-xs capitalize">{ref.category?.replace('_', ' ')}</p>
+                        <p className={`font-medium ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{ref.marker_name}</p>
+                        <p className={`text-xs capitalize ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>{ref.category?.replace('_', ' ')}</p>
                       </div>
-                      <span className="text-[#808080] text-sm">{ref.unit}</span>
+                      <span className={`text-sm ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{ref.unit}</span>
                     </div>
                   </button>
                 ))}
@@ -154,21 +156,21 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
             
             {/* No results message */}
             {searchQuery.length >= 2 && searchResults.length === 0 && !selectedReference && (
-              <div className="absolute z-50 w-full mt-1 bg-[#1A1A1A] border border-[#333333] rounded-lg p-4 text-center">
-                <p className="text-[#808080] text-sm">Kein Marker gefunden</p>
-                <p className="text-[#666666] text-xs mt-1">Bitte wähle einen Marker aus der Datenbank</p>
+              <div className={`absolute z-50 w-full mt-1 border rounded-lg p-4 text-center ${isDark ? 'bg-[#1A1A1A] border-[#333333]' : 'bg-white border-[#E2E8F0]'}`}>
+                <p className={`text-sm ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>Kein Marker gefunden</p>
+                <p className={`text-xs mt-1 ${isDark ? 'text-[#666666]' : 'text-[#94A3B8]'}`}>Bitte wähle einen Marker aus der Datenbank</p>
               </div>
             )}
           </div>
 
           {/* Selected Marker Info */}
           {selectedReference && (
-            <div className="bg-[#0A0A0A] rounded-xl p-4 border border-[#333333]">
+            <div className={`rounded-xl p-4 border ${isDark ? 'bg-[#0A0A0A] border-[#333333]' : 'bg-[#F1F5F9] border-[#E2E8F0]'}`}>
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-white font-semibold">{selectedReference.marker_name}</p>
+                  <p className={`font-semibold ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>{selectedReference.marker_name}</p>
                   {selectedReference.short_name && selectedReference.short_name !== selectedReference.marker_name && (
-                    <p className="text-[#666666] text-xs">Kurzform: {selectedReference.short_name}</p>
+                    <p className={`text-xs ${isDark ? 'text-[#666666]' : 'text-[#64748B]'}`}>Kurzform: {selectedReference.short_name}</p>
                   )}
                 </div>
                 <button
@@ -176,13 +178,13 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
                     setSelectedReference(null);
                     setSearchQuery('');
                   }}
-                  className="text-[#666666] hover:text-white"
+                  className={isDark ? 'text-[#666666] hover:text-white' : 'text-[#94A3B8] hover:text-[#0F172A]'}
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-[#808080] capitalize">{selectedReference.category?.replace('_', ' ')}</span>
+                <span className={`capitalize ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>{selectedReference.category?.replace('_', ' ')}</span>
                 {(selectedReference.celluiq_range_min || selectedReference.celluiq_range_max) && (
                   <span className="text-green-500/70">
                     Optimal: {selectedReference.celluiq_range_min ?? '—'} - {selectedReference.celluiq_range_max ?? '—'} {selectedReference.unit}
@@ -200,27 +202,25 @@ export default function ManualMarkerDialog({ isOpen, onClose }) {
                 placeholder="Wert eingeben"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                className="bg-[#0A0A0A] border-[#333333] text-white flex-1"
+                className={`flex-1 ${isDark ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}
                 autoFocus
               />
               <Select 
                 value={selectedUnit || selectedReference.unit} 
                 onValueChange={setSelectedUnit}
               >
-                <SelectTrigger className="bg-[#0A0A0A] border-[#333333] text-white w-32">
+                <SelectTrigger className={`w-32 ${isDark ? 'bg-[#0A0A0A] border-[#333333] text-white' : 'bg-white border-[#E2E8F0] text-[#0F172A]'}`}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111111] border-[#333333]">
-                  {/* Primary unit from reference */}
+                <SelectContent className={isDark ? 'bg-[#111111] border-[#333333]' : 'bg-white border-[#E2E8F0]'}>
                   {selectedReference.unit && (
-                    <SelectItem value={selectedReference.unit} className="text-white">{selectedReference.unit}</SelectItem>
+                    <SelectItem value={selectedReference.unit} className={isDark ? 'text-white' : 'text-[#0F172A]'}>{selectedReference.unit}</SelectItem>
                   )}
-                  {/* Other common units if different */}
                   {availableUnits
                     .filter(u => u !== selectedReference.unit)
                     .slice(0, 10)
                     .map(unit => (
-                      <SelectItem key={unit} value={unit} className="text-white">{unit}</SelectItem>
+                      <SelectItem key={unit} value={unit} className={isDark ? 'text-white' : 'text-[#0F172A]'}>{unit}</SelectItem>
                     ))
                   }
                 </SelectContent>
