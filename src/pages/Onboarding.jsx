@@ -1,10 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, User, Target, Moon, Apple, MapPin, Heart, Dumbbell, Upload, FileText, Check, Loader2, ArrowRight } from "lucide-react";
+import { ChevronLeft, User, Target, Moon, Apple, MapPin, Heart, Dumbbell, Upload, FileText, Check, Loader2, ArrowRight, Mail, Lock, Sparkles } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 const questions = [
@@ -123,6 +123,13 @@ const questions = [
     question: "Hast du bereits ein Blutbild?",
     subtitle: "Lade es jetzt hoch für personalisierte Empfehlungen",
     type: "file_upload"
+  },
+  {
+    id: "register",
+    icon: Sparkles,
+    question: "Erstelle deinen Account",
+    subtitle: "Um deine personalisierten Ergebnisse zu sehen",
+    type: "register"
   }
 ];
 
@@ -133,12 +140,59 @@ export default function Onboarding() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const auth = await base44.auth.isAuthenticated();
+        setIsAuthenticated(auth);
+        if (auth) {
+          const user = await base44.auth.me();
+          if (user.onboarding_completed) {
+            window.location.href = createPageUrl("Home");
+          }
+        }
+      } catch (e) {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Load saved onboarding data from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('onboarding_data');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setAnswers(parsed.answers || {});
+        if (parsed.uploadedFileName) {
+          setUploadedFile({ name: parsed.uploadedFileName });
+          setUploadSuccess(true);
+        }
+      } catch (e) {}
+    }
+  }, []);
+
+  // Save answers to localStorage
+  useEffect(() => {
+    if (Object.keys(answers).length > 0) {
+      localStorage.setItem('onboarding_data', JSON.stringify({
+        answers,
+        uploadedFileName: uploadedFile?.name
+      }));
+    }
+  }, [answers, uploadedFile]);
 
   const updateUserMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
+      localStorage.removeItem('onboarding_data');
       window.location.href = createPageUrl("Home");
     }
   });
@@ -298,18 +352,32 @@ export default function Onboarding() {
   const handleNext = () => {
     if (step < questions.length - 1) {
       setStep(step + 1);
-    } else {
-      // Flatten multiselect arrays to strings
-      const processedAnswers = { ...answers };
-      if (Array.isArray(processedAnswers.health_conditions)) {
-        processedAnswers.health_conditions = processedAnswers.health_conditions.join(',');
-      }
-      
-      updateUserMutation.mutate({
-        onboarding_completed: true,
-        ...processedAnswers
-      });
     }
+  };
+
+  const handleRegister = () => {
+    // Save current answers before redirecting to login
+    localStorage.setItem('onboarding_data', JSON.stringify({
+      answers,
+      uploadedFileName: uploadedFile?.name,
+      pendingComplete: true
+    }));
+    // Redirect to login/register - after auth, user comes back and we complete onboarding
+    base44.auth.redirectToLogin(createPageUrl("OnboardingComplete"));
+  };
+
+  const handleFinishOnboarding = async () => {
+    setIsProcessing(true);
+    
+    const processedAnswers = { ...answers };
+    if (Array.isArray(processedAnswers.health_conditions)) {
+      processedAnswers.health_conditions = processedAnswers.health_conditions.join(',');
+    }
+    
+    updateUserMutation.mutate({
+      onboarding_completed: true,
+      ...processedAnswers
+    });
   };
 
   const handleBack = () => {
