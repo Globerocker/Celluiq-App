@@ -5,6 +5,7 @@ import Onboarding from './pages/Onboarding';
 import ShoppingList from './pages/ShoppingList';
 import Notifications from './pages/Notifications';
 import Splash from './pages/Splash';
+import OnboardingComplete from './pages/OnboardingComplete';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "ShoppingList": ShoppingList,
     "Notifications": Notifications,
     "Splash": Splash,
+    "OnboardingComplete": OnboardingComplete,
 }
 
 export const pagesConfig = {
