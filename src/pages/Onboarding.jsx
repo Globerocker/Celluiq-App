@@ -444,7 +444,50 @@ export default function Onboarding() {
               </p>
             </div>
 
-            {currentQuestion.type === "file_upload" ? (
+            {currentQuestion.type === "register" ? (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-[#3B7C9E20] to-[#3B7C9E10] border border-[#3B7C9E30] rounded-2xl p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-[#3B7C9E] flex items-center justify-center shrink-0">
+                      <Check className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold mb-1">Fast geschafft!</p>
+                      <p className="text-[#808080] text-sm">
+                        Erstelle jetzt deinen kostenlosen Account, um deine personalisierten Empfehlungen zu sehen.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-[#111111] rounded-xl border border-[#1A1A1A]">
+                    <Check className="w-5 h-5 text-green-500" />
+                    <span className="text-white text-sm">Personalisierte Biomarker-Analyse</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-[#111111] rounded-xl border border-[#1A1A1A]">
+                    <Check className="w-5 h-5 text-green-500" />
+                    <span className="text-white text-sm">Supplement-Empfehlungen</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-[#111111] rounded-xl border border-[#1A1A1A]">
+                    <Check className="w-5 h-5 text-green-500" />
+                    <span className="text-white text-sm">Ernährungs- & Lifestyle-Tipps</span>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleRegister}
+                  className="w-full py-6 bg-[#B7323F] hover:bg-[#9A2835] text-white rounded-xl text-lg font-semibold"
+                >
+                  Account erstellen
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+
+                <p className="text-center text-[#666666] text-xs">
+                  Mit der Registrierung akzeptierst du unsere Datenschutzbestimmungen
+                </p>
+              </div>
+            ) : currentQuestion.type === "file_upload" ? (
               <div className="space-y-4">
                 <input
                   type="file"
@@ -580,29 +623,22 @@ export default function Onboarding() {
       </div>
 
       {/* Navigation */}
-      <div className="p-6 border-t border-[#1A1A1A]">
-        <div className="flex gap-4 max-w-md mx-auto">
-          {step > 0 && (
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="flex-1 bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Zurück
-            </Button>
-          )}
-          {step === questions.length - 1 && currentQuestion.type !== "multiselect" && (
-            <Button
-              onClick={handleNext}
-              disabled={!isAnswered || updateUserMutation.isPending}
-              className="flex-1 bg-[#B7323F] hover:bg-[#9A2835] text-white"
-            >
-              {updateUserMutation.isPending ? "Speichern..." : "Fertig"}
-            </Button>
-          )}
+      {currentQuestion.type !== "register" && (
+        <div className="p-6 border-t border-[#1A1A1A]">
+          <div className="flex gap-4 max-w-md mx-auto">
+            {step > 0 && (
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                className="flex-1 bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Zurück
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
