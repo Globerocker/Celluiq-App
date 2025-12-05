@@ -42,22 +42,10 @@ export default function RoutineSection() {
     queryFn: () => base44.entities.VitalSign.list('-date', 7),
   });
 
-  const { data: markerReferences = [] } = useQuery({
-    queryKey: ['markerReferences'],
-    queryFn: () => base44.entities.BloodMarkerReference.list(),
-  });
-
-  // Get suboptimal markers
-  const latestMarkers = bloodMarkers.reduce((acc, marker) => {
-    if (!acc[marker.marker_name] || new Date(marker.test_date) > new Date(acc[marker.marker_name].test_date)) {
-      acc[marker.marker_name] = marker;
-    }
-    return acc;
-  }, {});
-
-  const suboptimalMarkers = Object.values(latestMarkers).filter(m => 
-    ['suboptimal', 'low', 'high', 'critical'].includes(m.status)
-  );
+  // Get average sleep quality from recent vitals
+  const avgSleepQuality = vitalSigns.length > 0
+    ? vitalSigns.reduce((sum, v) => sum + (v.sleep_quality_score || 0), 0) / vitalSigns.length
+    : 0;
 
   // Generate personalized routine based on user data and markers
   const routine = useMemo(() => {
