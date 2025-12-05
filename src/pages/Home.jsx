@@ -35,9 +35,9 @@ export default function Home() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: bloodMarkers = [] } = useQuery({
-    queryKey: ['bloodMarkers'],
-    queryFn: () => base44.entities.BloodMarker.list('-test_date'),
+  const { data: vitalSigns = [] } = useQuery({
+    queryKey: ['vitalSigns'],
+    queryFn: () => base44.entities.VitalSign.list('-date', 30),
   });
 
   // Redirect to onboarding if not completed
@@ -50,19 +50,24 @@ export default function Home() {
   const isDark = theme === 'dark';
 
   const calculateHealthScore = () => {
-    if (bloodMarkers.length === 0) return 0;
+    if (vitalSigns.length === 0) return 0;
     
-    const latestMarkers = bloodMarkers.reduce((acc, marker) => {
-      if (!acc[marker.marker_name] || new Date(marker.test_date) > new Date(acc[marker.marker_name].test_date)) {
-        acc[marker.marker_name] = marker;
-      }
-      return acc;
-    }, {});
-
-    const markers = Object.values(latestMarkers);
-    const optimal = markers.filter(m => m.status === 'optimal').length;
-    const score = Math.round((optimal / markers.length) * 100);
-    return score;
+    const latest = vitalSigns[0];
+    let score = 60; // Base score
+    
+    // Sleep quality boost
+    if (latest?.sleep_quality_score) {
+      score += (latest.sleep_quality_score / 100) * 20;
+    }
+    
+    // Steps boost
+    if (latest?.steps >= 10000) score += 10;
+    else if (latest?.steps >= 7000) score += 5;
+    
+    // Heart rate variability
+    if (latest?.heart_rate_variability > 50) score += 10;
+    
+    return Math.min(Math.round(score), 100);
   };
 
   const healthScore = calculateHealthScore();
@@ -89,7 +94,7 @@ export default function Home() {
             <div className={`text-7xl md:text-8xl font-bold mb-2 tracking-tight ${isDark ? 'text-white' : 'text-[#0F172A]'}`}>
               {healthScore}
             </div>
-            {bloodMarkers.length > 0 && (
+            {vitalSigns.length > 0 && (
               <div className="absolute -top-3 -right-10 flex items-center gap-1 bg-[#3B7C9E20] px-3 py-1 rounded-full border border-[#3B7C9E40]">
                 <span className="text-lg text-[#3B7C9E] font-bold">+5</span>
               </div>
@@ -99,7 +104,7 @@ export default function Home() {
             <div className="h-1 w-24 bg-gradient-to-r from-[#B7323F] via-[#3B7C9E] to-[#3B7C9E] rounded-full" />
           </div>
           <p className={`text-sm mt-4 max-w-md mx-auto leading-relaxed ${isDark ? 'text-[#808080]' : 'text-[#64748B]'}`}>
-            {bloodMarkers.length > 0 ? t('outstandingProgress') : t('uploadFirstBlood')}
+            {vitalSigns.length > 0 ? t('outstandingProgress') : 'Verbinde deine Fitness-Tracker für personalisierte Insights'}
           </p>
         </div>
       </div>

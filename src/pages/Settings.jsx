@@ -47,9 +47,9 @@ export default function Settings() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: bloodMarkers = [] } = useQuery({
-    queryKey: ['bloodMarkers'],
-    queryFn: () => base44.entities.BloodMarker.list('-test_date'),
+  const { data: bloodTestFiles = [] } = useQuery({
+    queryKey: ['bloodTestFiles'],
+    queryFn: () => base44.entities.BloodTestFile.list('-upload_date', 5),
   });
 
   const updateUserMutation = useMutation({

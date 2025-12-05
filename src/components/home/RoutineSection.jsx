@@ -37,9 +37,9 @@ export default function RoutineSection() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: bloodMarkers = [] } = useQuery({
-    queryKey: ['bloodMarkers'],
-    queryFn: () => base44.entities.BloodMarker.list('-test_date'),
+  const { data: vitalSigns = [] } = useQuery({
+    queryKey: ['vitalSigns'],
+    queryFn: () => base44.entities.VitalSign.list('-date', 7),
   });
 
   const { data: markerReferences = [] } = useQuery({

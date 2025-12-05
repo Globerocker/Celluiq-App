@@ -10,25 +10,8 @@ export default function Splash() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (isAuth) {
-          const user = await base44.auth.me();
-          if (user.onboarding_completed) {
-            window.location.href = createPageUrl("Home");
-          } else {
-            window.location.href = createPageUrl("Onboarding");
-          }
-          return;
-        }
-      } catch (e) {
-        // Not authenticated
-      }
-      setCheckingAuth(false);
-      setTimeout(() => setShowChoice(true), 1500);
-    };
-    checkAuth();
+    // Always redirect to onboarding for now
+    window.location.href = createPageUrl("Onboarding");
   }, []);
 
   const handleLogin = () => {
