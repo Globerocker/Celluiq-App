@@ -4,12 +4,14 @@ import { supabase } from '@/lib/supabase';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/lib/i18n';
 import CrossSellPopup from '@/components/CrossSellPopup';
-import { Activity, Droplet, Apple, Pill, ChevronRight, AlertCircle, TrendingUp, Award, TrendingDown } from 'lucide-react';
+import { useHealth } from '@/lib/HealthContext';
+import { Activity, Droplet, Apple, Pill, ChevronRight, AlertCircle, TrendingUp, Award, TrendingDown, Footprints, Flame } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
     const { user } = useAuth();
     const { t } = useTranslation();
+    const { steps, calories, isAvailable, fetchDailyData } = useHealth();
     const [profile, setProfile] = useState(null);
     const [bloodWork, setBloodWork] = useState([]);
     const [recommendations, setRecommendations] = useState(null);
@@ -18,6 +20,7 @@ export default function Dashboard() {
     useEffect(() => {
         if (user) {
             loadData();
+            fetchDailyData();
         }
     }, [user]);
 
@@ -131,8 +134,8 @@ export default function Dashboard() {
                                 key={lang}
                                 onClick={() => i18n.changeLanguage(lang)}
                                 className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${i18n.language === lang
-                                        ? 'bg-[#B7323F] text-white'
-                                        : 'bg-[#1A1A1A] text-gray-400 hover:text-white'
+                                    ? 'bg-[#B7323F] text-white'
+                                    : 'bg-[#1A1A1A] text-gray-400 hover:text-white'
                                     }`}
                             >
                                 {lang.toUpperCase()}
@@ -142,6 +145,25 @@ export default function Dashboard() {
                 </div>
 
                 {/* Main Content Grid */}
+                {isAvailable && (
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                        <div className="bg-[#111111] p-6 rounded-2xl border border-[#222222]">
+                            <div className="flex items-center gap-3 mb-2">
+                                <Footprints className="text-[#3B7C9E]" />
+                                <span className="text-gray-400">Schritte</span>
+                            </div>
+                            <p className="text-3xl font-bold">{steps.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-[#111111] p-6 rounded-2xl border border-[#222222]">
+                            <div className="flex items-center gap-3 mb-2">
+                                <Flame className="text-[#B7323F]" />
+                                <span className="text-gray-400">Kalorien</span>
+                            </div>
+                            <p className="text-3xl font-bold">{calories}</p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* LEFT COLUMN - BIOMARKERS (PRIORITY) */}
                     <div className="md:col-span-2 space-y-8">

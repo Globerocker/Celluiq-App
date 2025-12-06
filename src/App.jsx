@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { HealthProvider } from '@/lib/HealthContext';
 import { supabase } from '@/lib/supabase';
 import Layout from './Layout';
 import Auth from './pages/Auth';
@@ -83,43 +84,45 @@ const AuthRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <Layout>
-            <Routes>
-              {/* Auth as default */}
-              <Route path="/" element={
-                <AuthRoute>
-                  <Auth />
-                </AuthRoute>
-              } />
+      <HealthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <Layout>
+              <Routes>
+                {/* Auth as default */}
+                <Route path="/" element={
+                  <AuthRoute>
+                    <Auth />
+                  </AuthRoute>
+                } />
 
-              {/* Protected routes */}
-              <Route path="/onboarding" element={
-                <ProtectedRoute>
-                  <Onboarding />
-                </ProtectedRoute>
-              } />
+                {/* Protected routes */}
+                <Route path="/onboarding" element={
+                  <ProtectedRoute>
+                    <Onboarding />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/analyzing" element={
-                <ProtectedRoute>
-                  <Analyzing />
-                </ProtectedRoute>
-              } />
+                <Route path="/analyzing" element={
+                  <ProtectedRoute>
+                    <Analyzing />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
 
-              {/* 404 */}
-              <Route path="*" element={<PageNotFound />} />
-            </Routes>
-          </Layout>
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
+                {/* 404 */}
+                <Route path="*" element={<PageNotFound />} />
+              </Routes>
+            </Layout>
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </HealthProvider>
     </AuthProvider>
   )
 }

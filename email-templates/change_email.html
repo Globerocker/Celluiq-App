@@ -25,10 +25,10 @@
                     <!-- Content -->
                     <tr>
                         <td style="padding: 0 40px 40px 40px;">
-                            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 20px;">Email-Änderung bestätigen
+                            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 20px;">Confirm Email Change
                             </h2>
                             <p style="color: #cccccc; font-size: 16px; line-height: 24px; margin-bottom: 30px;">
-                                Bitte bestätige deine neuen Email-Adresse, indem du auf den Link unten klickst.
+                                Please verify your new email address by clicking the link below.
                             </p>
 
                             <!-- Button -->
@@ -37,15 +37,20 @@
                                     <td align="center">
                                         <a href="{{ .ConfirmationURL }}"
                                             style="display: inline-block; padding: 16px 32px; background-color: #B7323F; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.5px;">
-                                            Email ändern
+                                            Verify Email Change
                                         </a>
                                     </td>
                                 </tr>
                             </table>
 
+                            <p style="color: #cccccc; font-size: 14px; margin-top: 20px; text-align: center;">
+                                Code: <strong style="color: #ffffff; font-size: 16px; letter-spacing: 2px;">{{ .Token
+                                    }}</strong>
+                            </p>
+
                             <p
                                 style="color: #888888; font-size: 14px; line-height: 20px; margin-top: 30px; text-align: center;">
-                                Falls du diese Änderung nicht beantragt hast, kontaktiere bitte unseren Support.
+                                If you did not request this, please contact support.
                             </p>
                         </td>
                     </tr>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Celluiq</string>
+    <string name="title_activity_main">Celluiq</string>
+    <string name="package_name">com.celluiq.app</string>
+    <string name="custom_url_scheme">com.celluiq.app</string>
+</resources>

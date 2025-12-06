@@ -25,25 +25,21 @@
                     <!-- Content -->
                     <tr>
                         <td style="padding: 0 40px 40px 40px;">
-                            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 20px;">Sicherheits-Code</h2>
+                            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 20px;">Safety Check
+                            </h2>
                             <p style="color: #cccccc; font-size: 16px; line-height: 24px; margin-bottom: 30px;">
-                                Um deine Identität zu bestätigen, gib bitte den folgenden Code in der App ein:
+                                Please confirm your identity by entering this code:
                             </p>
 
-                            <!-- Code Box -->
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 30px;">
-                                <tr>
-                                    <td align="center">
-                                        <span
-                                            style="display: inline-block; padding: 20px 40px; background-color: #1A1A1A; border: 1px solid #333333; border-radius: 12px; color: #B7323F; font-size: 32px; font-weight: bold; letter-spacing: 6px;">
-                                            {{ .Token }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
+                            <p style="text-align: center; margin: 40px 0;">
+                                <strong
+                                    style="color: #B7323F; font-size: 32px; letter-spacing: 4px; background-color: #1A1A1A; padding: 20px 40px; border-radius: 8px; border: 1px solid #333333;">{{
+                                    .Token }}</strong>
+                            </p>
 
-                            <p style="color: #888888; font-size: 14px; line-height: 20px; text-align: center;">
-                                Der Code ist 10 Minuten gültig.
+                            <p
+                                style="color: #888888; font-size: 14px; line-height: 20px; margin-top: 30px; text-align: center;">
+                                This code is valid for 10 minutes.
                             </p>
                         </td>
                     </tr>

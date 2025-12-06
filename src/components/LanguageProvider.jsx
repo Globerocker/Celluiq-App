@@ -213,7 +213,7 @@ export const translations = {
     asOf: "As of",
 
     // Categories
-    protein: "Protein",
+    proteinCategory: "Protein",
     vegetables: "Vegetables",
     fruits: "Fruits",
     grains: "Grains",
@@ -433,7 +433,7 @@ export const translations = {
     healthBenefits: "Gesundheitsvorteile",
     influencedBiomarkers: "Beeinflusste Biomarker",
     dailyAmount: "Tägliche Menge",
-    weeklyAmount: "Wöchentliche Menge",
+    weeklyAmountLabel: "Wöchentliche Menge",
     bestTime: "Beste Einnahmezeit",
     optimalCombinations: "Optimale Kombinationen",
     yourStatus: "Dein Status",
@@ -446,7 +446,7 @@ export const translations = {
     asOf: "Stand",
 
     // Categories
-    protein: "Protein",
+    proteinCategory: "Protein",
     vegetables: "Gemüse",
     fruits: "Obst",
     grains: "Getreide",
@@ -615,7 +615,7 @@ export const translations = {
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguageInternal] = useState(() => {
-    return localStorage.getItem('language') || 'de';
+    return localStorage.getItem('language') || 'en';
   });
 
   const setLanguage = (lang) => {
