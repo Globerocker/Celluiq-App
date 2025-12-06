@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, User, Calendar, Ruler, Weight } from "lucide-react";
+import { ChevronLeft, User, Calendar, Ruler, Weight, Activity, Upload } from "lucide-react";
 
 const questions = [
   {
@@ -44,6 +44,13 @@ const questions = [
     type: "number",
     placeholder: "z.B. 75",
     unit: "kg"
+  },
+  {
+    id: "bloodwork",
+    icon: Activity,
+    question: "Lade dein Blutbild hoch",
+    subtitle: "PDF oder Bild deiner Laborergebnisse",
+    type: "upload"
   }
 ];
 
@@ -156,8 +163,8 @@ export default function Onboarding() {
             <div
               key={idx}
               className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${idx < step ? "bg-[#3B7C9E]" :
-                  idx === step ? "bg-[#B7323F]" :
-                    "bg-[#1A1A1A]"
+                idx === step ? "bg-[#B7323F]" :
+                  "bg-[#1A1A1A]"
                 }`}
             />
           ))}
@@ -206,8 +213,8 @@ export default function Onboarding() {
                       disabled={saving}
                       whileTap={{ scale: 0.98 }}
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                          ? "bg-[#B7323F20] border-[#B7323F] text-white"
-                          : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
+                        ? "bg-[#B7323F20] border-[#B7323F] text-white"
+                        : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
                         } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <div className="flex items-center gap-3">
