@@ -39,12 +39,32 @@ Damit User nach dem Login auf der richtigen Seite landen.
 4. Vercel zeigt dir DNS-Einträge (meistens ein CNAME record auf `cname.vercel-dns.com`).
 5. Gehe zu deinem Domain-Host (z.B. GoDaddy, Namecheap) und trage den CNAME ein.
 
-## 4. SMTP (Optional aber empfohlen)
-Damit Emails (z.B. Passwort Reset) von `noreply@celluiq.com` kommen statt von Supabase.
+## 4. SMTP (Emails via Cloudflare Domain)
+Wenn du Cloudflare nutzt, brauchst du trotzdem einen **Email-Versand-Dienst** (SMTP Provider), da Cloudflare selbst nur DNS macht.
 
-1. [Supabase Dashboard > Settings > SMTP](https://supabase.com/dashboard/project/evutidxtftmvvfmnnngk/settings/auth)
-2. Aktiviere "Enable Custom SMTP".
-3. Trage deine SMTP-Daten ein (z.B. von deinem Email-Provider).
+**Empfehlung: Resend (Kostenlos bis 3000 Mails/Monat & sehr einfach)**
+
+1. Gehe zu [Resend.com](https://resend.com) und erstelle einen Account.
+2. Füge deine Domain hinzu (`celluiq.com`).
+3. Resend gibt dir 3 DNS Einträge (MX, TXT).
+4. **Gehe zu Cloudflare**:
+   - Wähle deine Domain.
+   - Gehe zu **DNS** > **Records**.
+   - Trage die Einträge von Resend ein.
+   - Wichtig: Schalte den "Proxy Status" (orange Wolke) für diese Einträge auf **DNS Only** (graue Wolke), falls möglich (bei TXT automatisch).
+
+5. **Erstelle API Key in Resend**:
+   - Erstelle einen Key mit "Sending access".
+
+6. **In Supabase eintragen**:
+   - Gehe zu Settings > SMTP.
+   - Enable Custom SMTP.
+   - Host: `smtp.resend.com`
+   - Port: `465`
+   - User: `resend`
+   - Password: `[DEIN_RESEND_API_KEY]`
+   - Sender Email: `noreply@celluiq.com`
+   - Sender Name: `Celluiq`
 
 ---
 ✅ **Fertig!** Deine App ist jetzt Full-Production Ready.
