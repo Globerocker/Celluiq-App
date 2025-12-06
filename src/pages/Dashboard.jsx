@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useTranslation } from 'react-i18next'; // Add translation hook
+import i18n from '@/lib/i18n';
 import CrossSellPopup from '@/components/CrossSellPopup';
 import { Activity, Droplet, Apple, Pill, ChevronRight, AlertCircle, TrendingUp, Award } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -114,22 +115,6 @@ export default function Dashboard() {
             <CrossSellPopup />
             <div className="max-w-7xl mx-auto px-6 py-12">
                 {/* Header */}
-                <div className="mb-12">
-                    <h1 className="text-4xl font-bold mb-2">Dein Dashboard</h1>
-                    <p className="text-gray-400">
-                        Willkommen zurück, {profile?.full_name || user?.email}
-                    </p>
-                </div>
-
-                {/* Health Score */}
-                {bloodWork.length > 0 && bloodWork[0].analysis_json && (
-                    <div className="mb-8 p-8 rounded-2xl bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-white/80 mb-2">Dein Health Score</p>
-                                    <h2 className="text-6xl font-bold">{healthScore}</h2>
                                     <p className="text-white/60 mt-2">von 100 Punkten</p>
                                 </div>
                                 <div className="w-32 h-32 rounded-full border-8 border-white/20 flex items-center justify-center">
