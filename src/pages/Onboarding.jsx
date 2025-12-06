@@ -66,6 +66,73 @@ export default function Onboarding() {
   const currentQuestion = questions[step];
   const Icon = currentQuestion.icon;
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) {
+      setError("Bitte nur PDF, JPG oder PNG Dateien hochladen.");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('blood-work')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Save reference in database (optional, or just mark as uploaded)
+      // For now we just proceed to analysis
+
+      // Update profile to mark onboarding as barely complete (or do it after analysis)
+      await handleFinishOnboarding();
+
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Fehler beim Hochladen. Bitte versuche es erneut.');
+      setSaving(false);
+    }
+  };
+
+  const handleFinishOnboarding = async () => {
+    try {
+      // Create initial empty blood work record or just mark profile
+      // We'll mark onboarding as true later in the analysis step if we want, 
+      // OR we mark it here so they don't get stuck in onboarding loop.
+      // Let's mark it here.
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          gender: answers.gender,
+          age: answers.age,
+          height: answers.height,
+          weight: answers.weight,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Navigate to analysis simulation
+      navigate('/analyzing');
+    } catch (err) {
+      console.error('Error saving profile:', err);
+      setError(err.message);
+      setSaving(false);
+    }
+  };
+
   const handleSelect = async (value) => {
     const newAnswers = {
       ...answers,
@@ -81,9 +148,6 @@ export default function Onboarding() {
         setStep(step + 1);
         setInputValue("");
       }, 300);
-    } else {
-      // Last question - save
-      await saveProfile(newAnswers);
     }
   };
 
@@ -106,44 +170,10 @@ export default function Onboarding() {
     if (step < questions.length - 1) {
       setStep(step + 1);
       setInputValue("");
-    } else {
-      await saveProfile(newAnswers);
     }
   };
 
-  const saveProfile = async (data) => {
-    if (!user) {
-      setError("Nicht eingeloggt. Bitte melde dich an.");
-      return;
-    }
-
-    setSaving(true);
-    setError(null);
-
-    try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          gender: data.gender,
-          age: data.age,
-          height: data.height,
-          weight: data.weight,
-          onboarding_completed: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      // Success - navigate to upload
-      navigate('/upload');
-    } catch (err) {
-      console.error('Error saving profile:', err);
-      setError(err.message || 'Fehler beim Speichern. Bitte versuche es erneut.');
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Skip saveProfile - we use handleFinishOnboarding at the end
 
   const handleBack = () => {
     if (step > 0) {
@@ -163,8 +193,8 @@ export default function Onboarding() {
             <div
               key={idx}
               className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${idx < step ? "bg-[#3B7C9E]" :
-                idx === step ? "bg-[#B7323F]" :
-                  "bg-[#1A1A1A]"
+                  idx === step ? "bg-[#B7323F]" :
+                    "bg-[#1A1A1A]"
                 }`}
             />
           ))}
@@ -201,7 +231,7 @@ export default function Onboarding() {
               </p>
             </div>
 
-            {currentQuestion.type === "select" ? (
+            {currentQuestion.type === "select" && (
               <div className="space-y-3">
                 {currentQuestion.options.map((option) => {
                   const isSelected = currentAnswer === option.value;
@@ -213,8 +243,8 @@ export default function Onboarding() {
                       disabled={saving}
                       whileTap={{ scale: 0.98 }}
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                        ? "bg-[#B7323F20] border-[#B7323F] text-white"
-                        : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
+                          ? "bg-[#B7323F20] border-[#B7323F] text-white"
+                          : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
                         } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <div className="flex items-center gap-3">
@@ -234,7 +264,9 @@ export default function Onboarding() {
                   );
                 })}
               </div>
-            ) : (
+            )}
+
+            {currentQuestion.type === "number" && (
               <div className="space-y-4">
                 <div className="relative">
                   <input
@@ -252,13 +284,39 @@ export default function Onboarding() {
                     </span>
                   )}
                 </div>
-                <button
+                <Button
                   onClick={handleNumberSubmit}
                   disabled={!inputValue || saving}
-                  className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white py-4 text-lg rounded-xl disabled:opacity-50 transition-colors"
+                  className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 text-lg rounded-xl disabled:opacity-50"
                 >
-                  {step === questions.length - 1 ? 'Abschließen' : 'Weiter'}
-                </button>
+                  Weiter
+                </Button>
+              </div>
+            )}
+
+            {currentQuestion.type === "upload" && (
+              <div className="space-y-4">
+                <div className="relative border-2 border-dashed border-[#333333] rounded-xl p-8 text-center hover:border-[#B7323F] transition-colors cursor-pointer group">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={handleFileUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={saving}
+                  />
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-[#1A1A1A] flex items-center justify-center group-hover:bg-[#222222] transition-colors">
+                      <Upload className="w-8 h-8 text-[#666666] group-hover:text-white transition-colors" />
+                    </div>
+                    <div>
+                      <p className="text-white font-medium mb-1">Datei auswählen</p>
+                      <p className="text-sm text-gray-500">PDF, JPG oder PNG</p>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-center text-gray-600">
+                  Deine Daten werden sicher verschlüsselt übertragen.
+                </p>
               </div>
             )}
 
@@ -271,7 +329,9 @@ export default function Onboarding() {
             {saving && (
               <div className="mt-6 text-center">
                 <div className="inline-block w-6 h-6 border-4 border-[#B7323F] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-sm text-gray-400 mt-2">Speichere dein Profil...</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  {currentQuestion.type === 'upload' ? 'Lade hoch...' : 'Speichere...'}
+                </p>
               </div>
             )}
           </motion.div>
