@@ -1,7 +1,10 @@
+```
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Activity, TrendingUp, TrendingDown, Minus, Pill, Apple, ShoppingCart } from 'lucide-react';
+import { useTranslation } from 'react-i18next'; // Add translation hook
+import CrossSellPopup from '@/components/CrossSellPopup';
+import { Activity, Droplet, Apple, Pill, ChevronRight, AlertCircle, TrendingUp, Award } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
@@ -60,7 +63,7 @@ export default function Dashboard() {
                     const { data: suppData } = await supabase
                         .from('supplements_reference')
                         .select('*')
-                        .ilike('influenced_markers', `%${marker.name}%`)
+                        .ilike('influenced_markers', `% ${ marker.name }% `)
                         .eq('gender', userProfile.gender === 'male' ? 'male' : 'female')
                         .limit(3);
 
@@ -70,7 +73,7 @@ export default function Dashboard() {
                     const { data: foodData } = await supabase
                         .from('foods_reference')
                         .select('*')
-                        .ilike('influenced_markers', `%${marker.name}%`)
+                        .ilike('influenced_markers', `% ${ marker.name }% `)
                         .limit(3);
 
                     if (foodData) foods.push(...foodData);
@@ -107,7 +110,8 @@ export default function Dashboard() {
     const healthScore = calculateHealthScore();
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white pb-20">
+        <div className="min-h-screen bg-[#0A0A0A] pb-24">
+            <CrossSellPopup />
             <div className="max-w-7xl mx-auto px-6 py-12">
                 {/* Header */}
                 <div className="mb-12">
