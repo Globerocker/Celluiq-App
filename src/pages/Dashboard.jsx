@@ -1,15 +1,15 @@
-```
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { useTranslation } from 'react-i18next'; // Add translation hook
+import { useTranslation } from 'react-i18next';
 import i18n from '@/lib/i18n';
 import CrossSellPopup from '@/components/CrossSellPopup';
-import { Activity, Droplet, Apple, Pill, ChevronRight, AlertCircle, TrendingUp, Award } from 'lucide-react';
+import { Activity, Droplet, Apple, Pill, ChevronRight, AlertCircle, TrendingUp, Award, TrendingDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
     const { user } = useAuth();
+    const { t } = useTranslation();
     const [profile, setProfile] = useState(null);
     const [bloodWork, setBloodWork] = useState([]);
     const [recommendations, setRecommendations] = useState(null);
@@ -64,7 +64,7 @@ export default function Dashboard() {
                     const { data: suppData } = await supabase
                         .from('supplements_reference')
                         .select('*')
-                        .ilike('influenced_markers', `% ${ marker.name }% `)
+                        .ilike('influenced_markers', '%' + marker.name + '%')
                         .eq('gender', userProfile.gender === 'male' ? 'male' : 'female')
                         .limit(3);
 
@@ -74,7 +74,7 @@ export default function Dashboard() {
                     const { data: foodData } = await supabase
                         .from('foods_reference')
                         .select('*')
-                        .ilike('influenced_markers', `% ${ marker.name }% `)
+                        .ilike('influenced_markers', '%' + marker.name + '%')
                         .limit(3);
 
                     if (foodData) foods.push(...foodData);
@@ -115,38 +115,126 @@ export default function Dashboard() {
             <CrossSellPopup />
             <div className="max-w-7xl mx-auto px-6 py-12">
                 {/* Header */}
-                                    <p className="text-white/60 mt-2">von 100 Punkten</p>
-                                </div>
-                                <div className="w-32 h-32 rounded-full border-8 border-white/20 flex items-center justify-center">
-                                    <Activity className="w-16 h-16 text-white" />
+                <div className="mb-12 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold mb-2">
+                            {t('dashboard_title')}
+                        </h1>
+                        <p className="text-gray-400">
+                            Willkommen zurück, {profile?.full_name || user?.email?.split('@')[0]}
+                        </p>
+                    </div>
+                    {/* Language Switcher */}
+                    <div className="flex gap-2">
+                        {['de', 'en', 'es'].map((lang) => (
+                            <button
+                                key={lang}
+                                onClick={() => i18n.changeLanguage(lang)}
+                                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${i18n.language === lang
+                                        ? 'bg-[#B7323F] text-white'
+                                        : 'bg-[#1A1A1A] text-gray-400 hover:text-white'
+                                    }`}
+                            >
+                                {lang.toUpperCase()}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* LEFT COLUMN - BIOMARKERS (PRIORITY) */}
+                    <div className="md:col-span-2 space-y-8">
+                        {/* Health Score */}
+                        {bloodWork.length > 0 && bloodWork[0].analysis_json && (
+                            <div className="mb-8 p-8 rounded-2xl bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
+                                <div className="relative z-10">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-white/80 mb-2">Dein Health Score</p>
+                                            <h2 className="text-6xl font-bold">{healthScore}</h2>
+                                            <p className="text-white/60 mt-2">von 100 Punkten</p>
+                                        </div>
+                                        <div className="w-32 h-32 rounded-full border-8 border-white/20 flex items-center justify-center">
+                                            <Activity className="w-16 h-16 text-white" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        )}
 
-                {/* Blood Work Results */}
-                {bloodWork.length === 0 ? (
-                    <div className="text-center py-20">
-                        <div className="w-20 h-20 bg-[#111111] rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Activity className="w-10 h-10 text-gray-600" />
-                        </div>
-                        <h2 className="text-2xl font-bold mb-2">Noch keine Blutbilder</h2>
-                        <p className="text-gray-400 mb-6">
-                            Lade dein erstes Blutbild hoch, um personalisierte Analysen zu erhalten
-                        </p>
-                        <a
-                            href="/upload"
-                            className="inline-block px-6 py-3 bg-[#B7323F] hover:bg-[#9A2835] rounded-xl font-semibold transition-colors"
-                        >
-                            Blutbild hochladen
-                        </a>
+                        {/* Recent Blood Work */}
+                        {bloodWork.length > 0 ? (
+                            <div className="space-y-6">
+                                {bloodWork.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="p-6 rounded-2xl bg-[#111111] border border-[#222222]"
+                                    >
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div>
+                                                <h3 className="text-xl font-bold mb-1">Blutbild Analyse</h3>
+                                                <p className="text-sm text-gray-400">
+                                                    Hochgeladen am {new Date(item.created_at).toLocaleDateString('de-DE')}
+                                                </p>
+                                            </div>
+                                            <div className="px-3 py-1 bg-green-500/20 text-green-500 rounded-full text-sm font-medium">
+                                                Verarbeitet
+                                            </div>
+                                        </div>
+
+                                        {item.analysis_json ? (
+                                            <div className="mt-6">
+                                                <h4 className="font-semibold mb-4">Marker Übersicht:</h4>
+                                                <div className="grid md:grid-cols-3 gap-4">
+                                                    {item.analysis_json.slice(0, 6).map((marker, idx) => (
+                                                        <div key={idx} className="p-4 bg-[#0A0A0A] rounded-xl">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <span className="text-sm text-gray-400">{marker.name}</span>
+                                                                {marker.status === 'optimal' && <TrendingUp className="w-4 h-4 text-green-500" />}
+                                                                {marker.status === 'low' && <TrendingDown className="w-4 h-4 text-yellow-500" />}
+                                                                {marker.status === 'high' && <TrendingUp className="w-4 h-4 text-red-500" />}
+                                                            </div>
+                                                            <p className="text-2xl font-bold capitalize">{marker.status}</p>
+                                                            <p className="text-xs text-gray-500 mt-1">{marker.value} {marker.unit}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="mt-6 p-4 bg-[#3B7C9E20] border border-[#3B7C9E30] rounded-xl">
+                                                <p className="text-sm text-gray-300">
+                                                    Die Analyse wird gerade durchgeführt. Dies kann einige Minuten dauern.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 bg-[#111111] rounded-2xl border border-[#222222]">
+                                <div className="w-20 h-20 bg-[#0A0A0A] rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Activity className="w-10 h-10 text-gray-600" />
+                                </div>
+                                <h2 className="text-2xl font-bold mb-2">Noch keine Blutbilder</h2>
+                                <p className="text-gray-400 mb-6 px-4">
+                                    Lade dein erstes Blutbild hoch, um personalisierte Analysen zu erhalten.
+                                </p>
+                                <a
+                                    href="/upload"
+                                    className="inline-block px-6 py-3 bg-[#B7323F] hover:bg-[#9A2835] rounded-xl font-semibold transition-colors"
+                                >
+                                    Blutbild hochladen
+                                </a>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <>
-                        {/* Recommendations */}
-                        {recommendations && (
-                            <div className="grid md:grid-cols-2 gap-6 mb-8">
+
+                    {/* RIGHT COLUMN - RECOMMENDATIONS */}
+                    <div>
+                        {recommendations ? (
+                            <div className="space-y-6 sticky top-8">
                                 {/* Supplement Recommendations */}
                                 <div className="p-6 rounded-2xl bg-[#111111] border border-[#222222]">
                                     <div className="flex items-center gap-3 mb-4">
@@ -154,8 +242,8 @@ export default function Dashboard() {
                                             <Pill className="w-6 h-6 text-[#B7323F]" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold">Empfohlene Supplements</h3>
-                                            <p className="text-sm text-gray-400">Basierend auf deinen Markern</p>
+                                            <h3 className="text-xl font-bold">Supplements</h3>
+                                            <p className="text-sm text-gray-400">Für dich optimiert</p>
                                         </div>
                                     </div>
 
@@ -164,14 +252,8 @@ export default function Dashboard() {
                                             <div key={idx} className="p-4 bg-[#0A0A0A] rounded-xl">
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex-1">
-                                                        <h4 className="font-semibold text-white">{supp.name}</h4>
-                                                        <p className="text-sm text-gray-400 mt-1">{supp.dosage_recommendation}</p>
-                                                        {supp.best_time && (
-                                                            <p className="text-xs text-gray-500 mt-1">⏰ {supp.best_time}</p>
-                                                        )}
-                                                    </div>
-                                                    <div className="px-2 py-1 bg-[#3B7C9E20] text-[#3B7C9E] rounded text-xs">
-                                                        {supp.category}
+                                                        <h4 className="font-semibold text-white text-sm">{supp.name}</h4>
+                                                        <p className="text-xs text-gray-400 mt-1">{supp.dosage_recommendation}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -186,8 +268,8 @@ export default function Dashboard() {
                                             <Apple className="w-6 h-6 text-[#3B7C9E]" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold">Empfohlene Lebensmittel</h3>
-                                            <p className="text-sm text-gray-400">Für deine Ziele</p>
+                                            <h3 className="text-xl font-bold">Ernährung</h3>
+                                            <p className="text-sm text-gray-400">Passende Lebensmittel</p>
                                         </div>
                                     </div>
 
@@ -196,14 +278,8 @@ export default function Dashboard() {
                                             <div key={idx} className="p-4 bg-[#0A0A0A] rounded-xl">
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex-1">
-                                                        <h4 className="font-semibold text-white">{food.name}</h4>
-                                                        <p className="text-sm text-gray-400 mt-1">{food.benefits}</p>
-                                                        {food.daily_dosage && (
-                                                            <p className="text-xs text-gray-500 mt-1">📊 {food.daily_dosage} {food.unit}</p>
-                                                        )}
-                                                    </div>
-                                                    <div className="px-2 py-1 bg-green-500/20 text-green-500 rounded text-xs">
-                                                        {food.category}
+                                                        <h4 className="font-semibold text-white text-sm">{food.name}</h4>
+                                                        <p className="text-xs text-gray-400 mt-1">{food.benefits}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -211,57 +287,15 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             </div>
+                        ) : (
+                            <div className="p-6 rounded-2xl bg-[#111111] border border-[#222222] text-center">
+                                <p className="text-gray-400">
+                                    Empfehlungen erscheinen hier, sobald du ein Blutbild hochgeladen hast.
+                                </p>
+                            </div>
                         )}
-
-                        {/* Blood Work History */}
-                        <div className="space-y-6">
-                            {bloodWork.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="p-6 rounded-2xl bg-[#111111] border border-[#222222]"
-                                >
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div>
-                                            <h3 className="text-xl font-bold mb-1">Blutbild Analyse</h3>
-                                            <p className="text-sm text-gray-400">
-                                                Hochgeladen am {new Date(item.created_at).toLocaleDateString('de-DE')}
-                                            </p>
-                                        </div>
-                                        <div className="px-3 py-1 bg-green-500/20 text-green-500 rounded-full text-sm font-medium">
-                                            Verarbeitet
-                                        </div>
-                                    </div>
-
-                                    {item.analysis_json ? (
-                                        <div className="mt-6">
-                                            <h4 className="font-semibold mb-4">Marker Übersicht:</h4>
-                                            <div className="grid md:grid-cols-3 gap-4">
-                                                {item.analysis_json.slice(0, 6).map((marker, idx) => (
-                                                    <div key={idx} className="p-4 bg-[#0A0A0A] rounded-xl">
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <span className="text-sm text-gray-400">{marker.name}</span>
-                                                            {marker.status === 'optimal' && <TrendingUp className="w-4 h-4 text-green-500" />}
-                                                            {marker.status === 'low' && <TrendingDown className="w-4 h-4 text-yellow-500" />}
-                                                            {marker.status === 'high' && <TrendingUp className="w-4 h-4 text-red-500" />}
-                                                        </div>
-                                                        <p className="text-2xl font-bold capitalize">{marker.status}</p>
-                                                        <p className="text-xs text-gray-500 mt-1">{marker.value} {marker.unit}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="mt-6 p-4 bg-[#3B7C9E20] border border-[#3B7C9E30] rounded-xl">
-                                            <p className="text-sm text-gray-300">
-                                                Die Analyse wird gerade durchgeführt. Dies kann einige Minuten dauern.
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                )}
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -8,7 +8,7 @@ export const translations = {
     settings: "Settings",
     profile: "Profile",
     home: "Home",
-    
+
     // Home Page
     yourCelluiqScore: "YOUR CELLUIQ SCORE",
     outstandingProgress: "Outstanding progress this week. Your biomarkers are trending toward optimal ranges.",
@@ -16,7 +16,7 @@ export const translations = {
     stack: "Stack",
     nutrition: "Nutrition",
     routine: "Routine",
-    
+
     // Blood Markers
     bloodMarkers: "Blood Markers",
     latestResults: "Latest Results",
@@ -29,7 +29,7 @@ export const translations = {
     missingMarkers: "Missing Markers",
     downloadMarkerList: "Download Marker List",
     markersToTest: "Markers to Test",
-    
+
     // Nutrition Section
     weeklyTarget: "Weekly Target",
     protein: "PROTEIN",
@@ -45,7 +45,7 @@ export const translations = {
     generateShoppingList: "Generate Shopping List",
     personalizedForYou: "Personalized for you",
     markersNeedAttention: "markers need attention",
-    
+
     // Supplement Stack
     supplementStack: "Supplement Stack",
     daySupply: "30-Day Supply",
@@ -66,7 +66,7 @@ export const translations = {
     supplementPackages: "30-day supplement packages, personalized and delivered",
     checkDosage: "Check dosage",
     unlockWithPro: "Unlock with Pro",
-    
+
     // Routine Section
     yourDailyRoutine: "Your Daily Routine",
     routineDescription: "Personalized habits to optimize your biomarkers",
@@ -99,7 +99,7 @@ export const translations = {
     daily: "Daily",
     personalizedRoutine: "Personalized for You",
     personalizedRoutineDesc: "This routine is based on your profile, goals, and blood markers.",
-    
+
     // Settings
     manageAccount: "Manage your account and preferences",
     subscription: "Subscription",
@@ -128,7 +128,7 @@ export const translations = {
     activityLevel: "Activity Level",
     diet: "Diet",
     cancel: "Cancel",
-    
+
     // Profile
     healthJourney: "Your health journey overview",
     bloodTests: "Blood Tests",
@@ -144,21 +144,21 @@ export const translations = {
     height: "Height",
     weight: "Weight",
     goal: "Goal",
-    
+
     // Dashboard
     healthDashboard: "Health Dashboard",
     trackWellness: "Track your wellness journey in one place",
     overview: "Overview",
     vitalSigns: "Vital Signs",
     medications: "Medications",
-    
+
     // Common
     backToHome: "Back to Home",
     backToSettings: "Back to Settings",
     viewProfile: "View Profile",
     save: "Save",
     select: "Select",
-    
+
     // Notifications
     bloodTestReminder: "Blood Test Reminder",
     bloodTestReminderDesc: "Reminder every 3 months for new test",
@@ -175,7 +175,7 @@ export const translations = {
     from: "From",
     to: "To",
     manageNotifications: "Manage your notifications",
-    
+
     // Pro Modal
     upgradeToPro: "Upgrade to Pro",
     unlockAllFeatures: "Unlock all premium features",
@@ -187,7 +187,7 @@ export const translations = {
     proFeature3: "Health device integrations",
     proFeature4: "Priority support",
     proFeature5: "Advanced biomarker insights",
-    
+
     // Modals
     recommendedDosage: "Recommended Dosage",
     determineDosage: "Determine individually",
@@ -201,7 +201,6 @@ export const translations = {
     healthBenefits: "Health Benefits",
     influencedBiomarkers: "Influenced Biomarkers",
     dailyAmount: "Daily Amount",
-    weeklyAmount: "Weekly Amount",
     bestTime: "Best Time",
     optimalCombinations: "Optimal Combinations",
     yourStatus: "Your Status",
@@ -212,7 +211,7 @@ export const translations = {
     nutritionRecommendation: "Nutrition Recommendation",
     lifestyleChanges: "Lifestyle Changes",
     asOf: "As of",
-    
+
     // Categories
     protein: "Protein",
     vegetables: "Vegetables",
@@ -226,7 +225,7 @@ export const translations = {
     herbsSpices: "Herbs & Spices",
     beverages: "Beverages",
     other: "Other",
-    
+
     // Upload
     welcomeToCelluiq: "Welcome to CELLUIQ",
     uploadFirstBloodwork: "Upload your first bloodwork and get personalized health recommendations",
@@ -241,7 +240,7 @@ export const translations = {
     settings: "Einstellungen",
     profile: "Profil",
     home: "Startseite",
-    
+
     // Home Page
     yourCelluiqScore: "DEIN CELLUIQ SCORE",
     outstandingProgress: "Hervorragender Fortschritt diese Woche. Deine Biomarker tendieren zu optimalen Bereichen.",
@@ -249,7 +248,7 @@ export const translations = {
     stack: "Stack",
     nutrition: "Ernährung",
     routine: "Routine",
-    
+
     // Blood Markers
     bloodMarkers: "Blutwerte",
     latestResults: "Neueste Ergebnisse",
@@ -262,7 +261,7 @@ export const translations = {
     missingMarkers: "Fehlende Marker",
     downloadMarkerList: "Markerliste herunterladen",
     markersToTest: "Zu testende Marker",
-    
+
     // Nutrition Section
     weeklyTarget: "Wochenziel",
     protein: "PROTEIN",
@@ -278,7 +277,7 @@ export const translations = {
     generateShoppingList: "Einkaufsliste generieren",
     personalizedForYou: "Personalisiert für dich",
     markersNeedAttention: "Marker brauchen Aufmerksamkeit",
-    
+
     // Supplement Stack
     supplementStack: "Supplement Stack",
     daySupply: "30-Tage-Vorrat",
@@ -299,7 +298,7 @@ export const translations = {
     supplementPackages: "30-Tage Supplement-Pakete, personalisiert und geliefert",
     checkDosage: "Dosierung prüfen",
     unlockWithPro: "Mit Pro freischalten",
-    
+
     // Routine Section
     yourDailyRoutine: "Deine Tägliche Routine",
     routineDescription: "Personalisierte Gewohnheiten zur Optimierung deiner Biomarker",
@@ -332,7 +331,7 @@ export const translations = {
     daily: "Täglich",
     personalizedRoutine: "Personalisiert für dich",
     personalizedRoutineDesc: "Diese Routine basiert auf deinem Profil, Zielen und Blutwerten.",
-    
+
     // Settings
     manageAccount: "Verwalte dein Konto und deine Einstellungen",
     subscription: "Abonnement",
@@ -361,7 +360,7 @@ export const translations = {
     activityLevel: "Aktivitätslevel",
     diet: "Ernährung",
     cancel: "Abbrechen",
-    
+
     // Profile
     healthJourney: "Dein Gesundheitsweg im Überblick",
     bloodTests: "Bluttests",
@@ -377,21 +376,21 @@ export const translations = {
     height: "Größe",
     weight: "Gewicht",
     goal: "Ziel",
-    
+
     // Dashboard
     healthDashboard: "Gesundheits-Dashboard",
     trackWellness: "Verfolge deine Wellness-Reise an einem Ort",
     overview: "Übersicht",
     vitalSigns: "Vitalzeichen",
     medications: "Medikamente",
-    
+
     // Common
     backToHome: "Zurück zur Startseite",
     backToSettings: "Zurück zu Einstellungen",
     viewProfile: "Profil anzeigen",
     save: "Speichern",
     select: "Auswählen",
-    
+
     // Notifications
     bloodTestReminder: "Bluttest-Erinnerung",
     bloodTestReminderDesc: "Erinnerung alle 3 Monate für neuen Test",
@@ -408,7 +407,7 @@ export const translations = {
     from: "Von",
     to: "Bis",
     manageNotifications: "Verwalte deine Benachrichtigungen",
-    
+
     // Pro Modal
     upgradeToPro: "Upgrade auf Pro",
     unlockAllFeatures: "Alle Premium-Features freischalten",
@@ -420,7 +419,7 @@ export const translations = {
     proFeature3: "Gesundheitsgeräte-Integration",
     proFeature4: "Prioritäts-Support",
     proFeature5: "Erweiterte Biomarker-Einblicke",
-    
+
     // Modals
     recommendedDosage: "Empfohlene Dosierung",
     determineDosage: "Individuell bestimmen",
@@ -445,7 +444,7 @@ export const translations = {
     nutritionRecommendation: "Ernährungsempfehlung",
     lifestyleChanges: "Lifestyle Änderungen",
     asOf: "Stand",
-    
+
     // Categories
     protein: "Protein",
     vegetables: "Gemüse",
@@ -459,7 +458,7 @@ export const translations = {
     herbsSpices: "Kräuter & Gewürze",
     beverages: "Getränke",
     other: "Sonstige",
-    
+
     // Upload
     welcomeToCelluiq: "Willkommen bei CELLUIQ",
     uploadFirstBloodwork: "Lade dein erstes Blutbild hoch und erhalte personalisierte Gesundheitsempfehlungen",
@@ -474,7 +473,7 @@ export const translations = {
     settings: "Configuración",
     profile: "Perfil",
     home: "Inicio",
-    
+
     // Home Page
     yourCelluiqScore: "TU PUNTUACIÓN CELLUIQ",
     outstandingProgress: "Progreso excepcional esta semana. Tus biomarcadores tienden a rangos óptimos.",
@@ -482,7 +481,7 @@ export const translations = {
     stack: "Stack",
     nutrition: "Nutrición",
     routine: "Rutina",
-    
+
     // Blood Markers
     bloodMarkers: "Marcadores Sanguíneos",
     latestResults: "Últimos Resultados",
@@ -495,7 +494,7 @@ export const translations = {
     missingMarkers: "Marcadores Faltantes",
     downloadMarkerList: "Descargar Lista de Marcadores",
     markersToTest: "Marcadores a Analizar",
-    
+
     // Nutrition Section
     weeklyTarget: "Objetivo Semanal",
     protein: "PROTEÍNA",
@@ -508,7 +507,7 @@ export const translations = {
     weeklyAmount: "Cantidad Semanal",
     dailyRecommendation: "Recomendación Diaria",
     addToShoppingList: "Añadir a la Lista de Compras",
-    
+
     // Supplement Stack
     supplementStack: "Stack de Suplementos",
     daySupply: "Suministro de 30 Días",
@@ -516,7 +515,7 @@ export const translations = {
     dailyIntake: "Ingesta Diaria",
     whatsIncluded: "Qué incluye",
     recommendedAddons: "Complementos Recomendados",
-    
+
     // Routine Section
     yourDailyRoutine: "Tu Rutina Diaria",
     routineDescription: "Hábitos personalizados para optimizar tus biomarcadores",
@@ -549,7 +548,7 @@ export const translations = {
     daily: "Diario",
     personalizedRoutine: "Personalizado para Ti",
     personalizedRoutineDesc: "Esta rutina está basada en tu perfil, objetivos y marcadores.",
-    
+
     // Settings
     manageAccount: "Gestiona tu cuenta y preferencias",
     subscription: "Suscripción",
@@ -566,7 +565,7 @@ export const translations = {
     privacySecurity: "Privacidad y Seguridad",
     manageYourData: "Gestiona tus datos",
     logout: "Cerrar Sesión",
-    
+
     // Profile
     healthJourney: "Tu viaje de salud en resumen",
     bloodTests: "Análisis de Sangre",
@@ -581,20 +580,20 @@ export const translations = {
     height: "Altura",
     weight: "Peso",
     goal: "Objetivo",
-    
+
     // Dashboard
     healthDashboard: "Panel de Salud",
     trackWellness: "Rastrea tu viaje de bienestar en un solo lugar",
     overview: "Resumen",
     vitalSigns: "Signos Vitales",
     medications: "Medicamentos",
-    
+
     // Common
     backToHome: "Volver al Inicio",
     backToSettings: "Volver a Configuración",
     viewProfile: "Ver Perfil",
     save: "Guardar",
-    
+
     // Notifications
     bloodTestReminder: "Recordatorio de Análisis",
     bloodTestReminderDesc: "Recordatorio cada 3 meses para nuevo análisis",
