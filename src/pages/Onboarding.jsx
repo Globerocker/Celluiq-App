@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, User, Target, Activity, Moon, Utensils, Heart, Calendar, Weight } from "lucide-react";
+import { ChevronLeft, User, Calendar, Ruler, Weight } from "lucide-react";
 
 const questions = [
   {
@@ -23,89 +23,36 @@ const questions = [
     icon: Calendar,
     question: "Wie alt bist du?",
     subtitle: "Für altersgerechte Empfehlungen",
-    type: "select",
-    options: [
-      { value: "18-25", label: "18-25 Jahre" },
-      { value: "26-35", label: "26-35 Jahre" },
-      { value: "36-45", label: "36-45 Jahre" },
-      { value: "46-55", label: "46-55 Jahre" },
-      { value: "56+", label: "56+ Jahre" }
-    ]
+    type: "number",
+    placeholder: "z.B. 35",
+    unit: "Jahre"
   },
   {
-    id: "goal",
-    icon: Target,
-    question: "Was ist dein primäres Gesundheitsziel?",
-    subtitle: "Wir priorisieren Empfehlungen basierend darauf",
-    type: "select",
-    options: [
-      { value: "performance", label: "Peak Performance" },
-      { value: "longevity", label: "Longevity & Anti-Aging" },
-      { value: "energy", label: "Mehr Energie" },
-      { value: "weight", label: "Gewichtsmanagement" }
-    ]
+    id: "height",
+    icon: Ruler,
+    question: "Wie groß bist du?",
+    subtitle: "In Zentimetern",
+    type: "number",
+    placeholder: "z.B. 175",
+    unit: "cm"
   },
   {
-    id: "activity_level",
-    icon: Activity,
-    question: "Wie aktiv bist du?",
-    subtitle: "Dein durchschnittliches Aktivitätslevel",
-    type: "select",
-    options: [
-      { value: "sedentary", label: "Wenig aktiv (Bürojob)" },
-      { value: "light", label: "Leicht aktiv (1-2x/Woche)" },
-      { value: "moderate", label: "Moderat aktiv (3-4x/Woche)" },
-      { value: "very_active", label: "Sehr aktiv (5-6x/Woche)" },
-      { value: "athlete", label: "Athlet (täglich)" }
-    ]
-  },
-  {
-    id: "sleep_quality",
-    icon: Moon,
-    question: "Wie ist deine Schlafqualität?",
-    subtitle: "Durchschnittlich pro Nacht",
-    type: "select",
-    options: [
-      { value: "poor", label: "Schlecht (<5h)" },
-      { value: "fair", label: "Okay (5-6h)" },
-      { value: "good", label: "Gut (7-8h)" },
-      { value: "excellent", label: "Exzellent (8-9h)" }
-    ]
-  },
-  {
-    id: "diet",
-    icon: Utensils,
-    question: "Welche Ernährungsweise verfolgst du?",
-    subtitle: "Für passende Food-Empfehlungen",
-    type: "select",
-    options: [
-      { value: "omnivore", label: "Alles (Omnivor)" },
-      { value: "vegetarian", label: "Vegetarisch" },
-      { value: "vegan", label: "Vegan" },
-      { value: "keto", label: "Keto/Low-Carb" },
-      { value: "paleo", label: "Paleo" }
-    ]
-  },
-  {
-    id: "health_conditions",
-    icon: Heart,
-    question: "Hast du bekannte Gesundheitsprobleme?",
-    subtitle: "Für sichere Empfehlungen",
-    type: "select",
-    options: [
-      { value: "none", label: "Keine" },
-      { value: "diabetes", label: "Diabetes" },
-      { value: "hypertension", label: "Bluthochdruck" },
-      { value: "thyroid", label: "Schilddrüsenprobleme" },
-      { value: "other", label: "Andere" }
-    ]
+    id: "weight",
+    icon: Weight,
+    question: "Wie viel wiegst du?",
+    subtitle: "In Kilogramm",
+    type: "number",
+    placeholder: "z.B. 75",
+    unit: "kg"
   }
 ];
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [inputValue, setInputValue] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -119,42 +66,73 @@ export default function Onboarding() {
     };
 
     setAnswers(newAnswers);
+    setError(null);
 
-    // Auto-advance or finish
+    // Auto-advance
     if (step < questions.length - 1) {
-      setTimeout(() => setStep(step + 1), 300);
+      setTimeout(() => {
+        setStep(step + 1);
+        setInputValue("");
+      }, 300);
     } else {
-      // Last question - save to Supabase
+      // Last question - save
+      await saveProfile(newAnswers);
+    }
+  };
+
+  const handleNumberSubmit = async () => {
+    const numValue = parseInt(inputValue);
+
+    if (!inputValue || numValue <= 0) {
+      setError("Bitte gib einen gültigen Wert ein");
+      return;
+    }
+
+    const newAnswers = {
+      ...answers,
+      [currentQuestion.id]: numValue
+    };
+
+    setAnswers(newAnswers);
+    setError(null);
+
+    if (step < questions.length - 1) {
+      setStep(step + 1);
+      setInputValue("");
+    } else {
       await saveProfile(newAnswers);
     }
   };
 
   const saveProfile = async (data) => {
+    if (!user) {
+      setError("Nicht eingeloggt. Bitte melde dich an.");
+      return;
+    }
+
     setSaving(true);
+    setError(null);
 
     try {
-      // Update user profile in Supabase
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
           gender: data.gender,
-          age_range: data.age,
-          goal: data.goal,
-          activity_level: data.activity_level,
-          sleep_quality: data.sleep_quality,
-          diet: data.diet,
-          health_conditions: data.health_conditions,
-          onboarding_completed: true
+          age: data.age,
+          height: data.height,
+          weight: data.weight,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString()
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      // Navigate to upload
+      // Success - navigate to upload
       navigate('/upload');
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      alert('Fehler beim Speichern. Bitte versuche es erneut.');
+    } catch (err) {
+      console.error('Error saving profile:', err);
+      setError(err.message || 'Fehler beim Speichern. Bitte versuche es erneut.');
     } finally {
       setSaving(false);
     }
@@ -163,6 +141,7 @@ export default function Onboarding() {
   const handleBack = () => {
     if (step > 0) {
       setStep(step - 1);
+      setError(null);
     }
   };
 
@@ -215,38 +194,72 @@ export default function Onboarding() {
               </p>
             </div>
 
-            <div className="space-y-3">
-              {currentQuestion.options.map((option) => {
-                const isSelected = currentAnswer === option.value;
+            {currentQuestion.type === "select" ? (
+              <div className="space-y-3">
+                {currentQuestion.options.map((option) => {
+                  const isSelected = currentAnswer === option.value;
 
-                return (
-                  <motion.button
-                    key={option.value}
-                    onClick={() => handleSelect(option.value)}
-                    disabled={saving}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                        ? "bg-[#B7323F20] border-[#B7323F] text-white"
-                        : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
-                      } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? "border-[#B7323F] bg-[#B7323F]" : "border-[#666666]"
-                        }`}>
-                        {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="w-2 h-2 rounded-full bg-white"
-                          />
-                        )}
+                  return (
+                    <motion.button
+                      key={option.value}
+                      onClick={() => handleSelect(option.value)}
+                      disabled={saving}
+                      whileTap={{ scale: 0.98 }}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all ${isSelected
+                          ? "bg-[#B7323F20] border-[#B7323F] text-white"
+                          : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
+                        } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? "border-[#B7323F] bg-[#B7323F]" : "border-[#666666]"
+                          }`}>
+                          {isSelected && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="w-2 h-2 rounded-full bg-white"
+                            />
+                          )}
+                        </div>
+                        <span className="font-medium">{option.label}</span>
                       </div>
-                      <span className="font-medium">{option.label}</span>
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleNumberSubmit()}
+                    placeholder={currentQuestion.placeholder}
+                    className="w-full px-6 py-4 bg-[#111111] border-2 border-[#1A1A1A] rounded-xl text-white text-lg focus:border-[#B7323F] focus:outline-none transition-colors"
+                    disabled={saving}
+                  />
+                  {currentQuestion.unit && (
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-500">
+                      {currentQuestion.unit}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={handleNumberSubmit}
+                  disabled={!inputValue || saving}
+                  className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white py-4 text-lg rounded-xl disabled:opacity-50 transition-colors"
+                >
+                  {step === questions.length - 1 ? 'Abschließen' : 'Weiter'}
+                </button>
+              </div>
+            )}
+
+            {error && (
+              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <p className="text-red-500 text-sm text-center">{error}</p>
+              </div>
+            )}
 
             {saving && (
               <div className="mt-6 text-center">
@@ -262,14 +275,13 @@ export default function Onboarding() {
       <div className="p-6 border-t border-[#1A1A1A]">
         <div className="flex gap-4 max-w-md mx-auto">
           {step > 0 && !saving && (
-            <Button
-              variant="outline"
+            <button
               onClick={handleBack}
-              className="flex-1 bg-[#1A1A1A] border-[#333333] text-white hover:bg-[#222222]"
+              className="flex-1 bg-[#1A1A1A] border-2 border-[#333333] text-white hover:bg-[#222222] py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
+              <ChevronLeft className="w-4 h-4" />
               Zurück
-            </Button>
+            </button>
           )}
         </div>
       </div>
