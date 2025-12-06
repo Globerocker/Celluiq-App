@@ -99,41 +99,46 @@ export default function Dashboard() {
                     // Foods logic (if populated same way)
                     if (marker.status === 'low' && ref.too_low_foods) {
                         try {
-                            const f = typeof ref.too_low_foods === 'string' ? JSON.parse(ref.too_low_foods) : ref.too_low_foods;
-                            foods.push(...f);
-                        } catch (e) { }
+                            const fds = typeof ref.too_low_foods === 'string'
+                                ? JSON.parse(ref.too_low_foods)
+                                : ref.too_low_foods;
+                            foods.push(...fds);
+                        } catch (e) {
+                            console.error("Error parsing low foods", e);
+                        }
                     }
                 }
             }
 
-            // Deduplicate items by name
-            const uniqueSupps = Array.from(new Set(supplements.map(a => a.name)))
-                .map(name => {
-                    return supplements.find(a => a.name === name);
-                });
+            // Deduplicate
+            const uniqueSupps = Array.from(new Set(supplements.map(s => s.name)))
+                .map(name => supplements.find(s => s.name === name));
 
-            const uniqueFoods = Array.from(new Set(foods.map(a => a ? a : ''))) // simplistic
-                .filter(Boolean)
-                .map(name => ({ name: name, benefits: "Empfohlen für deine Werte" })); // Foods are just strings in CSV import
+            const uniqueFoods = Array.from(new Set(foods.map(f => f.name)))
+                .map(name => foods.find(f => f.name === name));
 
             setRecommendations({
-                supplements: uniqueSupps.slice(0, 5),
-                foods: uniqueFoods.slice(0, 5)
+                supplements: uniqueSupps,
+                foods: uniqueFoods
             });
+
         } catch (error) {
-            console.error('Error generating recommendations:', error);
+            console.error("Error generating recs", error);
         }
     };
 
     const calculateHealthScore = () => {
-        if (!bloodWork.length || !bloodWork[0].analysis_json) return 0;
+        if (!bloodWork || bloodWork.length === 0) return 0;
+        // Simple mock score, replace with real algorithm later
+        const latest = bloodWork[0];
+        if (!latest.analysis_json) return 0;
 
-        const markers = bloodWork[0].analysis_json;
-        const optimal = markers.filter(m => m.status === 'optimal').length;
-        const total = markers.length;
+        const total = latest.analysis_json.length;
+        const optimal = latest.analysis_json.filter(m => m.status === 'optimal').length;
 
-        return Math.round((optimal / total) * 100);
+        return Math.round((optimal / total) * 100) || 0;
     };
+
 
     if (loading) {
         return (
@@ -195,8 +200,6 @@ export default function Dashboard() {
                         </div>
                     </div>
                 )}
-
-                {/* Main Content Grid */}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* LEFT COLUMN - BIOMARKERS (PRIORITY) */}
@@ -380,5 +383,6 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
-            );
+        </div>
+    );
 }
