@@ -40,9 +40,9 @@ const AuthRoute = ({ children }) => {
     );
   }
 
-  // If logged in, redirect to dashboard
+  // If logged in, redirect to onboarding (they'll be redirected to dashboard if already completed)
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/onboarding" replace />;
   }
 
   return children;
