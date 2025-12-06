@@ -1,37 +1,96 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Activity, TrendingUp, Sparkles } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function Analyzing() {
     const [progress, setProgress] = useState(0);
     const [currentStep, setCurrentStep] = useState(0);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const steps = [
         "Blutbild wird hochgeladen...",
-        "Biomarker werden extrahiert...",
+        "Biomarker werden extrahiert (AI Analysis)...",
         "Vergleich mit Referenzwerten...",
         "Personalisierte Empfehlungen werden erstellt...",
         "Fast fertig..."
     ];
 
     useEffect(() => {
-        // Simulate analysis progress
-        const interval = setInterval(() => {
-            setProgress(prev => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    // Navigate to dashboard after completion
-                    setTimeout(() => navigate('/dashboard'), 500);
-                    return 100;
-                }
-                return prev + 2;
-            });
-        }, 100);
+        const analyzeBloodWork = async () => {
+            // 1. Check for file from Onboarding
+            const filePath = location.state?.filePath;
 
-        return () => clearInterval(interval);
-    }, [navigate]);
+            if (!filePath) {
+                console.warn("No file path provided, falling back to simulation");
+                // Simulation fallback
+                const interval = setInterval(() => {
+                    setProgress(prev => {
+                        if (prev >= 100) {
+                            clearInterval(interval);
+                            setTimeout(() => navigate('/dashboard'), 500);
+                            return 100;
+                        }
+                        return prev + 2;
+                    });
+                }, 100);
+                return () => clearInterval(interval);
+            }
+
+            try {
+                // Real Analysis Flow
+                setProgress(10);
+                setCurrentStep(1); // Extracting
+
+                // 2. Create Signed URL for the Edge Function to download
+                const { data: signData, error: signError } = await supabase
+                    .storage
+                    .from('blood-work')
+                    .createSignedUrl(filePath, 300); // 5 mins valid
+
+                if (signError) throw signError;
+
+                setProgress(30);
+
+                // 3. Call Edge Function (Gemini)
+                console.log("Invoking Analysis Function...");
+                const { data: analysisResult, error: funcError } = await supabase.functions.invoke('analyze-blood-work', {
+                    body: { fileUrl: signData.signedUrl }
+                });
+
+                if (funcError) throw funcError;
+
+                console.log("Analysis Result:", analysisResult);
+                setProgress(70);
+                setCurrentStep(2); // Comparing
+
+                // 4. Save results (if not saved by function)
+                // The function already saves to DB, but we might want to update local state or user context logic if needed.
+                // For now, assume DB is updated correctly.
+
+                await new Promise(r => setTimeout(r, 1000)); // smooth user experience
+                setProgress(90);
+                setCurrentStep(3); // Recommendations
+
+                await new Promise(r => setTimeout(r, 1000));
+                setProgress(100);
+                setCurrentStep(4);
+
+                setTimeout(() => navigate('/dashboard'), 500);
+
+            } catch (err) {
+                console.error("Analysis Failed:", err);
+                // Fallback: navigate anyway so user isn't stuck, but maybe show error toast?
+                // For MVP: log and go to dashboard
+                alert("Analyse fehlgeschlagen (Fehler: " + err.message + "). Wir leiten dich trotzdem weiter.");
+                navigate('/dashboard');
+            }
+        };
+
+        analyzeBloodWork();
+    }, [navigate, location]);
 
     useEffect(() => {
         // Update step based on progress

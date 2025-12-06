@@ -45,5 +45,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Celluiq requires access to your health data to visualize your daily steps and calories.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Celluiq requires access to your health data to visualize your daily steps and calories.</string>
 </dict>
 </plist>

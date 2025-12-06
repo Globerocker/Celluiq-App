@@ -9,8 +9,9 @@ import json
 from supabase import create_client, Client
 
 # Supabase Configuration
+# Supabase Configuration
 SUPABASE_URL = "https://evutidxtftmvvfmnnngk.supabase.co"
-SUPABASE_KEY = "YOUR_SERVICE_ROLE_KEY_HERE"  # Replace with your service_role key
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2dXRpZHh0ZnRtdnZmbW5ubmdrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTAwNjE0MCwiZXhwIjoyMDgwNTgyMTQwfQ.-AYDWJisK7Iy_91q2N-1-nxFJjzGvw8dqRuECWL75vE"  # Service Role Key
 
 # Initialize Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)

@@ -56,9 +56,15 @@ export const AuthProvider = ({ children }) => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
+  const resetPassword = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`,
+    });
+    if (error) throw error;
+  };
 
   return (
-    <AuthContext.Provider value={{ session, user, signInWithGoogle, signIn, signUp, signOut, loading }}>
+    <AuthContext.Provider value={{ session, user, signInWithGoogle, signIn, signUp, signOut, resetPassword, loading }}>
       {children}
     </AuthContext.Provider>
   );

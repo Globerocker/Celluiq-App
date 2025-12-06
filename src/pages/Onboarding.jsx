@@ -94,7 +94,7 @@ export default function Onboarding() {
       // For now we just proceed to analysis
 
       // Update profile to mark onboarding as barely complete (or do it after analysis)
-      await handleFinishOnboarding();
+      await handleFinishOnboarding(fileName);
 
     } catch (err) {
       console.error('Upload error:', err);
@@ -103,7 +103,7 @@ export default function Onboarding() {
     }
   };
 
-  const handleFinishOnboarding = async () => {
+  const handleFinishOnboarding = async (fileName) => {
     try {
       // Create initial empty blood work record or just mark profile
       // We'll mark onboarding as true later in the analysis step if we want, 
@@ -124,8 +124,8 @@ export default function Onboarding() {
 
       if (updateError) throw updateError;
 
-      // Navigate to analysis simulation
-      navigate('/analyzing');
+      // Navigate to analysis simulation with file path
+      navigate('/analyzing', { state: { filePath: fileName } });
     } catch (err) {
       console.error('Error saving profile:', err);
       setError(err.message);
@@ -141,6 +141,21 @@ export default function Onboarding() {
 
     setAnswers(newAnswers);
     setError(null);
+
+    // Intermediate Save for Profile Data
+    // We save basic profile data as we go or at least before upload step
+    if (['gender', 'age', 'height', 'weight'].includes(currentQuestion.id)) {
+      try {
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          [currentQuestion.id]: value,
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error("Intermediate save error", err);
+        // Non-blocking, just log
+      }
+    }
 
     // Auto-advance
     if (step < questions.length - 1) {
@@ -167,9 +182,39 @@ export default function Onboarding() {
     setAnswers(newAnswers);
     setError(null);
 
+    // Intermediate Save
+    if (['gender', 'age', 'height', 'weight'].includes(currentQuestion.id)) {
+      try {
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          [currentQuestion.id]: numValue,
+          updated_at: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error("Intermediate save error", err);
+      }
+    }
+
     if (step < questions.length - 1) {
       setStep(step + 1);
       setInputValue("");
+    }
+  };
+
+  const handleSkipUpload = async () => {
+    // Mark onboarding as complete even without file
+    try {
+      // Ensure all answers are saved
+      await supabase.from('profiles').update({
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+        ...answers
+      }).eq('id', user.id);
+
+      navigate('/dashboard');
+    } catch (e) {
+      console.error("Error skipping", e);
+      setError("Fehler beim Speichern. Bitte versuche es erneut.");
     }
   };
 
@@ -193,8 +238,8 @@ export default function Onboarding() {
             <div
               key={idx}
               className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${idx < step ? "bg-[#3B7C9E]" :
-                  idx === step ? "bg-[#B7323F]" :
-                    "bg-[#1A1A1A]"
+                idx === step ? "bg-[#B7323F]" :
+                  "bg-[#1A1A1A]"
                 }`}
             />
           ))}
@@ -243,8 +288,8 @@ export default function Onboarding() {
                       disabled={saving}
                       whileTap={{ scale: 0.98 }}
                       className={`w-full p-4 rounded-xl border-2 text-left transition-all ${isSelected
-                          ? "bg-[#B7323F20] border-[#B7323F] text-white"
-                          : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
+                        ? "bg-[#B7323F20] border-[#B7323F] text-white"
+                        : "bg-[#111111] border-[#1A1A1A] text-[#808080] hover:border-[#333333] hover:text-white"
                         } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <div className="flex items-center gap-3">
@@ -314,6 +359,21 @@ export default function Onboarding() {
                     </div>
                   </div>
                 </div>
+
+                <div className="flex flex-col gap-3 mt-4">
+                  <Button
+                    onClick={handleSkipUpload}
+                    variant="ghost"
+                    className="text-gray-400 hover:text-white"
+                  >
+                    Ich habe kein Blutbild (Überspringen)
+                  </Button>
+                  {/* Manual Entry could be a separate flow or just skip and go to dashboard where manual entry is available */}
+                  <div className="text-center text-xs text-gray-600">
+                    Du kannst später manuell Werte eintragen.
+                  </div>
+                </div>
+
                 <p className="text-xs text-center text-gray-600">
                   Deine Daten werden sicher verschlüsselt übertragen.
                 </p>

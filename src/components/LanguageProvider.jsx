@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const LanguageContext = createContext();
+const LanguageContext = createContext(null);
 
 export const translations = {
   en: {
@@ -8,6 +8,30 @@ export const translations = {
     settings: "Settings",
     profile: "Profile",
     home: "Home",
+
+    // Auth
+    signInWithGoogle: "Continue with Google",
+    signInWithEmail: "Sign in with Email",
+    welcomeBack: "Welcome Back",
+    createAccount: "Create Account",
+    enterCredentials: "Enter your credentials to access your dashboard",
+    joinCelluiq: "Join Celluiq to optimize your health",
+    emailAddress: "Email Address",
+    password: "Password",
+    forgotPassword: "Forgot Password?",
+    signIn: "Sign In",
+    signUp: "Sign Up",
+    sendResetLink: "Send Reset Link",
+    dontHaveAccount: "Don't have an account? ",
+    alreadyHaveAccount: "Already have an account? ",
+    checkYourEmail: "Check Your Email",
+    resetLinkSent: "We have sent a password reset link to",
+    returnToLogin: "Return to Login",
+    terms: "Terms",
+    policy: "Policy",
+    byContinuing: "By continuing, you agree to our",
+    resetPassword: "Reset Password",
+    enterEmailReset: "Enter your email to receive a reset link",
 
     // Home Page
     yourCelluiqScore: "YOUR CELLUIQ SCORE",
@@ -241,6 +265,30 @@ export const translations = {
     profile: "Profil",
     home: "Startseite",
 
+    // Auth
+    signInWithGoogle: "Weiter mit Google",
+    signInWithEmail: "Mit E-Mail anmelden",
+    welcomeBack: "Willkommen zurück",
+    createAccount: "Konto erstellen",
+    enterCredentials: "Gib deine Anmeldedaten ein, um auf dein Dashboard zuzugreifen",
+    joinCelluiq: "Werde Teil von Celluiq und optimiere deine Gesundheit",
+    emailAddress: "E-Mail-Adresse",
+    password: "Passwort",
+    forgotPassword: "Passwort vergessen?",
+    signIn: "Anmelden",
+    signUp: "Registrieren",
+    sendResetLink: "Link senden",
+    dontHaveAccount: "Noch kein Konto? ",
+    alreadyHaveAccount: "Bereits ein Konto? ",
+    checkYourEmail: "Prüfe deine E-Mails",
+    resetLinkSent: "Wir haben einen Link zum Zurücksetzen gesendet an",
+    returnToLogin: "Zurück zur Anmeldung",
+    terms: "AGB",
+    policy: "Datenschutz",
+    byContinuing: "Mit der Fortsetzung akzeptierst du unsere",
+    resetPassword: "Passwort zurücksetzen",
+    enterEmailReset: "Gib deine E-Mail ein, um einen Link zum Zurücksetzen zu erhalten",
+
     // Home Page
     yourCelluiqScore: "DEIN CELLUIQ SCORE",
     outstandingProgress: "Hervorragender Fortschritt diese Woche. Deine Biomarker tendieren zu optimalen Bereichen.",
@@ -473,6 +521,30 @@ export const translations = {
     settings: "Configuración",
     profile: "Perfil",
     home: "Inicio",
+
+    // Auth
+    signInWithGoogle: "Continuar con Google",
+    signInWithEmail: "Iniciar sesión con Email",
+    welcomeBack: "Bienvenido de nuevo",
+    createAccount: "Crear Cuenta",
+    enterCredentials: "Introduce tus credenciales para acceder a tu panel",
+    joinCelluiq: "Únete a Celluiq para optimizar tu salud",
+    emailAddress: "Dirección de Correo",
+    password: "Contraseña",
+    forgotPassword: "¿Olvidaste tu contraseña?",
+    signIn: "Iniciar sesión",
+    signUp: "Registrarse",
+    sendResetLink: "Enviar enlace de recuperación",
+    dontHaveAccount: "¿No tienes una cuenta? ",
+    alreadyHaveAccount: "¿Ya tienes una cuenta? ",
+    checkYourEmail: "Revisa tu correo",
+    resetLinkSent: "Hemos enviado un enlace de recuperación a",
+    returnToLogin: "Volver al inicio de sesión",
+    terms: "Términos",
+    policy: "Política",
+    byContinuing: "Al continuar, aceptas nuestros",
+    resetPassword: "Restablecer contraseña",
+    enterEmailReset: "Introduce tu correo para recibir un enlace de restablecimiento",
 
     // Home Page
     yourCelluiqScore: "TU PUNTUACIÓN CELLUIQ",

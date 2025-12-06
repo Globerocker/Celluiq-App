@@ -13,6 +13,7 @@ import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
 import Analyzing from './pages/Analyzing';
 import Dashboard from './pages/Dashboard';
+import UpdatePassword from './pages/UpdatePassword';
 import PageNotFound from './lib/PageNotFound';
 
 const ProtectedRoute = ({ children }) => {
@@ -112,6 +113,12 @@ function App() {
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/update-password" element={
+                  <ProtectedRoute>
+                    <UpdatePassword />
                   </ProtectedRoute>
                 } />
 
