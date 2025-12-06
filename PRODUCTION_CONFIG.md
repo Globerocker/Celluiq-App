@@ -9,6 +9,29 @@ Damit im Login-Fenster "Celluiq" statt der Supabase-URL steht.
 2. Wähle dein Projekt.
 3. **OAuth consent screen** > **Edit App**:
    - **App name**: `Celluiq`
+### 4. Branding & Google Auth URL (Wichtig!)
+Damit im Google Login-Fenster "Weiter zu **celluiq.com**" statt "supabase.co" steht, gibt es zwei Möglichkeiten:
+
+**Option A: Supabase Custom Domain (Empfohlen für Profis, Kostenpflichtig)**
+- Benötigt Supabase Pro Plan ($25/mo) + Custom Domain Addon ($10/mo).
+- Einrichtung unter **Settings > Custom Domain**.
+- Du erstellst z.B. `auth.celluiq.com`.
+- **Das ist der einzige Weg, die Supabase-URL komplett zu verstecken.**
+
+**Option B: Google Cloud Consent Screen (Kostenlos)**
+- Stelle sicher, dass im Google Cloud Console unter "Branding" der App Name "CELLUIQ" ist.
+- Füge `supabase.co` als authorized domain hinzu (manchmal nötig).
+- **Hinweis:** Oft zeigt Google trotzdem die technische URL (supabase.co), weil der Auth-Server dort läuft. Das ist technisch korrekt und sicherheitstechnisch normal für Serverless Apps ohne Custom Auth Domain.
+
+---
+
+## E. Troubleshooting
+
+### 404 Fehler auf Vercel beim Reload
+Wenn du auf `/onboarding` oder `/dashboard` einen 404 Fehler bekommst:
+- Das liegt daran, dass Vercel die Unterseiten nicht kennt (Single Page App).
+- Ich habe eine `vercel.json` Datei hinzugefügt, die das behebt.
+- **Lösung:** Warte auf den neuen Deploy (ca. 2-3 Minuten) und lade die Seite neu (cmd+R).
    - **App logo**: Dein Logo hochladen (baut Vertrauen auf).
    - **User support email**: Deine Email.
    - **Authorized domains**: `celluiq.com` hinzufügen.
