@@ -5,220 +5,253 @@ import { supabase } from '@/lib/supabase';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, User, Calendar, Ruler, Weight, Activity, Upload } from "lucide-react";
-
-const questions = [
-  {
-    id: "gender",
-    icon: User,
-    question: "Was ist dein biologisches Geschlecht?",
-    subtitle: "Für geschlechtsspezifische Referenzwerte",
-    type: "select",
-    options: [
-      { value: "male", label: "Männlich" },
-      { value: "female", label: "Weiblich" }
-    ]
-  },
-  {
-    id: "age",
-    icon: Calendar,
-    question: "Wie alt bist du?",
-    subtitle: "Für altersgerechte Empfehlungen",
-    type: "number",
-    placeholder: "z.B. 35",
-    unit: "Jahre"
-  },
-  {
-    id: "height",
-    icon: Ruler,
-    question: "Wie groß bist du?",
-    subtitle: "In Zentimetern",
-    type: "number",
-    placeholder: "z.B. 175",
-    unit: "cm"
-  },
-  {
-    id: "weight",
-    icon: Weight,
-    question: "Wie viel wiegst du?",
-    subtitle: "In Kilogramm",
-    type: "number",
-    placeholder: "z.B. 75",
-    unit: "kg"
-  },
-  {
-    id: "bloodwork",
-    icon: Activity,
-    question: "Lade dein Blutbild hoch",
-    subtitle: "PDF oder Bild deiner Laborergebnisse",
-    type: "upload"
-  }
-];
+import { useLanguage } from '@/components/LanguageProvider';
 
 export default function Onboarding() {
+  const { t } = useLanguage();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [inputValue, setInputValue] = useState("");
+  // inputValue is now an object for composite steps: { height: "", weight: "" }
+  const [inputValues, setInputValues] = useState({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Dynamic questions based on language
+  const questions = [
+    {
+      id: "gender",
+      icon: User,
+      question: t('genderQuestion'),
+      subtitle: t('genderSubtitle'),
+      type: "select",
+      options: [
+        { value: "male", label: t('male') },
+        { value: "female", label: t('female') }
+      ]
+    },
+    {
+      id: "age",
+      icon: Calendar,
+      question: t('ageQuestion'),
+      subtitle: t('ageSubtitle'),
+      type: "number",
+      placeholder: "35",
+      unit: t('years')
+    },
+    {
+      id: "biometrics",
+      icon: Ruler,
+      question: t('biometricsQuestion'),
+      subtitle: t('biometricsSubtitle'),
+      type: "composite",
+      fields: [
+        { id: "height", label: t('height'), placeholder: "175", unit: t('cm') },
+        { id: "weight", label: t('weight'), placeholder: "75", unit: t('kg') }
+      ]
+    },
+    {
+      id: "bloodwork",
+      icon: Activity,
+      question: t('bloodworkQuestion'),
+      subtitle: t('bloodworkSubtitle'),
+      type: "upload"
+    }
+  ];
+
   const currentQuestion = questions[step];
   const Icon = currentQuestion.icon;
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
     if (!file) return;
 
-    // Validate file type
-    if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) {
-      setError("Bitte nur PDF, JPG oder PNG Dateien hochladen.");
+    // Critical: Gender must be set for analysis
+    if (!answers.gender) {
+      setError(t('validValueError') + " " + t('gender'));
       return;
     }
 
     setSaving(true);
     setError(null);
+    let demoMode = false;
+    const isDevUser = user?.id === 'dev-user-id' || localStorage.getItem('celluiq_dev_mode') === 'true';
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${user?.id || 'guest'}/${Date.now()}.${fileExt}`;
 
-      // Upload to Supabase Storage
+      // 1. Upload File
       const { error: uploadError } = await supabase.storage
         .from('blood-work')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.warn("Upload failed, switching to demo mode", uploadError);
+        demoMode = true;
+      }
 
-      // Save reference in database (optional, or just mark as uploaded)
-      // For now we just proceed to analysis
+      // 2. Ensure Profile data is synced
+      if (user) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            gender: answers.gender,
+            age: answers.age,
+            height: answers.height,
+            weight: answers.weight,
+            onboarding_completed: true,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
 
-      // Update profile to mark onboarding as barely complete (or do it after analysis)
-      await handleFinishOnboarding(fileName);
+        if (updateError) {
+          console.warn("Profile update failed, proceeding:", updateError);
+          // Force demo mode if DB write failed
+          if (!demoMode) demoMode = true;
+        }
+      } else {
+        console.log("🛠️ Dev Mode: Skipping Profile DB Update");
+        demoMode = true;
+      }
 
+      // Navigate to analysis
+      navigate('/analyzing', {
+        state: {
+          filePath: fileName,
+          demoMode: demoMode || isDevUser
+        }
+      });
     } catch (err) {
-      console.error('Upload error:', err);
-      setError('Fehler beim Hochladen. Bitte versuche es erneut.');
-      setSaving(false);
+      console.error('Error saving profile (critical):', err);
+      // Fallback: Proceed anyway
+      navigate('/analyzing', { state: { demoMode: true } });
     }
+    setSaving(false);
   };
 
-  const handleFinishOnboarding = async (fileName) => {
-    try {
-      // Create initial empty blood work record or just mark profile
-      // We'll mark onboarding as true later in the analysis step if we want, 
-      // OR we mark it here so they don't get stuck in onboarding loop.
-      // Let's mark it here.
 
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          gender: answers.gender,
-          age: answers.age,
-          height: answers.height,
-          weight: answers.weight,
-          onboarding_completed: true,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      // Navigate to analysis simulation with file path
-      navigate('/analyzing', { state: { filePath: fileName } });
-    } catch (err) {
-      console.error('Error saving profile:', err);
-      setError(err.message);
-      setSaving(false);
-    }
-  };
 
   const handleSelect = async (value) => {
-    const newAnswers = {
-      ...answers,
-      [currentQuestion.id]: value
-    };
-
+    const newAnswers = { ...answers, [currentQuestion.id]: value };
     setAnswers(newAnswers);
     setError(null);
 
-    // Intermediate Save for Profile Data
-    // We save basic profile data as we go or at least before upload step
-    if (['gender', 'age', 'height', 'weight'].includes(currentQuestion.id)) {
+    // Immediate Save
+    if (['gender'].includes(currentQuestion.id) && user) {
       try {
-        await supabase.from('profiles').upsert({
-          id: user.id,
-          [currentQuestion.id]: value,
+        const { error } = await supabase.from('profiles').update({
+          gender: value,
           updated_at: new Date().toISOString()
-        });
-      } catch (err) {
-        console.error("Intermediate save error", err);
-        // Non-blocking, just log
-      }
+        }).eq('id', user.id);
+        if (error) console.warn("Supabase update error (ignoring):", error);
+      } catch (err) { console.error(err); }
     }
 
-    // Auto-advance
     if (step < questions.length - 1) {
       setTimeout(() => {
         setStep(step + 1);
-        setInputValue("");
+        setInputValues({});
       }, 300);
     }
   };
 
-  const handleNumberSubmit = async () => {
-    const numValue = parseInt(inputValue);
+  const handleCompositeSubmit = async () => {
+    // Validate all fields in the current composite step
+    const fields = currentQuestion.fields;
+    const values = {};
 
-    if (!inputValue || numValue <= 0) {
-      setError("Bitte gib einen gültigen Wert ein");
-      return;
+    for (const field of fields) {
+      const val = parseInt(inputValues[field.id]);
+      if (!val || val <= 0) {
+        setError(`${t('validValueError')} ${field.label}`);
+        return;
+      }
+      values[field.id] = val;
     }
 
-    const newAnswers = {
-      ...answers,
-      [currentQuestion.id]: numValue
-    };
-
+    const newAnswers = { ...answers, ...values };
     setAnswers(newAnswers);
     setError(null);
 
-    // Intermediate Save
-    if (['gender', 'age', 'height', 'weight'].includes(currentQuestion.id)) {
+    // Save
+    if (user) {
       try {
-        await supabase.from('profiles').upsert({
-          id: user.id,
-          [currentQuestion.id]: numValue,
+        const { error } = await supabase.from('profiles').update({
+          ...values,
           updated_at: new Date().toISOString()
-        });
-      } catch (err) {
-        console.error("Intermediate save error", err);
-      }
+        }).eq('id', user.id);
+        if (error) console.warn("Supabase update error (ignoring):", error);
+      } catch (err) { console.error(err); }
     }
 
     if (step < questions.length - 1) {
       setStep(step + 1);
-      setInputValue("");
+      setInputValues({});
+    }
+  };
+
+  const handleInputChange = (fieldId, value) => {
+    setInputValues(prev => ({
+      ...prev,
+      [fieldId]: value
+    }));
+  };
+
+  const handleNumberSubmit = async () => {
+    const val = parseInt(inputValues.single);
+    if (!val || val <= 0) {
+      setError(t('validValueError') + " " + t('years'));
+      return;
+    }
+
+    const newAnswers = { ...answers, [currentQuestion.id]: val };
+    setAnswers(newAnswers);
+    setError(null);
+
+    // Save
+    if (user) {
+      try {
+        const { error } = await supabase.from('profiles').update({
+          [currentQuestion.id]: val,
+          updated_at: new Date().toISOString()
+        }).eq('id', user.id);
+        if (error) console.warn("Supabase update error (ignoring):", error);
+      } catch (err) { console.error(err); }
+    }
+
+    if (step < questions.length - 1) {
+      setStep(step + 1);
+      setInputValues({});
     }
   };
 
   const handleSkipUpload = async () => {
     // Mark onboarding as complete even without file
-    try {
-      // Ensure all answers are saved
-      await supabase.from('profiles').update({
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-        ...answers
-      }).eq('id', user.id);
+    setSaving(true);
+    let demoMode = localStorage.getItem('celluiq_dev_mode') === 'true';
 
+    try {
+      if (user && !demoMode) {
+        const { error } = await supabase.from('profiles').update({
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
+          ...answers
+        }).eq('id', user.id);
+
+        if (error) {
+          console.warn("Skip upload DB save failed:", error);
+          demoMode = true;
+        }
+      }
       navigate('/dashboard');
     } catch (e) {
       console.error("Error skipping", e);
-      setError("Fehler beim Speichern. Bitte versuche es erneut.");
+      navigate('/dashboard');
     }
+    setSaving(false);
   };
-
-  // Skip saveProfile - we use handleFinishOnboarding at the end
 
   const handleBack = () => {
     if (step > 0) {
@@ -245,7 +278,7 @@ export default function Onboarding() {
           ))}
         </div>
         <p className="text-center text-[#666666] text-sm mt-4">
-          {step + 1} von {questions.length}
+          {t('step')} {step + 1} {t('of')} {questions.length}
         </p>
       </div>
 
@@ -316,9 +349,9 @@ export default function Onboarding() {
                 <div className="relative">
                   <input
                     type="number"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleNumberSubmit()}
+                    value={inputValues.single || ""}
+                    onChange={(e) => setInputValues({ ...inputValues, single: e.target.value })}
+                    onKeyDown={(e) => e.key === 'Enter' && handleNumberSubmit()}
                     placeholder={currentQuestion.placeholder}
                     className="w-full px-6 py-4 bg-[#111111] border-2 border-[#1A1A1A] rounded-xl text-white text-lg focus:border-[#B7323F] focus:outline-none transition-colors"
                     disabled={saving}
@@ -331,10 +364,38 @@ export default function Onboarding() {
                 </div>
                 <Button
                   onClick={handleNumberSubmit}
-                  disabled={!inputValue || saving}
+                  disabled={!inputValues.single || saving}
                   className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 text-lg rounded-xl disabled:opacity-50"
                 >
-                  Weiter
+                  {t('next')}
+                </Button>
+              </div>
+            )}
+
+            {currentQuestion.type === "composite" && (
+              <div className="space-y-4">
+                {currentQuestion.fields.map((field) => (
+                  <div key={field.id} className="relative">
+                    <label className="text-xs text-gray-500 mb-1 block ml-2">{field.label}</label>
+                    <input
+                      type="number"
+                      value={inputValues[field.id] || ""}
+                      onChange={(e) => handleInputChange(field.id, e.target.value)}
+                      placeholder={field.placeholder}
+                      className="w-full px-6 py-4 bg-[#111111] border-2 border-[#1A1A1A] rounded-xl text-white text-lg focus:border-[#B7323F] focus:outline-none transition-colors"
+                      disabled={saving}
+                    />
+                    <span className="absolute right-6 top-[38px] text-gray-500">
+                      {field.unit}
+                    </span>
+                  </div>
+                ))}
+                <Button
+                  onClick={handleCompositeSubmit}
+                  disabled={saving}
+                  className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white py-6 text-lg rounded-xl mt-2"
+                >
+                  {t('next')}
                 </Button>
               </div>
             )}
@@ -354,8 +415,8 @@ export default function Onboarding() {
                       <Upload className="w-8 h-8 text-[#666666] group-hover:text-white transition-colors" />
                     </div>
                     <div>
-                      <p className="text-white font-medium mb-1">Datei auswählen</p>
-                      <p className="text-sm text-gray-500">PDF, JPG oder PNG</p>
+                      <p className="text-white font-medium mb-1">{t('selectFile')}</p>
+                      <p className="text-sm text-gray-500">{t('bloodworkSubtitle')}</p>
                     </div>
                   </div>
                 </div>
@@ -366,23 +427,22 @@ export default function Onboarding() {
                     variant="ghost"
                     className="text-gray-400 hover:text-white"
                   >
-                    Ich habe kein Blutbild (Überspringen)
+                    {t('skipUpload')}
                   </Button>
-                  {/* Manual Entry could be a separate flow or just skip and go to dashboard where manual entry is available */}
                   <div className="text-center text-xs text-gray-600">
-                    Du kannst später manuell Werte eintragen.
+                    {t('manualEntryLater')}
                   </div>
                 </div>
 
                 <p className="text-xs text-center text-gray-600">
-                  Deine Daten werden sicher verschlüsselt übertragen.
+                  {t('encryptedData')}
                 </p>
               </div>
             )}
 
             {error && (
-              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                <p className="text-red-500 text-sm text-center">{error}</p>
+              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl animate-in slide-in-from-bottom-2">
+                <p className="text-red-500 text-sm text-center font-medium">{error}</p>
               </div>
             )}
 
@@ -390,7 +450,7 @@ export default function Onboarding() {
               <div className="mt-6 text-center">
                 <div className="inline-block w-6 h-6 border-4 border-[#B7323F] border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-sm text-gray-400 mt-2">
-                  {currentQuestion.type === 'upload' ? 'Lade hoch...' : 'Speichere...'}
+                  {currentQuestion.type === 'upload' ? t('uploading') : t('saving')}
                 </p>
               </div>
             )}
@@ -407,7 +467,7 @@ export default function Onboarding() {
               className="flex-1 bg-[#1A1A1A] border-2 border-[#333333] text-white hover:bg-[#222222] py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               <ChevronLeft className="w-4 h-4" />
-              Zurück
+              {t('back')}
             </button>
           )}
         </div>

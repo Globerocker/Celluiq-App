@@ -14,12 +14,14 @@ import {
 export default function Auth() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [authMode, setAuthMode] = useState('welcome'); // welcome, email-login, email-signup, forgot-password
+    const [authMode, setAuthMode] = useState('intro'); // Start with new Intro/Hook mode
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [resetSent, setResetSent] = useState(false);
     const { signInWithGoogle, signIn, signUp, resetPassword } = useAuth();
     const { t, language, setLanguage } = useLanguage();
+
+    // ... (handlers remain same)
 
     const handleGoogleAuth = async () => {
         setLoading(true);
@@ -56,7 +58,7 @@ export default function Auth() {
     };
 
     const resetForm = () => {
-        setAuthMode('welcome');
+        setAuthMode('welcome'); // Go back to main menu, not intro
         setError(null);
         setEmail('');
         setPassword('');
@@ -64,6 +66,7 @@ export default function Auth() {
     };
 
     if (resetSent) {
+        // ... (reset password success view, unchanged)
         return (
             <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4">
                 <div className="w-full max-w-md bg-[#111111]/80 backdrop-blur-xl border border-white/5 p-8 rounded-3xl shadow-2xl text-center">
@@ -93,7 +96,7 @@ export default function Auth() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#1a1a1a] rounded-full mix-blend-screen filter blur-[120px] opacity-30"></div>
             </div>
 
-            {/* Language Switcher - Absolute Top Right */}
+            {/* Language Switcher */}
             <div className="absolute top-6 right-6 z-50">
                 <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center gap-2 px-3 py-2 bg-[#111111]/80 backdrop-blur-xl border border-white/10 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-[#1A1A1A] transition-colors focus:outline-none">
@@ -116,23 +119,78 @@ export default function Auth() {
 
             <div className="w-full max-w-md relative z-10">
                 <AnimatePresence mode="wait">
-                    {authMode === 'welcome' && (
+
+                    {/* NEW: Intro Hook Mode */}
+                    {authMode === 'intro' && (
                         <motion.div
-                            key="welcome"
+                            key="intro"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.4 }}
+                            className="text-center"
+                        >
+                            <div className="mb-12 relative">
+                                <motion.div
+                                    initial={{ scale: 0.5, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ duration: 0.5, delay: 0.2 }}
+                                    className="w-24 h-24 bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-[#B7323F40]"
+                                >
+                                    <Activity className="w-12 h-12 text-white" />
+                                </motion.div>
+                                <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
+                                    Optimiere deine <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#B7323F] to-[#ff4d4d]">
+                                        Zellgesundheit
+                                    </span>
+                                </h1>
+                                <p className="text-gray-400 text-lg max-w-[90%] mx-auto leading-relaxed">
+                                    Beantworte ein paar Fragen, lade dein Blutbild hoch und erhalte sofort deine personalisierte Auswertung.
+                                </p>
+                            </div>
+
+                            <motion.button
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                onClick={() => setAuthMode('welcome')}
+                                className="w-full p-5 bg-white text-black text-lg font-bold rounded-2xl hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl"
+                            >
+                                Jetzt starten
+                            </motion.button>
+
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                className="mt-6 text-sm text-gray-500"
+                            >
+                                Kostenlos & Sicher
+                            </motion.p>
+                        </motion.div>
+                    )}
+
+                    {authMode === 'welcome' && (
+                        <motion.div
+                            key="welcome"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.3 }}
                             className="bg-[#111111]/80 backdrop-blur-xl border border-white/5 p-8 rounded-3xl shadow-2xl"
                         >
-                            {/* Brand Header */}
-                            <div className="text-center mb-10">
-                                <div className="w-16 h-16 bg-gradient-to-br from-[#B7323F] to-[#8B1F2F] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#B7323F30]">
-                                    <Activity className="w-8 h-8 text-white" />
-                                </div>
-                                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">CELLUIQ</h1>
+                            <button
+                                onClick={() => setAuthMode('intro')}
+                                className="absolute top-6 left-6 text-gray-400 hover:text-white transition-colors"
+                            >
+                                <ChevronRight className="w-6 h-6 rotate-180" />
+                            </button>
+
+                            <div className="text-center mb-10 pt-4">
+                                <h2 className="text-2xl font-bold text-white mb-2">Anmelden</h2>
                                 <p className="text-gray-400 text-sm">
-                                    Next Generation Health Intelligence
+                                    Wähle eine Methode um fortzufahren
                                 </p>
                             </div>
 
@@ -161,7 +219,6 @@ export default function Auth() {
                                     <span>{t('signInWithEmail')}</span>
                                 </button>
                             </div>
-
                             <div className="mt-8 text-center">
                                 <p className="text-xs text-gray-500">
                                     {t('byContinuing')} <span className="underline cursor-pointer hover:text-gray-300">{t('terms')}</span> & <span className="underline cursor-pointer hover:text-gray-300">{t('policy')}</span>

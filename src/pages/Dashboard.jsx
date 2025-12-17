@@ -17,6 +17,9 @@ export default function Dashboard() {
     const [recommendations, setRecommendations] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // FEATURE FLAG: Lead Magnet
+    const isPremium = false; // Set to true to unlock full dashboard
+
     useEffect(() => {
         if (user) {
             loadData();
@@ -322,28 +325,54 @@ export default function Dashboard() {
                         {recommendations ? (
                             <div className="space-y-6 sticky top-8">
                                 {/* Supplement Recommendations */}
-                                <div className="p-6 rounded-2xl bg-[#111111] border border-[#222222]">
+                                <div className="p-6 rounded-2xl bg-[#111111] border border-[#222222] relative overflow-hidden">
                                     <div className="flex items-center gap-3 mb-4">
                                         <div className="w-12 h-12 rounded-xl bg-[#B7323F20] flex items-center justify-center">
                                             <Pill className="w-6 h-6 text-[#B7323F]" />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold">Supplements</h3>
-                                            <p className="text-sm text-gray-400">Für dich optimiert</p>
+                                            <h3 className="text-xl font-bold">Top Supplements</h3>
+                                            <p className="text-sm text-gray-400">Basierend auf deinem Blutbild</p>
                                         </div>
+                                        {!isPremium && (
+                                            <span className="ml-auto px-2 py-1 bg-yellow-500/10 text-yellow-500 text-xs font-bold uppercase rounded border border-yellow-500/20">
+                                                Free Preview
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="space-y-3">
-                                        {recommendations.supplements.slice(0, 5).map((supp, idx) => (
-                                            <div key={idx} className="p-4 bg-[#0A0A0A] rounded-xl">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-white text-sm">{supp.name}</h4>
-                                                        <p className="text-xs text-gray-400 mt-1">{supp.dosage_recommendation}</p>
-                                                    </div>
+                                        {recommendations.supplements.slice(0, isPremium ? undefined : 3).map((supp, idx) => (
+                                            <div key={idx} className="p-4 bg-[#0A0A0A] rounded-xl flex items-start justify-between">
+                                                <div className="flex-1">
+                                                    <h4 className="font-semibold text-white text-sm">{supp.name}</h4>
+                                                    <p className="text-xs text-gray-400 mt-1">{supp.dosage_recommendation}</p>
                                                 </div>
                                             </div>
                                         ))}
+
+                                        {/* Lead Magnet Blur / Paywall */}
+                                        {!isPremium && recommendations.supplements.length > 3 && (
+                                            <div className="relative mt-2">
+                                                {/* Blurred items to suggest more content */}
+                                                <div className="space-y-3 blur-sm select-none opacity-50 pointer-events-none">
+                                                    <div className="p-4 bg-[#0A0A0A] rounded-xl"><div className="w-1/2 h-4 bg-gray-700 rounded mb-2"></div><div className="w-3/4 h-3 bg-gray-800 rounded"></div></div>
+                                                    <div className="p-4 bg-[#0A0A0A] rounded-xl"><div className="w-1/3 h-4 bg-gray-700 rounded mb-2"></div><div className="w-2/3 h-3 bg-gray-800 rounded"></div></div>
+                                                </div>
+
+                                                {/* CTA Overlay */}
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="bg-[#1A1A1A]/90 backdrop-blur-md border border-[#B7323F]/30 p-6 rounded-xl text-center shadow-2xl max-w-[90%]">
+                                                        <Award className="w-8 h-8 text-[#B7323F] mx-auto mb-2" />
+                                                        <h4 className="text-white font-bold mb-1">Schalte alle Empfehlungen frei</h4>
+                                                        <p className="text-xs text-gray-400 mb-4">Erhalte Zugriff auf deinen vollständigen Supplement-Plan.</p>
+                                                        <Button className="w-full bg-[#B7323F] hover:bg-[#9A2835] text-white text-sm h-9">
+                                                            Jetzt freischalten
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

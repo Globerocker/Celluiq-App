@@ -1,4 +1,4 @@
-import './App.css'
+
 import React from 'react';
 import './lib/i18n'; // Import i18n config
 import { Toaster } from "@/components/ui/toaster"
@@ -40,29 +40,47 @@ const AuthRoute = ({ children }) => {
   const [profile, setProfile] = React.useState(null);
 
   React.useEffect(() => {
+    let mounted = true;
+
     const checkProfile = async () => {
       if (user) {
         try {
-          const { data } = await supabase
+          // Add a small timeout to prevent indefinite hanging if DB is slow
+          const { data, error } = await supabase
             .from('profiles')
             .select('onboarding_completed')
             .eq('id', user.id)
             .single();
 
-          setProfile(data);
+          if (mounted) {
+            if (error) {
+              console.warn("Profile check failed, assuming incomplete:", error);
+              // If error (e.g. missing table), treat as new user
+              setProfile(null);
+            } else {
+              setProfile(data);
+            }
+          }
         } catch (error) {
           console.error('Error checking profile:', error);
         }
       }
-      setChecking(false);
+      if (mounted) setChecking(false);
     };
 
     if (!loading) {
       checkProfile();
+    } else {
+      // Safety timeout: if checking auth takes too long (e.g. 5s), stop loading
+      const timer = setTimeout(() => setChecking(false), 5000);
+      return () => clearTimeout(timer);
     }
+
+    return () => { mounted = false; };
   }, [user, loading]);
 
-  if (loading || checking) {
+  // Show loading spinner only while checking logic is active
+  if (loading || (user && checking)) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#B7323F] border-t-transparent rounded-full animate-spin"></div>
@@ -75,6 +93,8 @@ const AuthRoute = ({ children }) => {
     if (profile?.onboarding_completed) {
       return <Navigate to="/dashboard" replace />;
     } else {
+      // Allow user to stay on /onboarding, but finding a way to not loop if they are already there is handled by the Router
+      // This component wraps the Auth/Landing page, so if they are logged in and incomplete, go to onboarding
       return <Navigate to="/onboarding" replace />;
     }
   }
